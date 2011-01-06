@@ -1,0 +1,39 @@
+module mobl::server::socket
+
+external type Client {
+  id : Num
+  sync function send(msg : String) : void
+}
+
+<javascript>
+var sockio = require('socket.io');
+global.socket = sockio.listen(global.app);
+global.socketListeners = {connect: [], message: [], disconnect: []};
+global.clientId = 0;
+
+global.socket.on('connection', function(client) {
+  global.clientId++;
+  var wrappedClient = {
+    id: global.clientId,
+    send: function(msg) {
+      client.send(JSON.stringify(msg));
+    }
+  };
+  var listeners = global.socketListeners.connect;
+  for(var i = 0; i < listeners.length; i++) {
+    listeners[i](wrappedClient);
+  }
+  client.on('message', function(msg) {
+    var listeners = global.socketListeners.message;
+    for(var i = 0; i < listeners.length; i++) {
+      listeners[i](wrappedClient, JSON.parse(msg));
+    }
+  });
+  client.on('disconnect', function() {
+    var listeners = global.socketListeners.disconnect;
+    for(var i = 0; i < listeners.length; i++) {
+      listeners[i](wrappedClient);
+    }
+  });
+});
+</javascript>

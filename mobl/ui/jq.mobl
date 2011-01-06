@@ -1,0 +1,225 @@
+module mobl::ui::jq
+
+load "http://code.jquery.com/mobile/1.0a1/jquery.mobile-1.0a1.min.css"
+
+external type Theme : String {
+  static sync function dark() : Theme
+  static sync function blue() : Theme
+  static sync function gray() : Theme
+  static sync function darkGray() : Theme
+  static sync function yellow() : Theme
+}
+
+<javascript>
+mobl.ui.jq.Theme = {
+  dark: function() { return "a"; },
+  blue: function() { return "b"; },
+  gray: function() { return "c"; },
+  darkGray: function() { return "d"; },
+  yellow: function() { return "e"; }
+};
+</javascript>
+
+external type Icon : String {
+  static sync function arrowLeft() : Icon
+  static sync function arrowRight() : Icon
+  static sync function arrowUp() : Icon
+  static sync function arrowDown() : Icon
+  static sync function remove() : Icon
+  static sync function plus() : Icon
+  static sync function minus() : Icon
+  static sync function check() : Icon
+  static sync function gear() : Icon
+  static sync function refresh() : Icon
+  static sync function forward() : Icon
+  static sync function back() : Icon
+  static sync function grid() : Icon
+  static sync function star() : Icon
+  static sync function alert() : Icon
+  static sync function info() : Icon
+}
+
+<javascript>
+mobl.ui.jq.Icon = {
+  arrowLeft: function() { return "arrow-l"; },
+  arrowRight: function() { return "arrow-r"; },
+  arrowUp: function() { return "arrow-u"; },
+  arrowDown: function() { return "arrow-d"; },
+  remove: function() { return "delete"; },
+  plus: function() { return "plus"; },
+  minus: function() { return "check"; },
+  check: function() { return "check"; },
+  gear: function() { return "gear"; },
+  refresh: function() { return "refresh"; },
+  forward: function() { return "forward"; },
+  back: function() { return "back"; },
+  grid: function() { return "grid"; },
+  star: function() { return "star"; },
+  alert: function() { return "alert"; },
+  info: function() { return "info"; }
+};
+</javascript>
+
+control header(title : String, theme : Theme = Theme.blue()) {
+  <div class="ui-bar-" + theme + " ui-header">
+    <h1 class="ui-title" databind=title/>
+    elements()
+  </div>
+}
+
+control backButton(s : String = "Back", theme : Theme = Theme.blue(), onclick : Callback = { screen return; }) {
+  <span class="ui-btn-left ui-btn ui-btn-icon-left ui-btn-corner-all ui-shadow ui-btn-hover-" + theme + " ui-btn-down-" + theme onclick=onclick>
+    <span class="ui-btn-inner ui-btn-corner-all">
+      <span class="ui-icon ui-icon-arrow-l ui-icon-shadow"></span>
+      <span class="ui-btn-text" databind=s/>
+    </span>
+  </span>
+}
+
+control button(s : String, icon : Icon = null, theme : Theme = Theme.blue(), onclick : Callback = null) {
+  <span class="ui-btn ui-btn-inline ui-btn-corner-all ui-shadow ui-btn-down-" + theme + " ui-btn-hover-" + theme + " " + (icon != null ? "ui-btn-icon-left" : "") onclick=onclick>
+    when(icon != null) {
+      <span class="ui-icon ui-icon-" + icon + " ui-icon-shadow"></span>
+    }
+    <span class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text" databind=s/></span>
+  </span>
+}
+
+// Lists
+control group() {
+  <ul class="ui-listview">
+    elements()
+  </ul>
+}
+
+control itemArrow(theme : Theme = Theme.gray(), onclick : Callback = null) {
+  <li class="ui-li ui-btn ui-btn-icon-right ui-btn-up-" + theme onclick=onclick>
+    <div class="ui-btn-inner"><span class="ui-icon ui-icon-arrow-r"></span>
+      <div class="ui-btn-text">
+      elements()
+      </div>
+    </div>
+  </li>
+}
+
+control item(theme : Theme = Theme.gray(), onclick : Callback = null) {
+  <li class="ui-li ui-btn ui-btn-icon-right ui-btn-up-" + theme onclick=onclick>
+    <div class="ui-btn-inner">
+      <div class="ui-btn-text">
+      elements()
+      </div>
+    </div>
+  </li>
+}
+
+control itemGroup(theme : Theme = Theme.blue()) {
+  <li data-role="list-divider" role="heading" tabindex="0" class="ui-li ui-li-divider ui-btn ui-bar-" + theme>
+  elements()
+  </li>
+}
+
+control itemHead(s : String) {
+  <h3 class="ui-li-heading" databind=s/>
+}
+
+control itemDescription() {
+  <p class="ui-li-desc">
+  elements()
+  </p>
+}
+
+control itemThumbnail(url : String) {
+  <img src=url class="ui-li-thumb"/>
+}
+
+control itemAside() {
+  <p class="ui-li-aside ui-li-desc">
+  elements()
+  </p>
+}
+
+control itemNumber(n : Num) {
+  <span class="ui-li-count ui-btn-up-c ui-btn-corner-all" databind=n/>
+}
+
+control content() {
+  <div class="ui-content">
+    elements()
+  </div>
+}
+
+control controlGroup(horizontal : Bool = false) {
+  <div class="ui-corner-all " + (horizontal ? "ui-controlgroup-horizontal" : "ui-controlgroup ui-controlgroup-vertical")>
+  elements()
+  </div>
+}
+
+control checkItem(b : Bool, label : String, theme : Theme = Theme.blue()) {
+  <div class="ui-radio" onclick={
+    b = !b;
+  }>
+  <span class="ui-btn ui-controlgroup-last " + (b ? "ui-btn-up-"+theme : "ui-btn-up-c")>
+  <span class="ui-btn-inner"><span class="ui-btn-text" databind=label/></span></span></div>
+}
+
+control checkBoxItem(b : Bool, label : String, theme : Theme = Theme.blue()) {
+  <div class="ui-checkbox" onclick={
+    b = !b;
+  }>
+    <span class="ui-btn ui-btn-icon-left " + (b ? "ui-btn-up-" + theme : "ui-btn-up-c") + " ui-controlgroup-last">
+    <span class="ui-btn-inner"><span class="ui-icon ui-icon-ui-icon-checkbox-off ui-icon-checkbox-" + (b ? "on" : "off")></span>
+    <span class="ui-btn-text" databind=label/>
+    </span></span>
+  </div>
+}
+
+control textField(s : String, label : String = "") {
+  <div class="ui-field-contain ui-body ui-br">
+    <span class="ui-input-text" databind=label/>
+    <input type="text" databind=s class="ui-input-text ui-body-c ui-corner-all ui-shadow-inset"/>
+  </div>
+}
+
+control textArea(s : String, label : String = "") {
+  <div data-role="fieldcontain" class="ui-field-contain ui-body ui-br">
+    <span class="ui-input-text" databind=label/>
+    <textarea cols="40" rows="8" databind=s class="ui-input-text ui-body-c ui-corner-all ui-shadow-inset" style="height: 6em;"/>
+  </div>
+}
+
+// Tables
+
+@doc "Renders a table, use row { } rows and cell { } for cells"
+control table() {
+  <table>elements()</table>
+}
+
+control row() {
+  <tr>elements()</tr>
+}
+
+control cell(width : String = null) {
+  <td width=width>elements()</td>
+}
+
+control col(width : String = null) {
+  <td width=width>elements()</td>
+}
+
+control headerCol(width : String = null) {
+  <td width=width><strong>elements()</strong></td>
+}
+
+<javascript>
+jQuery.fn.tap = function (callback) {
+  if(mobl.isIphone() || mobl.isAndroid() || mobl.isIpad()) {
+    new NoClickDelay(this[0], callback);
+  } else {
+    this.click(callback);
+  }
+};
+
+mobl.postCallHooks.push(function(node) {
+   node.addClass("ui-page ui-body-c ui-page-active");
+});
+</javascript>

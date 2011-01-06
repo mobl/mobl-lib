@@ -1,0 +1,1028 @@
+module mobl
+
+// Runtime Javascript files to be copied to www/
+load js/gears_init.js
+load js/jquery-1.4.min.js
+load js/jquery-ui-1.7.2.custom.min.js
+load js/mobl.boot.js
+load js/gestures.js
+load js/iscroll.js
+
+// These will automatically be loaded
+resource js/persistence.js
+resource js/persistence.store.sql.js
+resource js/persistence.store.websql.js
+resource js/persistence.store.memory.js
+resource js/persistence.search.js
+
+// Images
+resource mobl/loading.gif
+resource img/default-icon.png
+
+/**
+ * Built-in types
+ */
+@doc "A value representing nothing"
+external type void {}
+
+@doc "String type"
+@persistable
+external type String : Object {
+  length : Num
+// functions with variable nr of arguments:
+// concat()    Joins two or more strings, and returns a copy of the joined strings
+// fromCharCode()  Converts Unicode values to characters
+  sync function charAt(index : Num) : String
+  sync function charCodeAt(index : Num) : Num
+  sync function indexOf(searchstring : String, start : Num = 0) : Num
+  sync function lastIndexOf(searchstring : String, start : Num = 0) : Num
+  sync function match(regexp : RegExp) : Array<String>
+  sync function replace(regexp : RegExp, newstring : String) : String
+  sync function replace(substr : String, newstring : String) : String
+  sync function search(regexp : RegExp) : Num
+  sync function slice(start : Num, end : Num) : String
+  sync function split(separator : String, limit : Num = 1000) : Array<String>
+  sync function substr(start : Num, length : Num) : String
+  sync function substring(from : Num, to : Num) : String
+  sync function toLowerCase() : String
+  sync function toUpperCase() : String
+}
+
+@doc "Numeric type, represents both integers and floating point numbers"
+@persistable
+external type Num : Object { }
+
+@persistable
+external type Bool : Object { }
+
+external type Dynamic : Object { }
+
+external type Style : String { }
+
+@doc "RegExp type"
+external type RegExp : Object {
+    global : Bool
+    ignoreCase : Bool
+    lastIndex : Num
+    multiline : Bool
+    source : String
+    sync function compile(regexp : RegExp) : void
+    sync function compile(regexp : RegExp, modifier : String) : void
+    sync function exec(string : String) : String
+    sync function test(string : String) : Bool
+}
+
+external type Array<T> {
+  length : Num
+  sync function get(n : Num) : T
+  sync function push(item : T) : void
+  sync function join(sep : String) : String
+  function one() : T
+  sync function map(fn : Function1<T, Dynamic>) : [Dynamic]
+  sync function filter(fn : Function1<T, Bool>) : [T]
+  sync function contains(el : T) : Bool
+  sync function splice(idx : Num, numToDelete : Num) : Array<T>
+  sync function insert(idx : Num, item : T) : void
+  sync function remove(item : T) : void
+}
+
+external type Map<K, V> {
+  sync function get(k : K) : V
+  sync function set(k : K, v : V) : void
+  sync function keys() : [K]
+}
+
+external type Tuple1<T1> {
+  _1 : T1
+}
+
+external type Tuple2<T1, T2> {
+  _1 : T1
+  _2 : T2
+}
+
+external type Tuple3<T1, T2, T3> {
+  _1 : T1
+  _2 : T2
+  _3 : T3
+}
+
+external type Tuple4<T1, T2, T3, T4> {
+  _1 : T1
+  _2 : T2
+  _3 : T3
+  _4 : T4
+}
+
+external type Control {}
+external type Control1<T1> { }
+external type Control2<T1, T2> { }
+external type Control3<T1, T2, T3> { }
+external type Control4<T1, T2, T3, T4> { }
+external type Control5<T1, T2, T3, T4, T5> { }
+
+external type Callback {}
+external type Function0<RT> { }
+external type Function1<T1, RT> { }
+external type Function2<T1, T2, RT> { }
+external type Function3<T1, T2, T3, RT> { }
+external type Function4<T1, T2, T3, T4, RT> { }
+external type Function5<T1, T2, T3, T4, T5, RT> { }
+
+@persistable
+external type Text : Object { }
+
+@persistable
+external type DateTime {
+  static sync function parse(s : String) : DateTime
+  static sync function fromTimestamp(timestamp : Num) : DateTime
+  static sync function create(year : Num, month : Num, day : Num, hour : Num = 0, minute : Num = 0, second : Num = 0, ms : Num = 0) : DateTime
+
+  sync function getFullYear() : Num
+  sync function getMonth() : Num
+
+  sync function getHours() : Num
+  sync function getMinutes() : Num
+  sync function getSeconds() : Num
+  sync function getMilliseconds() : Num
+
+  @doc "Day of the week, starting at 0 (= Sunday)"
+  sync function getDay() : Num
+
+  @doc "Day of the month, starting at 0"
+  sync function getDate() : Num
+
+  sync function setFullYear(y : Num) : Num
+  sync function setMonth(m : Num) : Num
+
+  @doc "Day of the month"
+  sync function setDate(d : Num) : Num
+
+  sync function toString() : String
+  sync function toDateString() : String
+
+  sync function getTime() : Num
+}
+
+external function sleep(ms : Num) : void
+external sync function repeat(ms : Num, fn : Callback) : void
+
+external type Math {
+  static sync function round(n : Num) : Num
+  static sync function floor(n : Num) : Num
+  static sync function ceil(n : Num) : Num
+  static sync function abs(n : Num) : Num
+  static sync function acos(n : Num) : Num
+  static sync function asin(n : Num) : Num
+  static sync function atan(n : Num) : Num
+  static sync function atan2(n : Num, n2 : Num) : Num
+  static sync function cos(n : Num) : Num
+  static sync function exp(n : Num) : Num
+  static sync function log(n : Num) : Num
+  static sync function pow(n1 : Num, n2 : Num) : Num
+  static sync function random() : Num
+  static sync function sin(n : Num) : Num
+  static sync function sqrt(n : Num) : Num
+  static sync function tan(n : Num) : Num
+  static sync function max(n1: Num, n2 : Num) : Num
+  static sync function pi() : Num
+}
+
+external type JSON : Dynamic {
+  static sync function parse(s : String) : Dynamic
+  static sync function stringify(obj : Object) : String
+}
+
+external sync function now() : DateTime
+external sync function parseNum(s : String) : Num
+
+external type Object {
+  sync function toString() : String
+}
+
+@doc "A virtual queryable collection"
+@persistable
+external type Collection<T> {
+  @doc "Return one item in the collection, or null if the collection is empty"
+  function one() : T
+
+  @doc "Prefetch a reference property"
+  sync function prefetch(property : String) : Collection<T>
+
+  @doc "Filter the collection on a property based on an operator `op` (options: '=', '<', '>', '<=', '>=' or '!=') and a value"
+  sync function filter(property : String, op : String, value : Object) : Collection<T>
+
+  @doc "Order the collection based on a property in ascending (ascending = true) or descending (ascending = false) order"
+  sync function order(property : String, ascending : Bool) : Collection<T>
+
+  @doc "Reverse the order of the items"
+  sync function reverse() : Collection<T>
+
+  @doc "Deletes all the items in the collection"
+  function destroyAll() : void
+
+  @doc "Count the number of items in the collection"
+  function count() : Num
+
+  @doc "Calculate the collection and return it as an array"
+  function list() : Array<T>
+
+  sync function limit(n : Num) : Collection<T>
+  sync function skip(n : Num) : Collection<T>
+  sync function add(item : T) : void
+  sync function remove(item : T) : void
+  sync function updated() : void
+}
+
+external type Entity<T> {
+  id : String
+
+  @doc "A virtual collection containing all instances of this entity"
+  static sync function all() : Collection<T>
+  static function load(id : String) : T
+  static function findBy(property : String, value : String) : T
+  static sync function search(query : String) : Collection<T>
+  static sync function searchPrefix(query : String) : Collection<T>
+  static function fromSelectJSON(json : JSON) : T
+
+  function fetch(rel : String) : T
+}
+
+external type Type<T> {
+
+}
+
+external sync function log(o : Object) : void
+external sync function alert(o : Object) : void
+
+external sync function add(e : Object) : void
+external sync function remove(e : Object) : void
+external function resetDatabase() : void
+external function flushDatabase() : void
+external sync function reload() : void
+external sync function formatDate(d : DateTime) : String
+external sync function openUrl(url : String) : void
+external sync function range(from : Num, to : Num) : Array<Num>
+external sync function random(max : Num) : Num
+
+// Device checks
+
+external sync function isIphone() : Bool
+external sync function isIpad() : Bool
+external sync function isAndroid() : Bool
+external sync function isLandscape() : Bool
+external sync function isPortrait() : Bool
+
+<javascript>
+mobl.isIphone = function() { return !!navigator.userAgent.match(/iPhone/i) || !!navigator.userAgent.match(/iPod/i); };
+mobl.isIpad = function() { return !!navigator.userAgent.match(/iPad/i); };
+mobl.isAndroid = function() { return !!navigator.userAgent.match(/Android/i); };
+mobl.isLandscape = function() { return window.innerHeight < window.innerWidth; };
+mobl.isPortrait = function() { return window.innerHeight >= window.innerWidth; };
+</javascript>
+
+external type JQuery { //: Dynamic {
+  length : Num
+  sync function fadeIn(fn : Callback = null) : JQuery
+  sync function fadeOut(fn : Callback = null) : JQuery
+  sync function slideUp(fn : Callback = null) : JQuery
+  sync function slideDown(fn : Callback = null) : JQuery
+  sync function slideToggle(fn : Callback = null) : JQuery
+  sync function eq(idx : Num) : JQuery
+  sync function find(selector : String) : JQuery
+  sync function parent() : JQuery
+  sync function parents(selector : String) : JQuery
+  sync function hide() : JQuery
+  sync function show() : JQuery
+  sync function toggle() : JQuery
+  sync function detach() : JQuery
+
+  sync function addClass(cssClass : String) : JQuery
+  sync function hasClass(cssClass : String) : Bool
+  sync function css(name : String, val : String) : JQuery
+  sync function html() : String
+  sync function val() : String
+  sync function is(what : String) : Bool
+
+  sync function bind(eventName : String, fn : Callback) : JQuery
+  sync function unbind(eventName : String, fn : Callback) : JQuery
+
+  sync function replaceWith(coll : JQuery) : JQuery
+  sync function append(coll : JQuery) : JQuery
+  sync function prepend(coll : JQuery) : JQuery
+  sync function remove() : JQuery
+  sync function position() : JQueryPosition
+  sync function offset() : JQueryPosition
+
+  sync function innerWidth() : Num
+  sync function innerHeight() : Num
+  sync function outerWidth() : Num
+  sync function outerHeight() : Num
+  sync function scrollTop() : Num
+}
+
+external type JQueryPosition {
+  top  : Num
+  left : Num
+}
+
+external sync function $(sel : String) : JQuery
+
+// Controls
+@doc "Injects given HTML directly into the screen"
+external control html(html : String)
+
+control label(s : Object, onclick : Callback = null) {
+  <span databind=s onclick=onclick></span>
+}
+
+control link(url : String, target : String = "_blank") {
+  <a href=url target=target>
+  elements()
+  </a>
+}
+
+control screenContext() {
+  <div class="screenContext">
+    <div class="initialElements">
+      elements()
+    </div>
+  </div>
+}
+
+<javascript>
+var argspec = persistence.argspec;
+
+mobl.$ = jQuery;
+
+mobl.sleep = function(time, callback) {
+  setTimeout(callback, time);
+};
+
+mobl.repeat = function(time, callback) {
+  setInterval(callback, time);
+};
+
+mobl.alert = function(s, _, callback) {
+    alert(s);
+    if(callback) callback();
+};
+mobl.log = function(s, _, callback) {
+    console.log(s);
+    if(callback) callback();
+};
+
+__ns.parseNum = function(s) {
+  return parseInt(s, 10);
+};
+
+mobl.add = function(e, _, callback) {
+    /*persistence.add(e);
+    var allEnt = persistence.define(e._type).all(); // NOTE: define() is a hack!
+    allEnt.triggerEvent('add', allEnt, e);
+    allEnt.triggerEvent('change', allEnt, e);*/
+    var allEnt = persistence.define(e._type).all(); // NOTE: define() is a hack!
+    allEnt.add(e);
+    if(callback) callback();
+};
+
+mobl.now = function() {
+  return new Date();
+};
+
+mobl.remove = function(e, _, callback) {
+    persistence.remove(e);
+    var allEnt = persistence.define(e._type).all();
+    allEnt.triggerEvent('remove', allEnt, e);
+    allEnt.triggerEvent('change', allEnt, e);
+    if(callback) callback();
+};
+
+mobl.flushDatabase = function(callback) {
+  persistence.flush(callback);
+};
+
+mobl.resetDatabase = function(callback) {
+    persistence.reset(function() {
+      persistence.schemaSync(callback);
+    });
+};
+
+mobl.reload = function() {
+  persistence.flush(function() {
+    window.location.reload();
+  });
+};
+
+mobl.openUrl = function(url) {
+  location = url;
+};
+
+mobl.random = function(max) {
+  return Math.round(Math.random()*max);
+};
+
+persistence.QueryCollection.prototype.updates = function() {
+  this.triggerEvent('change', this);
+};
+
+// Date stuff
+
+mobl.DateTime = {
+  parse: function(s) {
+    return new Date(Date.parse(s));
+  },
+  fromTimestamp: function(timestamp) {
+    return new Date(timestamp);
+  },
+  create: function(year, month, day, hour, minute, second, ms) {
+    return new Date(year, month, day, hour, minute, second, ms);
+  }
+};
+
+Date.prototype.toDateString = function() {
+  return "" + (this.getMonth()+1) + "/" + this.getDate() + "/" + this.getFullYear();
+};
+
+mobl.Math = Math;
+mobl.Math.pi = function() { return Math.PI; };
+
+mobl.JSON = JSON;
+
+mobl.formatDate = function(date) {
+  var diff = (((new Date()).getTime() - date.getTime()) / 1000);
+  var day_diff = Math.floor(diff / 86400);
+  if ( isNaN(day_diff) || day_diff < 0 || day_diff >= 31 )
+    return;
+
+  return day_diff === 0 && (
+      diff < 60 && "just now" ||
+      diff < 120 && "1 minute ago" ||
+      diff < 3600 && Math.floor( diff / 60 ) + " minutes ago" ||
+      diff < 7200 && "1 hour ago" ||
+      diff < 86400 && Math.floor( diff / 3600 ) + " hours ago") ||
+      day_diff === 1 && "Yesterday" ||
+      day_diff < 7 && day_diff + " days ago" ||
+      day_diff < 31 && Math.ceil( day_diff / 7 ) + " weeks ago";
+};
+
+mobl.range = function(from, to) {
+  var ar = [];
+  for(var i = from; i < to; i++) {
+    ar.push(i);
+  }
+  return ar;
+};
+
+mobl.html = function(html, elements, callback) {
+  var root192 = $("<span>");
+  var node180 = $("<span >");
+
+  var ref108 = html;
+  node180.html(html.get().toString());
+  var ignore51 = false;
+  ref108.addEventListener('change', function(_, ref, val) {
+    if(ignore51) return;
+    if(ref === ref108) {
+      node180.html(val.toString());
+    }
+  });
+  ref108.rebind();
+  root192.append(node180);
+  callback(root192); return;
+};
+
+persistence.entityDecoratorHooks.push(function(Entity) {
+  Entity.searchPrefix = function(query) {
+    return Entity.search(query, true);
+  };
+});
+
+Array.prototype.list = function(tx, callback) {
+  var args = argspec.getArgs(arguments, [
+    {name: 'tx', optional: true, check: function(obj) { return tx.executeSql; } },
+    {name: 'callback', optional: false, check: argspec.isCallback() }
+  ]);
+  tx = args.tx;
+  callback = args.callback;
+
+  var valueCopy = [];
+  for(var i = 0; i < this.length; i++) {
+    valueCopy[i] = this[i];
+  }
+  callback(valueCopy);
+};
+
+Array.prototype.insert = function(idx, item) {
+  this.splice(idx, 0, item);
+};
+
+Array.prototype.get = function(idx) {
+  return this[idx];
+};
+
+Array.prototype.one = function(callback) {
+  if(this.length === 0) {
+    callback(null);
+  } else {
+    callback(this[0]);
+  }
+};
+
+Array.prototype.contains = function(el) {
+  for(var i = 0; i < this.length; i++) {
+    if(this[i] === el) {
+      return true;
+    }
+  }
+  return false;
+};
+
+Array.prototype.remove = function(el) {
+  for(var i = 0; i < this.length; i++) {
+    if(this[i] === el) {
+      this.splice(i, 1);
+      return;
+    }
+  }
+};
+
+Array.prototype.addEventListener = function() {};
+
+mobl.dummyMapper = function(data, callback) {
+  callback(data);
+};
+
+mobl.Map = function() {
+  this.data = {};
+};
+
+mobl.Map.prototype.set = function(k, v) {
+  this.data[k] = v;
+};
+
+mobl.Map.prototype.get = function(k) {
+  return this.data[k];
+};
+
+mobl.Map.prototype.keys = function() {
+  var keys = [];
+  for(var p in this.data) {
+    if(this.data.hasOwnProperty(p)) {
+      keys.push(p);
+    }
+  }
+  return keys;
+};
+
+mobl.screenStack = [];
+mobl.innerHeight = false;
+setTimeout(function() {
+    if(mobl.isAndroid) {
+        mobl.innerHeight = window.innerHeight;
+    }
+}, 200);
+
+
+function updateScrollers () {
+    var scrollwrappers = $("div#scrollwrapper");
+    if (scrollwrappers.length > 0) {
+        var height = mobl.innerHeight ? mobl.innerHeight : window.innerHeight;
+        height -= $("#footer:visible").height();
+        height -= $("#tabbar:visible").height();
+        scrollwrappers.height(height);
+    }
+    var scrollers = $("div#scrollwrapper div#content");
+    for ( var i = 0; i < scrollers.length; i++) {
+        var scroller = scrollers.eq(i).data("scroller");
+        if(scroller) {
+            scroller.refresh();
+        } else {
+        }
+    }
+}
+
+mobl.delayedUpdateScrollers = function() {
+    setTimeout(updateScrollers, 200);
+};
+
+if(!mobl.isAndroid) {
+    $(window).resize(updateScrollers);
+}
+
+$(function() {
+    // Set flushing at interval
+    setInterval(function() { persistence.flush(); }, 2500);
+});
+
+mobl.postCallHooks = [];
+
+mobl.contextStack = [];
+
+if(mobl.contextStack.length === 0) {
+  mobl.contextStack.push([{
+    screens: [],
+    dom: null
+  }]);
+}
+
+mobl.findDeepestVisibleContext = function() {
+  var idx = mobl.contextStack.length-1;
+  while(idx >= 0) {
+    var top = mobl.contextStack[idx];
+    for(var i = 0; i < top.length; i++) {
+      if(!top[i].dom) { // body
+        top[i].dom = $("body");
+      }
+      if(top[i].dom.is(':visible')) {
+        return top[i];
+      }
+    }
+    idx--;
+  }
+};
+
+mobl.call = function (screenName, args, callback) {
+    var screenFrame = {
+        name: screenName,
+        args: args,
+        callback: callback,
+        div: screenName.replace(/\./g, '__'),
+        dom: null
+    };
+
+    var screenContext = mobl.findDeepestVisibleContext();
+
+    screenContext.screens.push(screenFrame);
+    var callbackFn = function () {
+        // when callback function is called (i.e. screen return)
+        subs.unsubscribe();
+        screenContext.screens.pop();
+        if(screenFrame.dom.find("div.screenContext").length > 0) { // pop context
+          mobl.contextStack.pop();
+        }
+        screenFrame.dom.remove();
+        mobl.delayedUpdateScrollers();
+        if (screenContext.screens.length > 0) {
+            var previousScreen = screenContext.screens[screenContext.screens.length - 1];
+            previousScreen.dom.show();
+            scrollTo(0, previousScreen.pageYOffset);
+        } else {
+          screenContext.initialElements.show();
+        }
+        if (callback) {
+            callback.apply(null, arguments);
+        }
+    };
+    var parts = screenName.split('.');
+    var current = window;
+    for(var i = 0; i < parts.length; i++) {
+        current = current[parts[i]];
+    }
+    var screenTemplate = current;
+
+    var subs = screenTemplate.apply(null, args.concat( [ function (node) {
+        node.attr('id', screenFrame.div);
+        screenFrame.dom = node;
+        if (screenContext.screens.length > 1) {
+            var previousScreen = screenContext.screens[screenContext.screens.length - 2];
+            previousScreen.pageYOffset = window.pageYOffset;
+            previousScreen.dom.hide();
+            node.prependTo(screenContext.dom);
+            scrollTo(0, 0);
+        } else {
+          screenContext.initialElements = screenContext.dom.find("div.initialElements");
+          screenContext.initialElements.hide();
+          node.prependTo(screenContext.dom);
+        }
+        var localScreenContexts = node.find("div.screenContext");
+        if(localScreenContexts.length > 0) {
+          var ar = [];
+          for(var i = 0; i < localScreenContexts.length; i++) {
+            ar.push({
+              screens: [],
+              dom: localScreenContexts.eq(i)
+            });
+          }
+          mobl.contextStack.push(ar);
+        }
+        mobl.postCallHooks.forEach(function(fn) {
+          fn(node);
+        });
+
+        $(function () {
+            var scrollers = $("div#scrollwrapper div#content");
+            var i = 0;
+            if (scrollers.length > 0) {
+                for (i = 0; i < scrollers.length; i++) {
+                    if(!scrollers.eq(i).data("scroller")) {
+                        scrollers.eq(i).data("scroller", new iScroll(scrollers.get(i), 'y'));
+                    }
+                }
+                mobl.delayedUpdateScrollers();
+            }
+        });
+    }, callbackFn ]));
+};
+
+mobl.ref = function(e, property) {
+    return new mobl.Reference(e, property);
+};
+
+function fromScope(that, prop) {
+    if(prop) {
+        return $(that).scope().get(prop);
+    } else {
+        return $(that).scope();
+    }
+}
+
+mobl.stringTomobl__Num = function (s) {
+    return parseFloat(s, 10);
+};
+
+mobl.stringTomobl__String = function (s) {
+    return s;
+};
+
+mobl.conditionalDef = function(oldDef, condFn, newDef) {
+  return function() {
+    if(condFn()) {
+      return newDef.apply(null, arguments);
+    } else {
+      return oldDef.apply(null, arguments);
+    }
+  };
+};
+
+mobl.stringTomobl__DateTime = function(s) {
+    return new Date(s);
+};
+
+mobl.encodeUrlObj = function(obj) {
+  var parts = [];
+  for(var k in obj) {
+    if(obj.hasOwnProperty(k)) {
+      parts.push(encodeURI(k)+"="+encodeURI(obj[k]));
+    }
+  }
+  return "?" + parts.join("&");
+};
+
+function op(operator, e1, e2, callback) {
+    switch(operator) {
+    case '+': callback(e1 + e2); break;
+    case '-': callback(e1 - e2); break;
+    case '*': callback(e1 * e2); break;
+    case '/': callback(e1 / e2); break;
+    case '%': callback(e1 % e2); break;
+    }
+}
+
+mobl.proxyUrl = function(url, user, password) {
+    if(user && password) {
+        return '/proxy.php?user=' + user + '&pwd=' + password + '&proxy_url=' + encodeURIComponent(url);
+    } else {
+        return '/proxy.php?proxy_url=' + encodeURIComponent(url);
+    }
+};
+
+mobl.remoteCollection = function(uri, datatype, processor) {
+  return {
+    addEventListener: function() {},
+    list: function(_, callback) {
+      $.ajax({
+         url: mobl.proxyUrl(uri),
+         datatype: datatype,
+         error: function(_, message, error) {
+           console.log(message);
+           console.log(error);
+           callback([]);
+         },
+         success: function(data) {
+            callback(processor(data));
+         }
+      });
+    }
+  };
+};
+
+mobl.instantiate = function(sup, props) {
+  var obj = {};
+  for(var p in sup) {
+    if(sup.hasOwnProperty(p)) {
+      obj[p] = sup[p];
+    }
+  }
+  for(var p in props) {
+    if(props.hasOwnProperty(p)) {
+      obj[p] = props[p];
+    }
+  }
+  return new mobl.ObservableObject(obj);
+};
+
+mobl.ObservableObject = function(props) {
+  this._data = props;
+  this.subscribers = {};
+  var that = this;
+  for(var property in props) {
+    if(props.hasOwnProperty(property)) {
+      (function() {
+        var p = property;
+        that.__defineGetter__(p, function() {
+          return that._data[p];
+        });
+        that.__defineSetter__(p, function(val) {
+          that._data[p] = val;
+          that.triggerEvent('change', that, p, val);
+        });
+      }());
+    }
+  }
+};
+
+mobl.ObservableObject.prototype = new persistence.Observable();
+
+mobl.ObservableObject.prototype.toJSON = function() {
+  var obj = {};
+  for(var p in this._data) {
+    if(this._data.hasOwnProperty(p)) {
+      obj[p] = this._data[p];
+    }
+  }
+  return obj;
+};
+
+function log(s) {
+    console.log(s);
+}
+
+mobl.implementInterface = function(sourceModule, targetModule, items) {
+  for(var i = 0; i < items.length; i++) {
+    targetModule[items[i]] = sourceModule[items[i]];
+  }
+};
+
+(function () {
+    function Tuple() {
+        for(var i = 0; i < arguments.length; i++) {
+            this['_' + (i+1)] = arguments[i];
+        }
+        this.subscribers = {}; // Observable
+        this.length = arguments.length;
+    }
+
+    Tuple.prototype = new persistence.Observable();
+    Tuple.prototype.toJSON = function() {
+      var obj = {};
+      for(var i = 0; i < this.length; i++) {
+        obj['_' + (i+1)] = this['_' + (i+1)];
+      }
+      return obj;
+    };
+
+    function CompSubscription(name) {
+      this.subscriptions = [];
+      this.name = name;
+    }
+
+    CompSubscription.prototype.addSub = function(sub) {
+      if(sub) {
+        this.subscriptions.push(sub);
+      }
+    };
+
+    CompSubscription.prototype.unsubscribe = function() {
+      this.subscriptions.forEach(function(sub) {
+        sub.unsubscribe();
+      });
+      this.subscriptions = [];
+    };
+
+
+    function DomSubscription(node, eventType, fn) {
+      this.node = node;
+      this.eventType = eventType;
+      this.fn = fn;
+    }
+
+    DomSubscription.prototype.unsubscribe = function() {
+      this.node.unbind(this.eventType, this.fn);
+    };
+
+    mobl.domBind = function(node, eventType, fn) {
+      node.bind(eventType, fn);
+      return new DomSubscription(node, eventType, fn);
+    };
+
+    function Reference(ref, prop) {
+        this.ref = ref;
+        this.prop = prop;
+        this.childRefs = [];
+        if(prop) {
+            ref.childRefs.push(this);
+        }
+        this.subscribers = {}; // Observable
+    }
+
+    Reference.prototype = new persistence.Observable();
+
+    Reference.prototype.oldAddListener = Reference.prototype.addEventListener;
+
+    Reference.prototype.addEventListener = function(eventType, callback) {
+        if(eventType === 'change' && this.prop !== undefined && this.ref.get() && this.ref.get().addEventListener) {
+            var that = this;
+            var subs = new CompSubscription();
+            subs.addSub(this.ref.get().addEventListener('change', function(_, _, prop, value) {
+                if(prop === that.prop) {
+                    callback(eventType, that, value);
+                }
+            }));
+            subs.addSub(this.oldAddListener(eventType, callback));
+            return subs;
+        } else {
+            return this.oldAddListener(eventType, callback);
+        }
+    };
+
+    Reference.prototype.addSetListener = function(callback) {
+        var that = this;
+        if(this.ref.addEventListener) {
+           return this.ref.addEventListener('change', function(_, _, prop, value) {
+             if(prop === that.prop) {
+               callback(eventType, that, value);
+             }
+           });
+        }
+    };
+
+    Reference.prototype.get = function() {
+        if(this.prop === undefined) {
+            return this.ref;
+        }
+        if(this.ref.get) {
+            return this.ref.get()[this.prop];
+        }
+    };
+
+    Reference.prototype.set = function(value) {
+        // trigger rebinding on all child refs
+        //console.log("Set", this, value);
+        if(this.prop === undefined) {
+            this.ref = value;
+            this.triggerEvent('change', this, value);
+        } else  {
+            this.ref.get()[this.prop] = value;
+            this.triggerEvent('change', this, value);
+        }
+        for(var i = 0; i < this.childRefs.length; i++) {
+            var childRef = this.childRefs[i];
+            childRef.rebind();
+            childRef.triggerEvent('change', childRef, childRef.get());
+        }
+    };
+
+    Reference.prototype.rebind = function() {
+        var that = this;
+        var subs = new mobl.CompSubscription();
+        if(this.prop !== undefined) {
+            if(this.ref.get().addEventListener) {
+                subs.addSub(this.ref.get().addEventListener('change', function(_, _, prop, value) {
+                    if(prop === that.prop) {
+                        that.triggerEvent('change', that, value);
+                    }
+                }));
+            } else {
+                //console.log("Could not rebind for: " + this.prop);
+                //console.log(this.ref.get());
+            }
+        }
+        for(var i = 0; i < this.childRefs.length; i++) {
+            subs.addSub(this.childRefs[i].rebind(value[this.childRefs[i].prop]));
+        }
+        return subs;
+    };
+
+    mobl.Tuple = Tuple;
+    mobl.Reference = Reference;
+    mobl.CompSubscription = CompSubscription;
+}());
+</javascript>
+
+
+type Window {
+  innerWidth : Num
+  innerHeight : Num
+}
+
+var window : Window = Window();
+
+<javascript>
+__ns.window.get().innerWidth = window.innerWidth;
+__ns.window.get().innerHeight = window.innerHeight;
+window.onresize = function() {
+  mobl.window.get().innerWidth = window.innerWidth;
+  mobl.window.get().innerHeight = window.innerHeight;
+};
+</javascript>

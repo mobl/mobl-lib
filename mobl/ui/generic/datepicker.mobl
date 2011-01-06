@@ -1,0 +1,64 @@
+module mobl::ui::generic::datepicker
+
+import mobl
+import mobl::ui::generic
+
+function getMonthName(m : Num) : String {
+  var months : Array<String> = Array<String>("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+  return months.get(m);
+}
+
+style narrowNumFieldStyle {
+  width: 4em;
+}
+
+control narrowNumField(n : Num, onchange : Callback = null) {
+  <input type="text" databind=n onchange=onchange class=narrowNumFieldStyle/>
+}
+
+control datePicker(d : DateTime) {
+  var visible = false
+  var day = d.getDate()
+  label(d.toDateString(), onclick={
+    visible = visible ? false : true;
+  })
+  <div>
+  when(visible) {
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setDate(d.getDate() + 1);
+      day = d.getDate();
+      d = d;
+    })<br/>
+    narrowNumField(day, onchange={ d.setDate(day); })<br/>
+    button("-", onclick={
+      d.setDate(d.getDate() - 1);
+      d = d;
+    })
+    </div>
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setMonth(d.getMonth() + 1);
+      d = d;
+    })<br/>
+    label(getMonthName(d.getMonth()))<br/>
+    button("-", onclick={
+      d.setMonth(d.getMonth() - 1);
+      d = d;
+    })
+    </div>
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setFullYear(d.getFullYear() + 1);
+      d = d;
+    })<br/>
+    label(d.getFullYear())<br/>
+    button("-", onclick={
+      d.setFullYear(d.getFullYear() - 1);
+      d = d;
+    })
+    </div>
+  }
+  <div style="clear: both"/>
+  </div>
+}

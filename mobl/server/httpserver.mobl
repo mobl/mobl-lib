@@ -1,0 +1,53 @@
+module mobl::server::httpserver
+
+external type Request {
+  params  : Dynamic
+  query   : Dynamic
+  url     : String
+  headers : Dynamic
+  rawBody : Dynamic
+  body    : Dynamic
+}
+
+external type Response {
+  sync function send(obj : Object) : void
+  sync function redirect(url : String) : void
+}
+
+external type HttpMiddleWare {}
+
+external sync function bodyDecoder() : HttpMiddleWare
+external sync function staticProvider(path : String) : HttpMiddleWare
+external sync function persistenceMiddleware() : HttpMiddleWare
+
+external sync function addMiddleware(mw : HttpMiddleWare) : void
+
+external type HttpServer {
+  sync function get(uri : String, fn : Request * Response -> void) : void
+  sync function post(uri : String, fn : Request * Response -> void) : void
+  sync function put(uri : String, fn : Request * Response -> void) : void
+  sync function del(uri : String, fn : Request * Response -> void) : void
+}
+
+<javascript>
+var connect = require('connect');
+var express = require('express');
+var persistenceStore = require('./js/persistence.store.mysql');
+
+global.app = express.createServer();
+
+var __ns = mobl__server__httpserver;
+
+__ns.bodyDecoder = connect.bodyDecoder;
+__ns.staticProvider = connect.staticProvider;
+__ns.persistenceMiddleware = function() {
+  return mobl.persistenceMiddleware(persistenceStore);
+};
+
+__ns.addMiddleware = function(mw) {
+  global.app.configure(function() {
+    global.app.use(mw);
+  });
+};
+
+</javascript>

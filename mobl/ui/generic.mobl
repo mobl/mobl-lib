@@ -1,0 +1,917 @@
+module mobl::ui::generic
+
+import mobl
+
+load mobl/ui/generic_ext.css
+load mobl/ui/generic/search.png
+/*
+load mobl/ui/generic/css-beziers.js
+load mobl/ui/generic/touchscroll.js
+load mobl/ui/generic/touchscroll.css*/
+
+resource mobl/ui/generic/arrow.png
+resource mobl/ui/generic/contextmenu.png
+
+// blue
+style config baseColor = rgb(72, 100, 180)
+// green
+//style config baseColor = rgb(60, 150, 30)
+// red
+//style config baseColor = rgb(150, 50, 20)
+// red-ish
+style config baseColor = rgb(150, 80, 0)
+
+style config buttonFromColor = rgb($baseColor.r+170, $baseColor.g+170, $baseColor.b+170)
+style config buttonToColor = rgb($baseColor.r+120, $baseColor.g+120, $baseColor.b + 120)
+style config textButtonColor = rgb($baseColor.r~50, $baseColor.g~50, $baseColor.b~50)
+style config textButtonShadowColor = rgb($baseColor.r+100, $baseColor.g+100, $baseColor.b+100)
+
+style headerStyle {
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($baseColor),
+  // 52,64,228
+    to(rgb($baseColor.r~40, $baseColor.g~40, $baseColor.b~40)) );
+  background: -moz-linear-gradient(top, $baseColor, rgb($baseColor.r~40, $baseColor.g~40, $baseColor.b~40));
+  padding: 0;
+  height: 2.3em;
+  font-size: 1.3em;
+  line-height: 2.3em;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: #477 0px 1px 1px;
+  color: white;
+  font-weight: bold;
+  margin: 0;
+  z-index: 2;
+}
+
+style headerContainerStyle {
+  width: 150px;
+  position: absolute;
+  left: 50%;
+}
+
+style headerTextStyle {
+  position: absolute;
+  left: -75px;
+  width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+control header(text : String, onclick : Callback = null) {
+  <div class=headerStyle onclick=onclick>
+    <div class=headerContainerStyle><div databind=text class=headerTextStyle/></div>
+    elements()
+  </div>
+}
+
+// 198,222,242
+style buttonStyle {
+  font-family: Arial, Helvetica, sans-serif;
+  text-shadow: $textButtonShadowColor 0px 1px 0px;
+  font-weight: bold;
+  text-align: center;
+  padding: 0.5em 1em 0.5em 1em;
+  margin: 0.3em;
+  line-height: 3em;
+  color: $textButtonColor;
+  -webkit-box-shadow: 0px 0px 3px #777777;
+  -moz-box-shadow: 0px 0px 3px #777777;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($buttonFromColor),
+    to($buttonToColor) );
+    //to(#c6def2) );
+  background: -moz-linear-gradient(top, #fff, $buttonToColor);
+}
+
+style headerStyle buttonStyle {
+  float: right;
+  font-size: 0.7em;
+  line-height: 2em;
+  padding: 0.2em 1em 0.2em 1em;
+  margin-top: 0.5em;
+  margin-left: 0;
+  margin-right: 0.4em;
+  z-index: 3;
+}
+
+control button(text : String, onclick : Callback = null) {
+  <span class=buttonStyle onclick=onclick databind=text/>
+}
+
+
+style sideButtonStyle {
+  position: absolute;
+  right: 0.4em;
+  padding: 0.3em 0.8em 0.3em 0.8em;
+  margin-top: -0.2em;
+  color: $textButtonColor;
+  -webkit-box-shadow: 0px 0px 3px #777777;
+  -moz-box-shadow: 0px 0px 3px #777777;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($buttonFromColor), to($buttonToColor) );
+  background: -moz-linear-gradient(top, $buttonFromColor, $buttonToColor);
+}
+
+control sideButton(text : String, onclick : Callback = null) {
+  <span class=sideButtonStyle onclick=onclick databind=text/>
+}
+
+style backButtonStyle {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($buttonFromColor),
+    to($buttonToColor) );
+  background: -moz-linear-gradient(top, $buttonFromColor, $buttonToColor);
+  float: left;
+  -webkit-box-shadow: 0 0 3px #777777;
+  -moz-box-shadow: 0 0 3px #777777;
+  padding: 0.2em 0.8em 0.2em 0.8em;
+  line-height: 2em;
+  margin-top: 0.5em;
+  margin-left: 0.3em;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7em;
+  font-weight: bold;
+  /*line-height: 2em;*/
+  color: $textButtonColor;
+  text-shadow: $textButtonShadowColor 0px 1px 0px;
+  z-index: 3;
+}
+
+style backButtonStyle:before {
+  content: "\00ab\00a0";
+}
+
+control backButton(text : String = "Back", onclick : Callback = { screen return; }) {
+  <span class=backButtonStyle onclick=onclick databind=text/>
+}
+
+control block(cssClass : String = null, id : String = null, onclick : Callback = null) {
+  <div id=id class=cssClass onclick=onclick>
+  elements()
+  </div>
+}
+
+control span(cssClass : Style = null, id : String = null, onclick : Callback = null) {
+  <span id=id class=cssClass onclick=onclick>
+  elements()
+  </span>
+}
+
+style groupStyle {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+control group() {
+  <ul class=groupStyle>
+    elements()
+  </ul>
+}
+
+control image(url : String, onclick : Callback = null, valign : String = null) {
+  <img src=url onclick=onclick valign=valign/>
+}
+
+style itemStyle {
+  background-color: #FFFFFF;
+  border: 1px solid #cccccc;
+  border-left: 0;
+  border-right: 0;
+  color: black;
+  display: block;
+  font-size: 17px;
+  margin-bottom: -1px;
+  padding: 12px 10px;
+  text-decoration: none;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+control item(onclick : Callback = null, onswipe : Callback = null) {
+  <li class=itemStyle onclick=onclick>
+    elements()
+  </li>
+}
+
+style itemArrowStyle {
+  background-color: #FFFFFF;
+  border: 1px solid #cccccc;
+  border-left: 0;
+  border-right: 0;
+  color: black;
+  display: block;
+  font-size: 17px;
+  margin-bottom: -1px;
+  padding: 12px 10px;
+  text-decoration: none;
+  background-image: url(generic/arrow.png);
+  background-position: right center;
+  background-repeat: no-repeat;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+control itemArrow(onclick : Callback = null, onswipe : Callback = null) {
+  <li class=itemArrowStyle onclick=onclick>
+    elements()
+  </li>
+}
+
+control checkBox(b : Bool, label : String = "") {
+  <input type="checkbox" databind=b onclick={}/>
+  " "
+  <span databind=label onclick={ b = b ? false : true; }/>
+}
+
+style textFieldStyle {
+  display: inline-block;
+  -webkit-appearance: none;
+  -webkit-box-flex: 100;
+  -webkit-rtl-ordering: logical;
+  -webkit-user-select: text;
+  -webkit-text-size-adjust: 140%;
+  -moz-text-size-adjust: 140%;
+  -webkit-appearance: textarea;
+  background: #fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(white),
+    to(white) );
+  border: 0;
+  color: black;
+  display: block;
+  font-size: 1.2em;
+  height: 1.2em;
+  padding: 0;
+  margin-left: 0px;
+  width: 100%;
+}
+
+control textField(s : String, placeholder : String = null, label : String = null, onchange : Callback = null) {
+  when(label) {
+    <span style="float: left; margin-top: 0.2em; width: 5em; color: #666;" databind=label/>
+    <span style="float: left">
+      <input type="text" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onblur={ scrollUp(); }/>
+    </span>
+  } else {
+    <input type="text" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onblur={ scrollUp(); }/>
+  }
+}
+
+control numField(n : Num, placeholder : String = null, label : String = null, onchange : Callback = null) {
+  when(label) {
+    <span style="float: left; margin-top: 0.2em; width: 5em; color: #666;" databind=label/>
+    <span style="float: left">
+      <input type="text" class=textFieldStyle placeholder=placeholder databind=n onchange=onchange onblur={ scrollUp(); }/>
+    </span>
+  } else {
+    <input type="text" class=textFieldStyle placeholder=placeholder databind=n onchange=onchange onblur={ scrollUp(); }/>
+  }
+}
+
+// Tabs
+
+style tabbarStyle {
+  text-align: left;
+  font-size: 16px;
+  z-index: 3;
+  width: 100%;
+  border-bottom: 1px solid #444;
+  margin-top: 0.3em;
+  margin-bottom: 0;
+}
+
+/*div.screen div.tabbar > span {
+  margin: 0;
+  padding: 0;
+}*/
+
+style tabbarStyle inActiveTabButtonStyle {
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-left: 5px;
+  line-height: 39px;
+  height: 39px;
+  margin-bottom: 0;
+  background-color: white;
+  color: black;
+  border-top: 1px solid #444;
+  border-right: 1px solid #444;
+  border-left: 1px solid #444;
+  -webkit-border-top-right-radius: 8px;
+  -moz-border-radius-topright: 8px;
+  -webkit-border-top-left-radius: 8px;
+  -moz-border-radius-topleft: 8px;
+}
+
+// 92,152,246
+style tabbarStyle activeTabButtonStyle {
+  background-color: $baseColor;
+  color: #fefefe;
+  position: relative;
+  top: 2px;
+
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-left: 5px;
+  line-height: 37px;
+  height: 39px;
+  margin-bottom: 0;
+  border-top: 1px solid #444;
+  border-right: 1px solid #444;
+  border-left: 1px solid #444;
+  -webkit-border-top-right-radius: 8px;
+  -moz-border-radius-topright: 8px;
+  -webkit-border-top-left-radius: 8px;
+  -moz-border-radius-topleft: 8px;
+}
+
+/*
+style activeTabStyle tabbarStyle {
+  width: auto;
+  display: inline-block;
+  margin-top: 10px;
+  margin-bottom: 0;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid #444;
+  margin-top: 0.3em;
+}
+
+style activeTabStyle tabbarStyle inActiveTabButtonStyle {
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-left: 0;
+  line-height: 37px;
+  height: 39px;
+  margin-bottom: 0;
+  background-color: white;
+  color: black;
+  border: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+}
+
+style activeTabStyle tabbarStyle activeTabButtonStyle {
+  background-color: $baseColor;
+  color: #fefefe;
+  position: static;
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-left: 0;
+  line-height: 37px;
+  height: 37px;
+  margin-bottom: 0;
+  border: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+}
+*/
+style inActiveTabStyle {
+  display: none;
+}
+
+style activeTabStyle {
+}
+
+@doc "A tabset, takes a list of tuples as argument, e.g. [(\"Tab 1\", \"icon url\", tab1), (\"Tab 2\", \"icon uri\", tab2)] where tab1 and tab2 are controls with no arguments"
+control tabSet(tabs : [(String, String, Control)]) {
+  var activeTabName : String = tabs.get(0)._1
+  var s = ""
+
+  block(tabbarStyle) {
+    list((tabName, tabIcon, tabControl) in tabs) {
+      span(onclick={ activeTabName = tabName; }, cssClass=activeTabName == tabName ? activeTabButtonStyle : inActiveTabButtonStyle) {
+        label(tabName)
+      }
+    }
+  }
+  list((tabName, tabIcon, tabControl) in tabs) {
+    block(activeTabName == tabName ? activeTabStyle : inActiveTabStyle) {
+      screenContext {
+        tabControl()
+      }
+    }
+  }
+}
+
+style searchboxStyle {
+  background-color: #FFFFFF;
+  margin: 0;
+  border: 1px solid #999999;
+  color: #222222;
+  padding: 10px 6px;
+}
+
+style searchBoxInputStyle {
+  display: inline-block;
+  -webkit-appearance: none;
+  -webkit-box-flex: 100;
+  -webkit-rtl-ordering: logical;
+  -webkit-user-select: text;
+  -webkit-text-size-adjust: 140%;
+  -moz-text-size-adjust: 140%;
+  -webkit-appearance: textarea;
+  border: 0;
+  color: black;
+  display: block;
+  font-size: 1.2em;
+  height: 1.2em;
+  padding: 0;
+  margin-left: 0px;
+  width: 100%;
+
+  background-image: url(generic/search.png);
+  background-repeat: no-repeat;
+  background-position: right center;
+}
+
+control searchBox(s : String, placeholder : String = null, onsearch : Callback = null) {
+  <div class=searchboxStyle>
+    <input type="text" class=searchBoxInputStyle placeholder=placeholder databind=s onchange=onsearch autocorrect="off" autocapitalize="off" autocomplete="off"/>
+  </div>
+}
+
+// CONTEXT MENU
+
+style contextMenuStyle {
+  position: absolute;
+}
+
+style contextMenuStyle buttonStyle {
+  font-family: Arial, Helvetica, sans-serif;
+  text-shadow: $textButtonShadowColor 0px 1px 0px;
+  font-weight: bold;
+  text-align: center;
+  padding: 0.5em 0.5em 0.5em 0.5em;
+  margin: 0.1em;
+  line-height: 2em;
+  color: black;
+  -webkit-box-shadow: 0px 0px 3px #777777;
+  -moz-box-shadow: 0px 0px 3px #777777;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to($buttonToColor) );
+  background: -moz-linear-gradient(top, #fff, #c6def2);
+}
+
+control contextMenu() {
+  menu@<div class=contextMenuStyle>
+    elements()
+  </div>
+  script {
+    menu.hide();
+  }
+  img@<img src="mobl/ui/generic/contextmenu.png" style="float: right;" onclick={
+    var target = img.parent();
+    img.hide();
+    menu.detach();
+    $("body").prepend(menu);
+    menu.css("right", "5px");
+    var height = target.innerHeight();
+    menu.show();
+    menu.css("top", "" + (target.offset().top + (Math.round(height/2)-14)) + "px");
+    $("body").bind("touchstart click", removeMenu);
+  }/>
+  function removeMenu(evt : Dynamic) {
+    if($(evt.target).parents("." + contextMenuStyle).length == 0) {
+      menu.hide();
+      img.show();
+      $("body").unbind("touchstart click", removeMenu);
+    }
+  }
+}
+
+// Higher level controls
+
+control masterDetail(items : Collection<Dynamic>, masterItem : Control1<Dynamic>, detail : Control1<Dynamic>) {
+  group {
+    list(it in items) {
+      item(onclick={ detailScreen(it, detail); }) {
+        masterItem(it)
+      }
+    }
+  }
+}
+
+screen detailScreen(it : Dynamic, detail : Control1<Dynamic>) {
+  header("Detail") {
+    backButton("Back", onclick={ screen return; })
+  }
+  detail(it)
+}
+
+@when window.innerWidth > 500
+control masterDetail(items : Collection<Dynamic>, masterItem : Control1<Dynamic>, detail : Control1<Dynamic>) {
+  control itemSelected(onclick : Callback = null, onswipe : Callback = null) {
+    <li class=itemStyle onclick=onclick style="background: #cccccc;">
+      elements()
+    </li>
+  }
+
+  var current : Dynamic = items.one()
+  <div width="100%">
+    <div style="float:left; width:33%; position:relative; border-right: solid 1px #cccccc;">
+      group {
+        list(it in items) {
+          (it == current ? itemSelected : item)({ current = it; }, null) {
+            masterItem(it)
+          }
+        }
+      }
+    </div>
+    <div style="float:left; width:66.5%; position:relative; margin-left: 0.5%;">
+      detail(current)
+    </div>
+  </div>
+}
+
+control zoomList(coll : Collection<?>, listCtrl : Control1<?>, zoomCtrl : Control1<?>) {
+  var selected : ? = null
+  group {
+    list(it in coll) {
+      when(it == selected) {
+        item { zoomCtrl(it) }
+      } else {
+        item(onclick={ selected = it; }) {
+          listCtrl(it)
+        }
+      }
+    }
+  }
+}
+
+style loadMoreStyle {
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border-left: 0;
+  border-right: 0;
+  color: #888;
+  display: block;
+  font-size: 17px;
+  text-align: center;
+  margin-bottom: -1px;
+  padding: 12px 10px;
+  font-weight: bold;
+  white-space: nowrap;
+  -webkit-border-bottom-left-radius: 20px;
+  -moz-border-radius-bottomleft: 20px;
+  -webkit-border-bottom-right-radius: 20px;
+  -moz-border-radius-bottomright: 20px;
+}
+
+control stagedList(coll : Collection<?>, listCtrl : Control1<?>, initialItems : Num = 10, step : Num = 10) {
+  var n : Num = initialItems
+  var total : Num = coll.count()
+  group {
+    list(it in coll limit n) {
+      item(onclick={}) { listCtrl(it) }
+    }
+    when(n < total) {
+      <li class=loadMoreStyle onclick={
+          n = n + step;
+        }>
+        "More"
+      </li>
+    }
+  }
+}
+
+control markableList(items : [(Bool, ?)]) {
+  group {
+    list((checked, it) in items) {
+      item {
+        checkBox(checked, label=it)
+      }
+    }
+  }
+}
+
+screen selectList(title : String, coll : Collection<?>) : [?] {
+  var items = Array<(Bool, ?)>()
+  script {
+    foreach(it in coll) {
+      items.push((false, it));
+    }
+  }
+  header(title) {
+    backButton(onclick={
+      return null;
+    })
+    button("Done", onclick={
+      var selected = Array<?>();
+      foreach((checked, it) in items) {
+        if(checked) {
+          selected.push(it);
+        }
+      }
+      screen return selected;
+    })
+  }
+  markableList(items)
+}
+
+control searchList(Ent : Type<Entity<?>>, masterItem : Control1<?>, detailItem : Control1<?>, resultLimit : Num = 10) {
+  var phrase = ""
+  searchBox(phrase, placeholder="Search term")
+  masterDetail(Ent.searchPrefix(phrase) limit resultLimit, masterItem, detailItem)
+}
+
+style progressStyle {
+    -webkit-border-radius: 10px;
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    font-size: 2em;
+    line-height: 2em;
+    font-weight: bold;
+    left: 10%;
+    margin: 0 auto;
+    position: absolute;
+    text-align: center;
+    top: 40%;
+    width: 80%;
+    z-index: 99;
+}
+
+function startLoading() {
+  var loading = $("<div id='progress' class='" + progressStyle + "'>Loading...</div>");
+  $("body").prepend(loading);
+}
+
+function endLoading() {
+  $("#progress").remove();
+}
+
+// Floating box
+<javascript>
+__ns.floatBox = function(top, right, bottom, left, elements, callback) {
+  var root928 = $("<span>");
+  var node280 = $("<div style=\"position: absolute;\">");
+
+  var nodes681 = $("<span>");
+  node280.append(nodes681);
+  mobl.ref(elements).addEventListener('change', function() {
+    renderControl102();
+  });
+
+  function renderControl102() {
+    (elements)(function(elements, callback) {
+      var root929 = $("<span>");
+      callback(root929); return;
+    }, function(node) {
+      var oldNodes = nodes681;
+      nodes681 = node.contents();
+      oldNodes.replaceWith(nodes681);
+    });
+  }
+  renderControl102();
+  root928.append(node280);
+  var box = node280;
+  if(top.get() !== null) box.css("top", "" + top.get() + "px");
+  if(right.get() !== null) box.css("right", "" + right.get() + "px");
+  if(bottom.get() !== null) box.css("top", "" + (window.pageYOffset + window.innerHeight - box.outerHeight() - bottom.get()) + "px");
+  if(left.get() !== null) box.css("left", "" + left.get() + "px");
+  function updateLocation() {
+    if(top.get() !== null) {
+      box.css("top", "" + (window.pageYOffset + top.get()) + "px");
+    }
+    if(bottom.get() !== null) {
+      box.css("top", "" + (window.pageYOffset + window.innerHeight - box.outerHeight() - bottom.get()) + "px");
+    }
+  }
+  $(window).bind('scroll', updateLocation);
+  $(window).bind('resize', updateLocation);
+
+  callback(root928); return;
+};
+</javascript>
+
+
+external control floatBox(top : Num = null, right : Num = null, bottom : Num = null, left : Num = null)
+
+
+ /*{
+  var id = random(9999)
+  <div id="floatBox"+id style="position: absolute;">
+    elements()
+  </div>
+  script {
+    setupFloatBox(id, top, right, bottom, left);
+  }
+}*/
+
+
+resource mobl/ui/generic/accordion-down.png
+resource mobl/ui/generic/accordion-right.png
+
+style accordionStyle {
+  width: 100%;
+}
+
+style accordionStyle activeSectionHeaderStyle {
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#eee),
+    to(#aaa) );
+  background: -moz-linear-gradient(top, #5c98f6, #3440e4);
+  padding: 0;
+  height: 1.9em;
+  font-size: 1em;
+  line-height: 1.9em;
+  font-weight: bold;
+  text-align: left;
+  color: #333;
+  font-weight: bold;
+  margin: 0;
+  z-index: 2;
+  width: 100%;
+  display: block;
+}
+
+style accordionStyle inActiveSectionHeaderStyle {
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#eee),
+    to(#aaa) );
+  background: -moz-linear-gradient(top, #5c98f6, #3440e4);
+  padding: 0;
+  height: 1.9em;
+  font-size: 1em;
+  line-height: 1.9em;
+  font-weight: bold;
+  text-align: left;
+  color: #333;
+  font-weight: bold;
+  margin: 0;
+  z-index: 2;
+  width: 100%;
+  display: block;
+}
+
+style accordionStyle activeSectionHeaderStyle:before {
+  content: url("generic/accordion-down.png");
+}
+
+style accordionStyle inActiveSectionHeaderStyle:before {
+  content: url("generic/accordion-right.png");
+}
+
+style accordionStyle inActiveSectionStyle {
+  display: none;
+}
+
+style accordionStyle activeSectionStyle {
+  display: block;
+}
+
+control accordion(sections : [(String, Control)]) {
+  var activeSection : String = sections.get(0)._1
+
+  block(accordionStyle) {
+    list((sectionName, sectionControl) in sections) {
+      span(onclick={ activeSection = sectionName; }, cssClass=activeSection == sectionName ? activeSectionHeaderStyle : inActiveSectionHeaderStyle) {
+        label(sectionName)
+      }
+      block(activeSection == sectionName ? activeSectionStyle : inActiveSectionStyle) {
+        sectionControl()
+      }
+    }
+  }
+}
+
+style tableStyle {
+  padding: 8px 10px 8px 10px;
+  width: 100%;
+  border-spacing: 0;
+}
+
+style tdStyle {
+  padding: 8px;
+}
+
+style trStyle {
+  padding: 8px;
+}
+
+style trStyle:nth-child(even) {
+  background: #eeeeee;
+}
+
+style trStyle:nth-child(odd) {
+  background: #ffffff;
+}
+
+style trStyle:first-child tdStyle:first-child {
+  -webkit-border-top-left-radius: 8px;
+  -moz-border-radius-topleft: 8px;
+  border-left: 1px solid #000;
+  border-top: 1px solid #000;
+}
+
+style trStyle:first-child tdStyle:last-child {
+  -webkit-border-top-right-radius: 8px;
+  -moz-border-radius-topright: 8px;
+  border-right: 1px solid #000;
+  border-top: 1px solid #000;
+}
+
+style trStyle:last-child tdStyle:first-child {
+  -webkit-border-bottom-left-radius: 8px;
+  -moz-border-radius-bottomleft: 8px;
+  border-left: 1px solid #000;
+  border-bottom: 1px solid #000;
+}
+
+style trStyle:last-child tdStyle:last-child {
+  -webkit-border-bottom-right-radius: 8px;
+  -moz-border-radius-bottomright: 8px;
+  border-right: 1px solid #000;
+  border-bottom: 1px solid #000;
+}
+
+style trStyle tdStyle:first-child {
+  border-left: 1px solid #000;
+}
+
+style trStyle tdStyle:last-child {
+  border-right: 1px solid #000;
+}
+
+@doc "Renders a table, use row { } for rows and cell { } for cells"
+control table() {
+  <table class=tableStyle>elements()</table>
+}
+
+control row() {
+  <tr class=trStyle>elements()</tr>
+}
+
+control cell(width : String = null) {
+  <td width=width class=tdStyle>elements()</td>
+}
+
+control col(width : String = null) {
+  <td width=width class=tdStyle>elements()</td>
+}
+
+control headerCol(width : String = null) {
+  <td width=width class=tdStyle><strong>elements()</strong></td>
+}
+
+// SCROLLERS, disabled ATM
+
+external sync function setupScrollers() : void
+external sync function scrollUp() : void
+
+control scroller(height : Num = 200) {
+  <div class="scroller">
+    elements()
+  </div>
+  script {
+    setupScrollers();
+  }
+}
+
+<javascript>
+setTimeout(function() {
+  scrollTo(0, -1);
+}, 250);
+
+__ns.scrollUp = function() {
+  scrollTo(0, 0);
+};
+
+__ns.setupScrollers = function() {
+  setTimeout(function() {
+    var allScrollers = $("div.scroller");
+    for(var i = 0; i < allScrollers.length; i++) {
+      var scroller = allScrollers.eq(i);
+      if(!scroller.data("scroller")) {
+         scroller.data("scroller", new TouchScroll(scroller[0], {elastic: true}));
+      }
+    }
+  }, 250);
+};
+
+setInterval(function() {
+  var allScrollers = $("div.scroller");
+  for(var i = 0; i < allScrollers.length; i++) {
+    var scroller = allScrollers.eq(i).data("scroller");
+    if(scroller) {
+       scroller.setupScroller();
+    }
+  }
+}, 1000);
+</javascript>
