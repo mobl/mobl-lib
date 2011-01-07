@@ -480,21 +480,17 @@ control contextMenu() {
   }
   img@<img src="mobl/ui/generic/contextmenu.png" style="float: right;" onclick={
     var target = img.parent();
+    target.css("position", "relative");
     img.hide();
-    menu.detach();
-    $("body").prepend(menu);
     menu.css("right", "5px");
-    var height = target.innerHeight();
+    menu.css("top", "5px");
     menu.show();
-    menu.css("top", "" + (target.offset().top + (Math.round(height/2)-14)) + "px");
     $("body").bind("touchstart click", removeMenu);
   }/>
   function removeMenu(evt : Dynamic) {
-    if($(evt.target).parents("." + contextMenuStyle).length == 0) {
-      menu.hide();
-      img.show();
-      $("body").unbind("touchstart click", removeMenu);
-    }
+    menu.hide();
+    img.show();
+    $("body").unbind("touchstart click", removeMenu);
   }
 }
 
