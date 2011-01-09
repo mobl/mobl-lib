@@ -13,18 +13,20 @@ resource mobl/ui/generic/arrow.png
 resource mobl/ui/generic/contextmenu.png
 
 // blue
-style config baseColor = rgb(72, 100, 180)
+style $baseColor = rgb(72, 100, 180)
 // green
-//style config baseColor = rgb(60, 150, 30)
+style $baseColorGreen = rgb(60, 150, 30)
 // red
-//style config baseColor = rgb(150, 50, 20)
+style $baseColorRed = rgb(150, 50, 20)
 // red-ish
-style config baseColor = rgb(150, 80, 0)
+style $baseColorRedish = rgb(150, 80, 0)
 
-style config buttonFromColor = rgb($baseColor.r+170, $baseColor.g+170, $baseColor.b+170)
-style config buttonToColor = rgb($baseColor.r+120, $baseColor.g+120, $baseColor.b + 120)
-style config textButtonColor = rgb($baseColor.r~50, $baseColor.g~50, $baseColor.b~50)
-style config textButtonShadowColor = rgb($baseColor.r+100, $baseColor.g+100, $baseColor.b+100)
+style $buttonFromColor = rgb($baseColor.r+170, $baseColor.g+170, $baseColor.b+170)
+style $buttonToColor = rgb($baseColor.r+120, $baseColor.g+120, $baseColor.b + 120)
+style $buttonPushedFromColor = rgb($baseColor.r+100, $baseColor.g+100, $baseColor.b+100)
+style $buttonPushedToColor = rgb($baseColor.r+50, $baseColor.g+50, $baseColor.b+50)
+style $textButtonColor = rgb($baseColor.r~50, $baseColor.g~50, $baseColor.b~50)
+style $textButtonShadowColor = rgb($baseColor.r+100, $baseColor.g+100, $baseColor.b+100)
 
 style headerStyle {
   background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($baseColor),
@@ -86,6 +88,24 @@ style buttonStyle {
   background: -moz-linear-gradient(top, #fff, $buttonToColor);
 }
 
+style buttonPushedStyle {
+  font-family: Arial, Helvetica, sans-serif;
+  text-shadow: $textButtonShadowColor 0px 1px 0px;
+  font-weight: bold;
+  text-align: center;
+  padding: 0.5em 1em 0.5em 1em;
+  margin: 0.3em;
+  line-height: 3em;
+  color: $textButtonColor;
+  -webkit-box-shadow: 0px 0px 3px #777777;
+  -moz-box-shadow: 0px 0px 3px #777777;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($buttonPushedFromColor),
+    to($buttonPushedToColor) );
+  background: -moz-linear-gradient(top, $buttonPushedFromColor, $buttonPushedToColor);
+}
+
 style headerStyle buttonStyle {
   float: right;
   font-size: 0.7em;
@@ -98,7 +118,20 @@ style headerStyle buttonStyle {
 }
 
 control button(text : String, onclick : Callback = null) {
-  <span class=buttonStyle onclick=onclick databind=text/>
+  var pushed = false
+  <span class=pushed ? buttonPushedStyle : buttonStyle ontouchdown={
+    pushed = true;
+  } ontouchup={
+    async {
+      onclick();
+    }
+    pushed = false;
+  } onmouseout={
+    if(pushed) {
+      pushed = false;
+    }
+  }
+  databind=text/>
 }
 
 
