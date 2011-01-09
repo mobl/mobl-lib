@@ -1,6 +1,7 @@
 module mobl::ui::generic
 
 import mobl
+import mobl::ui::stylemixin
 
 load mobl/ui/generic_ext.css
 load mobl/ui/generic/search.png
@@ -29,10 +30,7 @@ style $textButtonColor = rgb($baseColor.r~50, $baseColor.g~50, $baseColor.b~50)
 style $textButtonShadowColor = rgb($baseColor.r+100, $baseColor.g+100, $baseColor.b+100)
 
 style headerStyle {
-  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($baseColor),
-  // 52,64,228
-    to(rgb($baseColor.r~40, $baseColor.g~40, $baseColor.b~40)) );
-  background: -moz-linear-gradient(top, $baseColor, rgb($baseColor.r~40, $baseColor.g~40, $baseColor.b~40));
+  backgroundGradientMixin($baseColor, rgb($baseColor.r~40, $baseColor.g~40, $baseColor.b~40));
   padding: 0;
   height: 2.3em;
   font-size: 1.3em;
@@ -68,8 +66,7 @@ control header(text : String, onclick : Callback = null) {
   </div>
 }
 
-// 198,222,242
-style buttonStyle {
+style mixin buttonMixin($fromColor, $toColor) {
   font-family: Arial, Helvetica, sans-serif;
   text-shadow: $textButtonShadowColor 0px 1px 0px;
   font-weight: bold;
@@ -78,32 +75,17 @@ style buttonStyle {
   margin: 0.3em;
   line-height: 3em;
   color: $textButtonColor;
-  -webkit-box-shadow: 0px 0px 3px #777777;
-  -moz-box-shadow: 0px 0px 3px #777777;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($buttonFromColor),
-    to($buttonToColor) );
-    //to(#c6def2) );
-  background: -moz-linear-gradient(top, #fff, $buttonToColor);
+  boxShadowMixin(0px, 0px, 3px, #777777);
+  borderRadiusMixin(5px);
+  backgroundGradientMixin($fromColor, $toColor);
+}
+
+style buttonStyle {
+  buttonMixin($buttonFromColor, $buttonToColor);
 }
 
 style buttonPushedStyle {
-  font-family: Arial, Helvetica, sans-serif;
-  text-shadow: $textButtonShadowColor 0px 1px 0px;
-  font-weight: bold;
-  text-align: center;
-  padding: 0.5em 1em 0.5em 1em;
-  margin: 0.3em;
-  line-height: 3em;
-  color: $textButtonColor;
-  -webkit-box-shadow: 0px 0px 3px #777777;
-  -moz-box-shadow: 0px 0px 3px #777777;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($buttonPushedFromColor),
-    to($buttonPushedToColor) );
-  background: -moz-linear-gradient(top, $buttonPushedFromColor, $buttonPushedToColor);
+  buttonMixin($buttonPushedFromColor, $buttonPushedToColor);
 }
 
 style headerStyle buttonStyle {
@@ -117,15 +99,24 @@ style headerStyle buttonStyle {
   z-index: 3;
 }
 
-control button(text : String, onclick : Callback = null) {
+style headerStyle buttonPushedStyle {
+  float: right;
+  font-size: 0.7em;
+  line-height: 2em;
+  padding: 0.2em 1em 0.2em 1em;
+  margin-top: 0.5em;
+  margin-left: 0;
+  margin-right: 0.4em;
+  z-index: 3;
+}
+
+control button(text : String, style : Style = buttonStyle, pushedStyle : Style = buttonPushedStyle, onclick : Callback = {}) {
   var pushed = false
-  <span class=pushed ? buttonPushedStyle : buttonStyle ontouchdown={
+  <span class=pushed ? pushedStyle : style ontouchdown={
     pushed = true;
   } ontouchup={
-    async {
-      onclick();
-    }
     pushed = false;
+    onclick();
   } onmouseout={
     if(pushed) {
       pushed = false;
@@ -135,52 +126,64 @@ control button(text : String, onclick : Callback = null) {
 }
 
 
-style sideButtonStyle {
+style mixin sideButtonMixin($fromColor, $toColor) {
   position: absolute;
   right: 0.4em;
   padding: 0.3em 0.8em 0.3em 0.8em;
   margin-top: -0.2em;
+  font-weight: bold;
   color: $textButtonColor;
-  -webkit-box-shadow: 0px 0px 3px #777777;
-  -moz-box-shadow: 0px 0px 3px #777777;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($buttonFromColor), to($buttonToColor) );
-  background: -moz-linear-gradient(top, $buttonFromColor, $buttonToColor);
+  boxShadowMixin(0px, 0px, 3px, #777777);
+  borderRadiusMixin(5px);
+  backgroundGradientMixin($fromColor, $toColor);
 }
 
-control sideButton(text : String, onclick : Callback = null) {
-  <span class=sideButtonStyle onclick=onclick databind=text/>
+style sideButtonStyle {
+  sideButtonMixin($buttonFromColor, $buttonToColor);
 }
 
-style backButtonStyle {
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($buttonFromColor),
-    to($buttonToColor) );
-  background: -moz-linear-gradient(top, $buttonFromColor, $buttonToColor);
+style sideButtonPushedStyle {
+  sideButtonMixin($buttonPushedFromColor, $buttonPushedToColor);
+}
+
+control sideButton(text : String, style : Style = sideButtonStyle, pushedStyle : Style = sideButtonPushedStyle, onclick : Callback = {}) {
+  button(text, style=style, pushedStyle=pushedStyle, onclick=onclick)
+}
+
+style mixin backButtonMixin($fromColor, $toColor) {
   float: left;
-  -webkit-box-shadow: 0 0 3px #777777;
-  -moz-box-shadow: 0 0 3px #777777;
+  borderRadiusMixin(5px);
+  backgroundGradientMixin($fromColor, $toColor);
+  boxShadowMixin(0, 0, 3px, #777777);
   padding: 0.2em 0.8em 0.2em 0.8em;
   line-height: 2em;
   margin-top: 0.5em;
   margin-left: 0.3em;
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 0.7em;
   font-weight: bold;
-  /*line-height: 2em;*/
   color: $textButtonColor;
   text-shadow: $textButtonShadowColor 0px 1px 0px;
   z-index: 3;
+}
+
+style backButtonStyle {
+  backButtonMixin($buttonFromColor, $buttonToColor);
+}
+
+style backButtonPushedStyle {
+  backButtonMixin($buttonPushedFromColor, $buttonPushedToColor);
 }
 
 style backButtonStyle:before {
   content: "\00ab\00a0";
 }
 
-control backButton(text : String = "Back", onclick : Callback = { screen return; }) {
-  <span class=backButtonStyle onclick=onclick databind=text/>
+style backButtonPushedStyle:before {
+  content: "\00ab\00a0";
+}
+
+control backButton(text : String = "Back", style : Style = backButtonStyle, pushedStyle : Style = backButtonPushedStyle, onclick : Callback = { screen return; }) {
+  button(text, style=style, pushedStyle=pushedStyle, onclick=onclick)
 }
 
 control block(cssClass : String = null, id : String = null, onclick : Callback = null) {
@@ -321,11 +324,6 @@ style tabbarStyle {
   margin-top: 0.3em;
   margin-bottom: 0;
 }
-
-/*div.screen div.tabbar > span {
-  margin: 0;
-  padding: 0;
-}*/
 
 style tabbarStyle inActiveTabButtonStyle {
   padding-right: 15px;
