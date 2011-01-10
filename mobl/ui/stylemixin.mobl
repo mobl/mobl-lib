@@ -1,0 +1,18 @@
+module mobl::ui::stylemixin
+
+style mixin backgroundGradientMixin($fromColor, $toColor) {
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from($fromColor), to($toColor) );
+  background: -moz-linear-gradient(top, $fromColor, $toColor);
+}
+
+style mixin boxShadowMixin($offsetX, $offsetY, $blurRadius, $color) {
+  -webkit-box-shadow: $offsetX $offsetY $blurRadius $color;
+  -moz-box-shadow: $offsetX $offsetY $blurRadius $color;
+  box-shadow: $offsetX $offsetY $blurRadius $color;
+}
+
+style mixin borderRadiusMixin($radius) {
+  -moz-border-radius: $radius;
+  -webkit-border-radius: $radius;
+  border-radius: $radius;
+}

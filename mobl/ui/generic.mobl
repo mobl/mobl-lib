@@ -112,11 +112,19 @@ style headerStyle buttonPushedStyle {
 
 control button(text : String, style : Style = buttonStyle, pushedStyle : Style = buttonPushedStyle, onclick : Callback = {}) {
   var pushed = false
-  <span class=pushed ? pushedStyle : style ontouchdown={
+  sp@<span class=pushed ? pushedStyle : style ontouchdown={
     pushed = true;
-  } ontouchup={
-    pushed = false;
-    onclick();
+  }
+  ontouchdrag={
+    if(event.y < 0 || event.y > sp.outerHeight() || event.x < 0 || event.x > sp.outerWidth()) {
+      pushed = false;
+    }
+  }
+  ontouchup={
+    if(pushed) {
+      pushed = false;
+      onclick();
+    }
   } onmouseout={
     if(pushed) {
       pushed = false;
@@ -214,12 +222,12 @@ control image(url : String, onclick : Callback = null, valign : String = null) {
   <img src=url onclick=onclick valign=valign/>
 }
 
-style itemStyle {
-  background-color: #FFFFFF;
+style mixin itemMixin($fontColor, $backgroundColor) {
+  background-color: $backgroundColor;
   border: 1px solid #cccccc;
   border-left: 0;
   border-right: 0;
-  color: black;
+  color: $fontColor;
   display: block;
   font-size: 17px;
   margin-bottom: -1px;
@@ -231,9 +239,53 @@ style itemStyle {
   text-overflow: ellipsis;
 }
 
+style itemStyle {
+  itemMixin(#000, #fff);
+}
 
-control item(onclick : Callback = null, onswipe : Callback = null) {
-  <li class=itemStyle onclick=onclick>
+style itemPushedStyle {
+  itemMixin(#eee, $baseColor);
+}
+
+/*control item(style : Style = itemStyle, pushedStyle : Style = itemPushedStyle, onclick : Callback = null, onswipe : Callback = null) {
+  var pushed = false
+  el@<li class=itemStyle class=pushed ? pushedStyle : style ontouchdown=onclick ? {
+    pushed = true;
+  } : {}
+  ontouchdrag=onclick ? {
+    if(event.y < 0 || event.y > el.outerHeight() || event.x < 0 || event.x > el.outerWidth()) {
+      pushed = false;
+    }
+  } : {}
+  ontouchup=onclick ? {
+    event.preventDefault();
+    if(pushed) {
+      pushed = false;
+      onclick();
+    }
+  } : {}
+  onmouseout=onclick ? {
+    if(pushed) {
+      pushed = false;
+    }
+  } : {}
+  style=onclick ? "background-image: url(mobl/ui/generic/arrow.png); background-position: right center;  background-repeat: no-repeat;" : "">
+    elements()
+  </li>
+}*/
+
+control item(style : Style = itemStyle, pushedStyle : Style = itemPushedStyle, onclick : Callback = null, onswipe : Callback = null) {
+  var pushed = false
+  el@<li class=itemStyle class=pushed ? pushedStyle : style
+  onclick=onclick ? {
+    pushed = true;
+    async {
+      sleep(100);
+      pushed = false;
+    }
+    onclick();
+  } : {}
+  style=onclick ? "background-image: url(mobl/ui/generic/arrow.png); background-position: right center;  background-repeat: no-repeat;" : "">
     elements()
   </li>
 }

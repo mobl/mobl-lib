@@ -86,6 +86,12 @@ external type Array<T> {
   sync function remove(item : T) : void
 }
 
+external type Event : Dynamic {
+  x : Num
+  y : Num
+  sync function preventDefault() : void
+}
+
 external type Map<K, V> {
   sync function get(k : K) : V
   sync function set(k : K, v : V) : void
@@ -272,13 +278,17 @@ external sync function isIpad() : Bool
 external sync function isAndroid() : Bool
 external sync function isLandscape() : Bool
 external sync function isPortrait() : Bool
+external sync function isTouchDevice() : Bool
 
 <javascript>
-mobl.isIphone = function() { return !!navigator.userAgent.match(/iPhone/i) || !!navigator.userAgent.match(/iPod/i); };
-mobl.isIpad = function() { return !!navigator.userAgent.match(/iPad/i); };
-mobl.isAndroid = function() { return !!navigator.userAgent.match(/Android/i); };
-mobl.isLandscape = function() { return window.innerHeight < window.innerWidth; };
-mobl.isPortrait = function() { return window.innerHeight >= window.innerWidth; };
+__ns.isIphone = function() { return !!navigator.userAgent.match(/iPhone/i) || !!navigator.userAgent.match(/iPod/i); };
+__ns.isIpad = function() { return !!navigator.userAgent.match(/iPad/i); };
+__ns.isAndroid = function() { return !!navigator.userAgent.match(/Android/i); };
+__ns.isLandscape = function() { return window.innerHeight < window.innerWidth; };
+__ns.isPortrait = function() { return window.innerHeight >= window.innerWidth; };
+__ns.isTouchDevice = function() {
+   return 'ontouchstart' in document.documentElement;
+};
 </javascript>
 
 external type JQuery { //: Dynamic {
