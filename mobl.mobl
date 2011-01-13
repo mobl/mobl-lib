@@ -86,7 +86,7 @@ external type Array<T> {
   sync function remove(item : T) : void
 }
 
-external type Event : Dynamic {
+external type DOMEvent : Dynamic {
   x : Num
   y : Num
   sync function preventDefault() : void
@@ -191,7 +191,9 @@ external type Math {
   static sync function sqrt(n : Num) : Num
   static sync function tan(n : Num) : Num
   static sync function max(n1: Num, n2 : Num) : Num
+
   static sync function pi() : Num
+  static sync function isNaN(n : Num) : Bool
 }
 
 external type JSON : Dynamic {
@@ -373,10 +375,10 @@ mobl.repeat = function(time, callback) {
   setInterval(callback, time);
 };
 
-mobl.alert = function(s, _, callback) {
+mobl.alert = function(s) {
     alert(s);
-    if(callback) callback();
 };
+
 mobl.log = function(s, _, callback) {
     console.log(s);
     if(callback) callback();
@@ -386,26 +388,20 @@ __ns.parseNum = function(s) {
   return parseInt(s, 10);
 };
 
-mobl.add = function(e, _, callback) {
-    /*persistence.add(e);
-    var allEnt = persistence.define(e._type).all(); // NOTE: define() is a hack!
-    allEnt.triggerEvent('add', allEnt, e);
-    allEnt.triggerEvent('change', allEnt, e);*/
+__ns.add = function(e) {
     var allEnt = persistence.define(e._type).all(); // NOTE: define() is a hack!
     allEnt.add(e);
-    if(callback) callback();
 };
 
 mobl.now = function() {
   return new Date();
 };
 
-mobl.remove = function(e, _, callback) {
+mobl.remove = function(e) {
     persistence.remove(e);
     var allEnt = persistence.define(e._type).all();
     allEnt.triggerEvent('remove', allEnt, e);
     allEnt.triggerEvent('change', allEnt, e);
-    if(callback) callback();
 };
 
 mobl.flushDatabase = function(callback) {
@@ -456,6 +452,7 @@ Date.prototype.toDateString = function() {
 
 mobl.Math = Math;
 mobl.Math.pi = function() { return Math.PI; };
+mobl.Math.isNaN = function(n) { return isNaN(n); };
 
 mobl.JSON = JSON;
 

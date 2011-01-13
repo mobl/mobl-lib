@@ -113,6 +113,7 @@ style headerStyle buttonPushedStyle {
 control button(text : String, style : Style = buttonStyle, pushedStyle : Style = buttonPushedStyle, onclick : Callback = {}) {
   var pushed = false
   sp@<span class=pushed ? pushedStyle : style ontouchdown={
+    event.preventDefault();
     pushed = true;
   }
   ontouchdrag={
@@ -274,18 +275,19 @@ style itemPushedStyle {
   </li>
 }*/
 
-control item(style : Style = itemStyle, pushedStyle : Style = itemPushedStyle, onclick : Callback = null, onswipe : Callback = null) {
+control item(style : Style = itemStyle, pushedStyle : Style = itemPushedStyle, onclick : Callback = null, onswipe : Callback = null, hideArrow : Bool = false) {
   var pushed = false
   el@<li class=itemStyle class=pushed ? pushedStyle : style
   onclick=onclick ? {
     pushed = true;
+    sleep(100);
     async {
-      sleep(100);
-      pushed = false;
+      onclick();
     }
-    onclick();
-  } : {}
-  style=onclick ? "background-image: url(mobl/ui/generic/arrow.png); background-position: right center;  background-repeat: no-repeat;" : "">
+    sleep(200);
+    pushed = false;
+  } : null
+  style=onclick && hideArrow == false ? "background-image: url(mobl/ui/generic/arrow.png); background-position: right center;  background-repeat: no-repeat;" : "">
     elements()
   </li>
 }
@@ -537,7 +539,7 @@ style contextMenuStyle {
   position: absolute;
 }
 
-style contextMenuStyle buttonStyle {
+style mixin contextMenuButtonStyleMixin($fromColor, $toColor) {
   font-family: Arial, Helvetica, sans-serif;
   text-shadow: $textButtonShadowColor 0px 1px 0px;
   font-weight: bold;
@@ -546,12 +548,17 @@ style contextMenuStyle buttonStyle {
   margin: 0.1em;
   line-height: 2em;
   color: black;
-  -webkit-box-shadow: 0px 0px 3px #777777;
-  -moz-box-shadow: 0px 0px 3px #777777;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to($buttonToColor) );
-  background: -moz-linear-gradient(top, #fff, #c6def2);
+  boxShadowMixin(0px, 0px, 3px, #777777);
+  borderRadiusMixin(5px);
+  backgroundGradientMixin($fromColor, $toColor);
+}
+
+style contextMenuStyle buttonStyle {
+  contextMenuButtonStyleMixin($buttonFromColor, $buttonToColor);
+}
+
+style contextMenuStyle buttonPushedStyle {
+  contextMenuButtonStyleMixin($buttonPushedFromColor, $buttonPushedToColor);
 }
 
 control contextMenu() {
@@ -568,12 +575,13 @@ control contextMenu() {
     menu.css("right", "5px");
     menu.css("top", "5px");
     menu.show();
-    $("body").bind("touchstart click", removeMenu);
+    sleep(500);
+    $("body").bind("tap", removeMenu);
   }/>
   function removeMenu(evt : Dynamic) {
     menu.hide();
     img.show();
-    $("body").unbind("touchstart click", removeMenu);
+    $("body").unbind("tap", removeMenu);
   }
 }
 
@@ -596,21 +604,25 @@ screen detailScreen(it : Dynamic, detail : Control1<Dynamic>) {
   detail(it)
 }
 
+style selectedItemStyle {
+  itemMixin(#000, #ccc);
+}
+
 @when window.innerWidth > 500
 control masterDetail(items : Collection<Dynamic>, masterItem : Control1<Dynamic>, detail : Control1<Dynamic>) {
-  control itemSelected(onclick : Callback = null, onswipe : Callback = null) {
-    <li class=itemStyle onclick=onclick style="background: #cccccc;">
-      elements()
-    </li>
-  }
-
   var current : Dynamic = items.one()
   <div width="100%">
     <div style="float:left; width:33%; position:relative; border-right: solid 1px #cccccc;">
       group {
         list(it in items) {
-          (it == current ? itemSelected : item)({ current = it; }, null) {
-            masterItem(it)
+          when(it == current) {
+            item(style=selectedItemStyle) {
+              masterItem(it)
+            }
+          } else {
+            item(hideArrow=true, onclick={ current = it; }) {
+              masterItem(it)
+            }
           }
         }
       }

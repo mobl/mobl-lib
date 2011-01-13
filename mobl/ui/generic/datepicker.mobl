@@ -9,16 +9,35 @@ function getMonthName(m : Num) : String {
 }
 
 style narrowNumFieldStyle {
-  width: 4em;
+  -webkit-appearance: none;
+  -webkit-box-flex: 100;
+  -webkit-rtl-ordering: logical;
+  -webkit-user-select: text;
+  -webkit-text-size-adjust: 140%;
+  -moz-text-size-adjust: 140%;
+  -webkit-appearance: textarea;
+  background: #fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(white),
+    to(white) );
+  border: 0;
+  font-size: 1em;
+  height: 1em;
+  padding: 0;
+  text-align: center;
+  width: 3em;
 }
 
 control narrowNumField(n : Num, onchange : Callback = null) {
-  <input type="text" databind=n onchange=onchange class=narrowNumFieldStyle/>
+  <input type="text" databind=n onkeyup={
+    if(!Math.isNaN(n)) {
+      onchange();
+    }
+  } class=narrowNumFieldStyle/>
 }
 
 control datePicker(d : DateTime) {
   var visible = false
   var day = d.getDate()
+  var year = d.getFullYear()
   label(d.toDateString(), onclick={
     visible = visible ? false : true;
   })
@@ -30,7 +49,7 @@ control datePicker(d : DateTime) {
       day = d.getDate();
       d = d;
     })<br/>
-    narrowNumField(day, onchange={ d.setDate(day); })<br/>
+    narrowNumField(day, onchange={ d.setDate(day); d=d; })<br/>
     button("-", onclick={
       d.setDate(d.getDate() - 1);
       d = d;
@@ -50,11 +69,13 @@ control datePicker(d : DateTime) {
     <div style="float: left; text-align: center;">
     button("+", onclick={
       d.setFullYear(d.getFullYear() + 1);
+      year = d.getFullYear();
       d = d;
     })<br/>
-    label(d.getFullYear())<br/>
+    narrowNumField(year, onchange={ d.setFullYear(year); d=d; })<br/>
     button("-", onclick={
       d.setFullYear(d.getFullYear() - 1);
+      year = d.getFullYear();
       d = d;
     })
     </div>
