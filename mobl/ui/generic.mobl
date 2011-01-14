@@ -13,13 +13,9 @@ load mobl/ui/generic/touchscroll.css*/
 resource mobl/ui/generic/arrow.png
 resource mobl/ui/generic/contextmenu.png
 
-// blue
 style $baseColor = rgb(72, 100, 180)
-// green
 style $baseColorGreen = rgb(60, 150, 30)
-// red
 style $baseColorRed = rgb(150, 50, 20)
-// red-ish
 style $baseColorRedish = rgb(150, 80, 0)
 
 style $buttonFromColor = rgb($baseColor.r+170, $baseColor.g+170, $baseColor.b+170)
@@ -248,36 +244,15 @@ style itemPushedStyle {
   itemMixin(#eee, $baseColor);
 }
 
-/*control item(style : Style = itemStyle, pushedStyle : Style = itemPushedStyle, onclick : Callback = null, onswipe : Callback = null) {
-  var pushed = false
-  el@<li class=itemStyle class=pushed ? pushedStyle : style ontouchdown=onclick ? {
-    pushed = true;
-  } : {}
-  ontouchdrag=onclick ? {
-    if(event.y < 0 || event.y > el.outerHeight() || event.x < 0 || event.x > el.outerWidth()) {
-      pushed = false;
-    }
-  } : {}
-  ontouchup=onclick ? {
-    event.preventDefault();
-    if(pushed) {
-      pushed = false;
-      onclick();
-    }
-  } : {}
-  onmouseout=onclick ? {
-    if(pushed) {
-      pushed = false;
-    }
-  } : {}
-  style=onclick ? "background-image: url(mobl/ui/generic/arrow.png); background-position: right center;  background-repeat: no-repeat;" : "">
-    elements()
-  </li>
-}*/
+style itemArrowStyle {
+  background-image: url(generic/arrow.png);
+  background-position: right center;
+  background-repeat: no-repeat;
+}
 
 control item(style : Style = itemStyle, pushedStyle : Style = itemPushedStyle, onclick : Callback = null, onswipe : Callback = null, hideArrow : Bool = false) {
   var pushed = false
-  el@<li class=itemStyle class=pushed ? pushedStyle : style
+  el@<li class=itemStyle class=onclick && hideArrow == false ? mergeStyles([pushed ? pushedStyle : style, itemArrowStyle]) : (pushed ? pushedStyle : style)
   onclick=onclick ? {
     pushed = true;
     sleep(100);
@@ -286,34 +261,7 @@ control item(style : Style = itemStyle, pushedStyle : Style = itemPushedStyle, o
     }
     sleep(200);
     pushed = false;
-  } : null
-  style=onclick && hideArrow == false ? "background-image: url(mobl/ui/generic/arrow.png); background-position: right center;  background-repeat: no-repeat;" : "">
-    elements()
-  </li>
-}
-
-style itemArrowStyle {
-  background-color: #FFFFFF;
-  border: 1px solid #cccccc;
-  border-left: 0;
-  border-right: 0;
-  color: black;
-  display: block;
-  font-size: 17px;
-  margin-bottom: -1px;
-  padding: 12px 10px;
-  text-decoration: none;
-  background-image: url(generic/arrow.png);
-  background-position: right center;
-  background-repeat: no-repeat;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-control itemArrow(onclick : Callback = null, onswipe : Callback = null) {
-  <li class=itemArrowStyle onclick=onclick>
+  } : null>
     elements()
   </li>
 }

@@ -204,6 +204,11 @@ external type JSON : Dynamic {
 external sync function now() : DateTime
 external sync function parseNum(s : String) : Num
 
+function mergeStyles(styles : [Style]) : Style {
+  var styleString : Dynamic = styles.join(" ");
+  return styleString;
+}
+
 external type Object {
   sync function toString() : String
 }
@@ -367,7 +372,7 @@ var argspec = persistence.argspec;
 
 mobl.$ = jQuery;
 
-mobl.sleep = function(time, callback) {
+__ns.sleep = function(time, callback) {
   setTimeout(callback, time);
 };
 
