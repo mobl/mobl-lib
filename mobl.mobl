@@ -80,6 +80,7 @@ external type Array<T> {
   function one() : T
   sync function map(fn : Function1<T, Dynamic>) : [Dynamic]
   sync function filter(fn : Function1<T, Bool>) : [T]
+  sync function reduce(fn : Function2<T, T, Dynamic>) : Dynamic
   sync function contains(el : T) : Bool
   sync function splice(idx : Num, numToDelete : Num) : Array<T>
   sync function insert(idx : Num, item : T) : void
