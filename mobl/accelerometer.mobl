@@ -1,0 +1,51 @@
+module mobl::accelerometer
+
+external type DeviceMotionEvent {
+  acceleration                 : Acceleration
+  accelerationIncludingGravity : Acceleration
+  interval                     : Num
+  rotationRate                 : DeviceOrientationEvent
+}
+
+external type Acceleration {
+  x : Num
+  y : Num
+  z : Num
+}
+
+external type DeviceOrientationEvent {
+  alpha : Num
+  beta  : Num
+  gamma : Num
+}
+
+external sync function subscribeDeviceMotion(fn : Function1<DeviceMotionEvent, void>) : void
+external sync function subscribeDeviceOrientation(fn : Function1<DeviceOrientationEvent, void>) : void
+
+<javascript>
+__ns.motionSubscribers = [];
+__ns.orientationSubscribers = [];
+
+__ns.subscribeDeviceMotion = function(fn) {
+  __ns.motionSubscribers.push(fn);
+  if(__ns.motionSubscribers.length === 1) {
+    // First, let's start this baby up!
+    window.addEventListener('devicemotion', function(evt) {
+      __ns.motionSubscribers.forEach(function(fn) {
+        fn(evt);
+      });
+    });
+  }
+};
+
+__ns.subscribeDeviceOrientation = function(fn) {
+  __ns.orientationSubscribers.push(fn);
+  if(__ns.orientationSubscribers.length === 1) {
+    window.addEventListener('deviceorientation', function(evt) {
+      __ns.orientationSubscribers.forEach(function(fn) {
+        fn(evt);
+      });
+    });
+   }
+};
+</javascript>

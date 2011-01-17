@@ -1,0 +1,13 @@
+module mobl::reflect
+
+external type Reflector {
+  static sync function getProperties(obj : Object) : [String]
+}
+
+<javascript>
+__ns.Reflector = {
+  getProperties: function(o) {
+    return Object.keys(o);
+  }
+};
+</javascript>
