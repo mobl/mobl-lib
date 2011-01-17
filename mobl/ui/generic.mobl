@@ -12,6 +12,7 @@ load mobl/ui/generic/touchscroll.css*/
 
 resource mobl/ui/generic/arrow.png
 resource mobl/ui/generic/contextmenu.png
+resource mobl/ui/generic/loading-large.gif
 
 style $baseColor = rgb(72, 100, 180)
 style $baseColorGreen = rgb(60, 150, 30)
@@ -24,6 +25,34 @@ style $buttonPushedFromColor = rgb($baseColor.r+100, $baseColor.g+100, $baseColo
 style $buttonPushedToColor = rgb($baseColor.r+50, $baseColor.g+50, $baseColor.b+50)
 style $textButtonColor = rgb($baseColor.r~50, $baseColor.g~50, $baseColor.b~50)
 style $textButtonShadowColor = rgb($baseColor.r+100, $baseColor.g+100, $baseColor.b+100)
+
+
+style loadingStyle {
+  borderRadiusMixin(10px);
+  background-color: #000;
+  color: white;
+  font-size: 2em;
+  line-height: 2em;
+  font-weight: bold;
+  left: 10%;
+  margin: 0 auto;
+  position: absolute;
+  text-align: center;
+  top: 40%;
+  width: 80%;
+  z-index: 99;
+}
+
+control whenLoaded(value : Object) {
+  when(value) {
+    elements()
+  } else {
+    block(loadingStyle) {
+      "Loading..."
+      image("mobl/ui/generic/loading-large.gif", valign="middle")
+    }
+  }
+}
 
 style headerStyle {
   backgroundGradientMixin($baseColor, rgb($baseColor.r~40, $baseColor.g~40, $baseColor.b~40));

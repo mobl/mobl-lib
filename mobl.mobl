@@ -205,6 +205,9 @@ external type JSON : Dynamic {
 external sync function now() : DateTime
 external sync function parseNum(s : String) : Num
 
+@doc "URL Encodes a string"
+external sync function escape(s : String) : String
+
 function mergeStyles(styles : [Style]) : Style {
   var styleString : Dynamic = styles.join(" ");
   return styleString;
@@ -392,6 +395,10 @@ mobl.log = function(s, _, callback) {
 
 __ns.parseNum = function(s) {
   return parseInt(s, 10);
+};
+
+__ns.escape = function(s) {
+  return escape(s);
 };
 
 __ns.add = function(e) {
