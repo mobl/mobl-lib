@@ -244,8 +244,8 @@ control group() {
   </ul>
 }
 
-control image(url : String, onclick : Callback = null, valign : String = null) {
-  <img src=url onclick=onclick valign=valign/>
+control image(url : String, onclick : Callback = null, style : Style = null, valign : String = null, align : String = null) {
+  <img src=url class=style onclick=onclick valign=valign align=align/>
 }
 
 style mixin itemMixin($fontColor, $backgroundColor) {
