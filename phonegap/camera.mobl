@@ -1,0 +1,18 @@
+module phonegap::camera
+
+external type Camera {
+  static function takePicture(quality : Num = 50) : String
+  static function pickPictureFromLibrary(quality : Num) : String
+}
+
+<javascript>
+__ns.Camera = {
+  takePicture: function(quality, callback) {
+    navigator.camera.getPicture(function(result) {
+      callback(result);
+    }, function(err) {
+      callback(null);
+    }, {quality: quality, destinationType: Camera.DestinationType.FILE_URI }); //, { quality: quality, destinationType: Camera.DestinationType.FILE_URI, allowEdit: true, sourceType: Camera.PictureSourceType.CAMERA });
+  }
+};
+</javascript>
