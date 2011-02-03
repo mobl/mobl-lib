@@ -244,6 +244,8 @@ external type Collection<T> {
   @doc "Calculate the collection and return it as an array"
   function list() : Array<T>
 
+  function selectJSON(properties : [String]) : JSON
+
   sync function limit(n : Num) : Collection<T>
   sync function skip(n : Num) : Collection<T>
   sync function add(item : T) : void
@@ -632,7 +634,12 @@ if(!mobl.isAndroid) {
 
 $(function() {
     // Set flushing at interval
-    setInterval(function() { persistence.flush(); }, 2500);
+    setInterval(function() {
+      persistence.flush();
+      if(persistence.saveToLocalStorage) {
+        persistence.saveToLocalStorage();
+      }
+    }, 2500);
 });
 
 mobl.postCallHooks = [];

@@ -227,8 +227,8 @@ persistence.store.sql.config = function(persistence, dialect) {
       // Done
       callback(tx);
     } else {
-      executeQueriesSeq(tx, queries, function() {
-          callback(tx);
+      executeQueriesSeq(tx, queries, function(_, err) {
+          callback(tx, err);
         });
     }
   };
@@ -276,7 +276,8 @@ persistence.store.sql.config = function(persistence, dialect) {
         if(callback) {
           persistence.asyncParForEach(removeObjArray, function(obj, callback) {
               remove(obj, tx, callback);
-            }, function() {
+            }, function(result, err) {
+              if (err) return callback(result, err);
               persistence.asyncParForEach(persistObjArray, function(obj, callback) {
                   save(obj, tx, callback);
                 }, callback);
@@ -324,7 +325,7 @@ persistence.store.sql.config = function(persistence, dialect) {
               } else {
                 cb();
               }
-            });
+            }, cb);
         }
         if(tableArray.length > 0) {
           dropOneTable();
@@ -332,10 +333,10 @@ persistence.store.sql.config = function(persistence, dialect) {
           cb();
         }
 		
-        function cb() {
+        function cb(result, err) {
           session.clean();
           persistence.generatedTables = {};
-          if (callback) callback();
+          if (callback) callback(result, err);
         }
       }, true);
   };
@@ -415,13 +416,15 @@ persistence.store.sql.config = function(persistence, dialect) {
           qs.push(tm.outIdVar('?'));
           var sql = "INSERT INTO `" + obj._type + "` (" + properties.join(", ") + ") VALUES (" + qs.join(', ') + ")";
           obj._new = false;
-          tx.executeSql(sql, values, callback);
+          tx.executeSql(sql, values, callback, callback);
         } else {
           var sql = "UPDATE `" + obj._type + "` SET " + propertyPairs.join(',') + " WHERE id = " + tm.outId(obj.id);
-          tx.executeSql(sql, values, callback);
+          tx.executeSql(sql, values, callback, callback);
         }
       });
   }
+
+  persistence.save = save;
 
   function remove (obj, tx, callback) {
     var meta = persistence.getMeta(obj._type);
@@ -452,9 +455,13 @@ persistence.store.sql.config = function(persistence, dialect) {
     persistence.asyncForEach(queries, function(queryTuple, callback) {
         tx.executeSql(queryTuple[0], queryTuple[1], callback, function(_, err) {
             console.log(err.message);
-            callback();
+            callback(_, err);
           });
-      }, function() {
+      }, function(result, err) {
+        if (err && callback) {
+          callback(result, err);
+          return;
+        }
         if(callback) callback.apply(null, callbackArgs);
       });
   }
@@ -775,8 +782,8 @@ persistence.store.sql.config = function(persistence, dialect) {
               session.objectsRemoved.push({id: results[i].id, entity: entityName});
             }
             that.triggerEvent('change', that);
-            tx.executeSql(deleteSql, args2, callback);
-          });
+            tx.executeSql(deleteSql, args2, callback, callback);
+          }, callback);
       });
   };
 

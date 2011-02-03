@@ -27,19 +27,20 @@
 if(typeof window === 'undefined') {
   window = {};
 }
-if(typeof exports !== 'undefined') {
-  exports.console = console;
-}
+//if(typeof exports !== 'undefined') {
+  //exports.console = console;
+//}
 
-var persistence = (window && window.persistence) ? window.persistence : createPersistence();
-
-if(typeof exports !== 'undefined') {
-  exports.createPersistence = createPersistence;
-  exports.persistence = persistence;
-}
+window.persistence = (window && window.persistence) ? window.persistence : createPersistence();
 
 function createPersistence() {
   var persistence = {};
+
+  if(typeof exports !== 'undefined') {
+    exports.createPersistence = createPersistence;
+    exports.persistence = persistence;
+  }
+
 
 /**
  * Check for immutable fields
@@ -88,8 +89,8 @@ persistence.get = function(arg1, arg2) {
     persistence.globalPropertyListeners = {}; // EntityType__prop -> QueryColleciton obj
     persistence.queryCollectionCache = {}; // entityName -> uniqueString -> QueryCollection
 
-    persistence.getObjectsToRemove = function() { return this.objectsToRemove; }
-    persistence.getTrackedObjects = function() { return this.trackedObjects; }
+    persistence.getObjectsToRemove = function() { return this.objectsToRemove; };
+    persistence.getTrackedObjects = function() { return this.trackedObjects; };
 
     // Public Extension hooks
     persistence.entityDecoratorHooks = [];
@@ -169,6 +170,7 @@ persistence.get = function(arg1, arg2) {
     }
 
     persistence.getMeta = getMeta;
+    
 
     /**
      * A database session
@@ -260,7 +262,7 @@ persistence.get = function(arg1, arg2) {
         if(obj._new) {
           for(var p in obj._data) {
             if(obj._data.hasOwnProperty(p)) {
-              this.propertyChanged(obj, p, undefined, persistence.get(obj, p));
+              this.propertyChanged(obj, p, undefined, obj._data[p]);
             }
           }
         }
@@ -288,6 +290,7 @@ persistence.get = function(arg1, arg2) {
     persistence.clean = function () {
       this.trackedObjects = {};
       this.objectsToRemove = {};
+      this.objectsRemoved = [];
       this.globalPropertyListeners = {};
       this.queryCollectionCache = {};
     };
@@ -304,11 +307,11 @@ persistence.get = function(arg1, arg2) {
       array = array.slice(0); // Just to be sure
       function processOne() {
         var item = array.pop();
-        fn(item, function(result) {
+        fn(item, function(result, err) {
             if(array.length > 0) {
               processOne();
             } else {
-              callback();
+              callback(result, err);
             }
           });
       }
@@ -333,10 +336,10 @@ persistence.get = function(arg1, arg2) {
         callback();
       }
       for(var i = 0; i < array.length; i++) {
-        fn(array[i], function() {
+        fn(array[i], function(result, err) {
             completed++;
             if(completed === array.length) {
-              callback();
+              callback(result, err);
             }
           });
       }
@@ -367,7 +370,7 @@ persistence.get = function(arg1, arg2) {
         obj = args.obj;
 
         var that = this;
-        this.id = createUUID();
+        this.id = obj.id || persistence.createUUID();
         this._new = true;
         this._type = entityName;
         this._dirtyProperties = {};
@@ -427,7 +430,9 @@ persistence.get = function(arg1, arg2) {
                     that.triggerEvent('change', that, ref, val);
                   }, function() {
                     // getterCallback
-                    if (!that._data[ref] || that._data_obj[ref] !== undefined) {
+                    if (!that._data[ref]) {
+                      return null;
+                    } else if(that._data_obj[ref] !== undefined) {
                       return that._data_obj[ref];
                     } else if(that._data[ref] && session.trackedObjects[that._data[ref]]) {
                       that._data_obj[ref] = session.trackedObjects[that._data[ref]];
@@ -510,7 +515,9 @@ persistence.get = function(arg1, arg2) {
 
         for ( var f in obj) {
           if (obj.hasOwnProperty(f)) {
-            persistence.set(that, f, obj[f]);
+            if(f !== 'id') {
+              persistence.set(that, f, obj[f]);
+            }
           }
         }
       } // Entity
@@ -648,7 +655,7 @@ persistence.get = function(arg1, arg2) {
             if(p === 'id') {
               item.id = that.id;
             } else if(meta.hasOne[p]) {
-              item[p] = {id: itemData[p]};
+              item[p] = itemData[p] ? {id: itemData[p]} : null;
             } else {
               item[p] = persistence.entityValToJson(itemData[p], fieldSpec[p]);
             }
@@ -657,11 +664,16 @@ persistence.get = function(arg1, arg2) {
 
         persistence.asyncForEach(properties, function(p, callback) {
           if(meta.hasOne[p]) {
-            that.fetch(session, tx, p, function(obj) {
-                buildJSON(obj, tx, includeProperties[p], function(result) {
-                    item[p] = result;
-                    callback();
-                  });
+            that.fetch(tx, p, function(obj) {
+                if(obj) {
+                  buildJSON(obj, tx, includeProperties[p], function(result) {
+                      item[p] = result;
+                      callback();
+                    });
+                } else {
+                  item[p] = null;
+                  callback();
+                }
               });
           } else if(meta.hasMany[p]) {
             persistence.get(that, p).list(function(objs) {
@@ -685,19 +697,19 @@ persistence.get = function(arg1, arg2) {
         });
       }; // End of buildJson
 
-      Entity.prototype.fetch = function(session, tx, rel, callback) {
+      Entity.prototype.fetch = function(tx, rel, callback) {
         var args = argspec.getArgs(arguments, [
-            { name: 'session', optional: true, check: persistence.isSession, defaultValue: persistence },
             { name: 'tx', optional: true, check: persistence.isTransaction, defaultValue: null },
             { name: 'rel', optional: false, check: argspec.hasType('string') },
             { name: 'callback', optional: false, check: argspec.isCallback() }
           ]);
-        session = args.session;
         tx = args.tx;
         rel = args.rel;
         callback = args.callback;
 
         var that = this;
+        var session = this._session;
+
         if(!tx) {
           session.transaction(function(tx) {
               that.fetch(tx, rel, callback);
@@ -714,9 +726,10 @@ persistence.get = function(arg1, arg2) {
           }
         } else {
           var type = meta.hasOne[rel].type;
-          if (type.meta.isMixin)
+          if (type.meta.isMixin) {
             type = getEntity(this._data[rel + '_class']);
-          type.load(tx, this._data[rel], function(obj) {
+          }
+          type.load(session, tx, this._data[rel], function(obj) {
               that._data_obj[rel] = obj;
               if(callback) {
                 callback(obj);
@@ -737,7 +750,10 @@ persistence.get = function(arg1, arg2) {
        * of this entity in the database
        */
       Entity.all = function(session) {
-        session = session || persistence;
+        var args = argspec.getArgs(arguments, [
+            { name: 'session', optional: true, check: persistence.isSession, defaultValue: persistence }
+          ]);
+        session = args.session;
         return session.uniqueQueryCollection(new AllDbQueryCollection(session, entityName));
       };
 
@@ -764,13 +780,19 @@ persistence.get = function(arg1, arg2) {
           jsonObj = JSON.parse(jsonObj);
         }
 
+        if(!jsonObj) {
+          callback(null);
+          return;
+        }
+
         function loadedObj(obj) {
           if(!obj) {
-            obj = new Entity();
+            obj = new Entity(session);
             if(jsonObj.id) {
               obj.id = jsonObj.id;
             }
           }
+          session.add(obj);
           var expensiveProperties = [];
           for(var p in jsonObj) {
             if(jsonObj.hasOwnProperty(p)) {
@@ -819,7 +841,7 @@ persistence.get = function(arg1, arg2) {
         if(jsonObj.id) {
           Entity.load(session, tx, jsonObj.id, loadedObj);
         } else {
-          loadedObj(new Entity());
+          loadedObj(new Entity(session));
         }
       };
 
@@ -1021,36 +1043,50 @@ persistence.get = function(arg1, arg2) {
         }
       }
 
-      var finishedCount = 0;
       var result = {};
-      for(var i = 0; i < entities.length; i++) {
-        (function() {
-            var Entity = entities[i];
-            Entity.all().list(tx, function(all) {
-                result[Entity.meta.name] = all.map(function(e) {
-                    var rec = {};
-                    var fields = Entity.meta.fields;
-                    for(var f in fields) {
-                      if(fields.hasOwnProperty(f)) {
-                        rec[f] = persistence.entityValToJson(e._data[f], fields[f]);
-                      }
+      persistence.asyncParForEach(entities, function(Entity, callback) {
+          Entity.all().list(tx, function(all) {
+              var items = [];
+              persistence.asyncParForEach(all, function(e, callback) {
+                  var rec = {};
+                  var fields = Entity.meta.fields;
+                  for(var f in fields) {
+                    if(fields.hasOwnProperty(f)) {
+                      rec[f] = persistence.entityValToJson(e._data[f], fields[f]);
                     }
-                    var refs = Entity.meta.hasOne;
-                    for(var r in refs) {
-                      if(refs.hasOwnProperty(r)) {
-                        rec[r] = e._data[r];
-                      }
+                  }
+                  var refs = Entity.meta.hasOne;
+                  for(var r in refs) {
+                    if(refs.hasOwnProperty(r)) {
+                      rec[r] = e._data[r];
                     }
-                    rec.id = e.id;
-                    return rec;
-                  });
-                finishedCount++;
-                if(finishedCount === entities.length) {
-                  callback(result);
-                }
-              });
-          }());
-      }
+                  }
+                  var colls = Entity.meta.hasMany;
+                  var collArray = [];
+                  for(var coll in colls) {
+                    if(colls.hasOwnProperty(coll)) {
+                      collArray.push(coll);
+                    }
+                  }
+                  persistence.asyncParForEach(collArray, function(collP, callback) {
+                      var coll = persistence.get(e, collP);
+                      coll.list(tx, function(results) {
+                          rec[collP] = results.map(function(r) { return r.id; });
+                          callback();
+                        });
+                    }, function() {
+                      rec.id = e.id;
+                      items.push(rec);
+                      callback();
+                    });
+                }, function() {
+                  result[Entity.meta.name] = items;
+                  callback();
+                });
+            });
+        }, function() {
+          callback(result);
+        });
     };
 
     /**
@@ -1070,6 +1106,8 @@ persistence.get = function(arg1, arg2) {
       callback = args.callback;
 
       var finishedCount = 0;
+      var collItemsToAdd = [];
+      var session = this;
       for(var entityName in dump) {
         if(dump.hasOwnProperty(entityName)) {
           var Entity = getEntity(entityName);
@@ -1078,10 +1116,22 @@ persistence.get = function(arg1, arg2) {
           for(var i = 0; i < instances.length; i++) {
             var instance = instances[i];
             var ent = new Entity();
+            ent.id = instance.id;
             for(var p in instance) {
               if(instance.hasOwnProperty(p)) {
                 if (persistence.isImmutable(p)) {
                   ent[p] = instance[p];
+                } else if(Entity.meta.hasMany[p]) { // collection
+                  var many = Entity.meta.hasMany[p];
+                  if(many.manyToMany && Entity.meta.name < many.type.meta.name) { // Arbitrary way to avoid double adding
+                    continue;
+                  }
+                  var coll = persistence.get(ent, p);
+                  if(instance[p].length > 0) {
+                    instance[p].forEach(function(it) {
+                        collItemsToAdd.push({Entity: Entity, coll: coll, id: it});
+                      });
+                  }
                 } else {
                   persistence.set(ent, p, persistence.jsonToEntityVal(instance[p], fields[p]));
                 }
@@ -1091,7 +1141,16 @@ persistence.get = function(arg1, arg2) {
           }
         }
       }
-      this.flush(tx, callback);
+      session.flush(tx, function() {
+          persistence.asyncForEach(collItemsToAdd, function(collItem, callback) {
+              collItem.Entity.load(session, tx, collItem.id, function(obj) {
+                  collItem.coll.add(obj);
+                  callback();
+                });
+            }, function() {
+              session.flush(tx, callback);
+            });
+        });
     };
 
     /**
@@ -1103,7 +1162,7 @@ persistence.get = function(arg1, arg2) {
     persistence.dumpToJson = function(tx, entities, callback) {
       var args = argspec.getArgs(arguments, [
           { name: 'tx', optional: true, check: persistence.isTransaction, defaultValue: null },
-          { name: 'entities', optional: true, check: function(obj) { return obj && obj.length; }, defaultValue: null },
+          { name: 'entities', optional: true, check: function(obj) { return obj && obj.length && !obj.apply; }, defaultValue: null },
           { name: 'callback', optional: false, check: argspec.isCallback(), defaultValue: function(){} }
         ]);
       tx = args.tx;
@@ -1454,6 +1513,9 @@ persistence.get = function(arg1, arg2) {
      */
     persistence.uniqueQueryCollection = function(coll) {
       var entityName = coll._entityName;
+      if(coll._items) { // LocalQueryCollection
+        return coll;
+      }
       if(!this.queryCollectionCache[entityName]) {
         this.queryCollectionCache[entityName] = {};
       }
@@ -1886,6 +1948,7 @@ persistence.get = function(arg1, arg2) {
 
     LocalQueryCollection.prototype.add = function(obj) {
       if(!arrayContains(this._items, obj)) {
+        this._session.add(obj);
         this._items.push(obj);
         this.triggerEvent('add', this, obj);
         this.triggerEvent('change', this, obj);

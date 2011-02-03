@@ -244,8 +244,8 @@ control group() {
   </ul>
 }
 
-control image(url : String, onclick : Callback = null, style : Style = null, valign : String = null, align : String = null) {
-  <img src=url class=style onclick=onclick valign=valign align=align/>
+control image(url : String, width : Num = null, height : Num = null, onclick : Callback = null, style : Style = null, valign : String = null, align : String = null) {
+  <img src=url width=width height=height class=style onclick=onclick valign=valign align=align/>
 }
 
 style mixin itemMixin($fontColor, $backgroundColor) {
@@ -295,10 +295,15 @@ control item(style : Style = itemStyle, pushedStyle : Style = itemPushedStyle, o
   </li>
 }
 
-control checkBox(b : Bool, label : String = "") {
-  <input type="checkbox" databind=b onclick={}/>
+control checkBox(b : Bool, label : String = "", onchange : Callback = null) {
+  <input type="checkbox" databind=b onclick={} onchange=onchange/>
   " "
-  <span databind=label onclick={ b = b ? false : true; }/>
+  <span databind=label onclick={
+    b = !b;
+    if(onchange) {
+      onchange();
+    }
+  }/>
 }
 
 style textFieldStyle {
@@ -322,14 +327,14 @@ style textFieldStyle {
   width: 100%;
 }
 
-control textField(s : String, placeholder : String = null, label : String = null, onchange : Callback = null) {
+control textField(s : String, placeholder : String = null, label : String = null, onchange : Callback = null, onkeyup : Callback = null) {
   when(label) {
     <span style="float: left; margin-top: 0.2em; width: 5em; color: #666;" databind=label/>
     <span style="float: left">
-      <input type="text" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onblur={ scrollUp(); }/>
+      <input type="text" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
     </span>
   } else {
-    <input type="text" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onblur={ scrollUp(); }/>
+    <input type="text" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
   }
 }
 
@@ -504,9 +509,9 @@ style searchBoxInputStyle {
   background-position: right center;
 }
 
-control searchBox(s : String, placeholder : String = null, onsearch : Callback = null) {
+control searchBox(s : String, placeholder : String = null, onsearch : Callback = null, onkeyup : Callback = null) {
   <div class=searchboxStyle>
-    <input type="text" class=searchBoxInputStyle placeholder=placeholder databind=s onchange=onsearch autocorrect="off" autocapitalize="off" autocomplete="off"/>
+    <input type="text" class=searchBoxInputStyle placeholder=placeholder databind=s onchange=onsearch onkeyup=onkeyup autocorrect="off" autocapitalize="off" autocomplete="off"/>
   </div>
 }
 

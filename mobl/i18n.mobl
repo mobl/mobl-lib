@@ -1,0 +1,28 @@
+module mobl::i18n
+
+external function fetchLanguageBundle(path : String) : void
+
+external sync function _(key : String, placeholders : [Object] = []) : String
+
+<javascript>
+var bundle = {};
+__ns.fetchLanguageBundle = function(path, callback) {
+  $.getJSON(path, function(json) {
+    bundle = json;
+    callback();
+  });
+};
+
+__ns._ = function(key, placeholders) {
+  var s = bundle[key];
+  var parts = s.split('%%');
+  s = parts[0];
+  for(var i = 0; i < placeholders.length; i++) {
+    s += placeholders[i];
+    if(parts[i+1]) {
+      s += parts[i+1];
+    }
+  }
+  return s;
+};
+</javascript>
