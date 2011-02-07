@@ -1,7 +1,9 @@
 module mobl::i18n
 
+@doc "Load a localization bundle"
 external function fetchLanguageBundle(path : String) : void
 
+@doc "Retrieve an localized string from the loaded bundle"
 external sync function _(key : String, placeholders : [Object] = []) : String
 
 <javascript>

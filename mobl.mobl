@@ -68,7 +68,7 @@ external type RegExp : Object {
     source : String
     sync function compile(regexp : RegExp) : void
     sync function compile(regexp : RegExp, modifier : String) : void
-    sync function exec(string : String) : String
+    sync function exec(string : String) : [String]
     sync function test(string : String) : Bool
 }
 
@@ -78,9 +78,9 @@ external type Array<T> {
   sync function push(item : T) : void
   sync function join(sep : String) : String
   function one() : T
-  sync function map(fn : Function1<T, Dynamic>) : [Dynamic]
+  sync function map(fn : Function1<T, Dynamic>) : [?]
   sync function filter(fn : Function1<T, Bool>) : [T]
-  sync function reduce(fn : Function2<T, T, Dynamic>) : Dynamic
+  sync function reduce(fn : Function2<T, T, ?>) : ?
   sync function contains(el : T) : Bool
   sync function splice(idx : Num, numToDelete : Num) : Array<T>
   sync function insert(idx : Num, item : T) : void
@@ -198,7 +198,7 @@ external type Math {
 }
 
 external type JSON : Dynamic {
-  static sync function parse(s : String) : Dynamic
+  static sync function parse(s : String) : JSON
   static sync function stringify(obj : Object) : String
 }
 
