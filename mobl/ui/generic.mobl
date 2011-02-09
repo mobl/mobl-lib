@@ -622,7 +622,7 @@ control zoomList(coll : Collection<?>, listCtrl : Control1<?>, zoomCtrl : Contro
       when(it == selected) {
         item { zoomCtrl(it) }
       } else {
-        item(onclick={ selected = it; }) {
+        item(onclick={ selected = it; }, hideArrow=true) {
           listCtrl(it)
         }
       }

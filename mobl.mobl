@@ -355,8 +355,8 @@ external sync function $(sel : String) : JQuery
 @doc "Injects given HTML directly into the screen"
 external control html(html : String)
 
-control label(s : Object, onclick : Callback = null) {
-  <span databind=s onclick=onclick></span>
+control label(s : Object, style : Style = null, onclick : Callback = null) {
+  <span databind=s class=style onclick=onclick></span>
 }
 
 control link(url : String, target : String = "_blank") {
