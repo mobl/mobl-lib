@@ -1,7 +1,0 @@
-[ StyleProperty(
-    "content"
-  , StyleExps(
-      [StyleCall("url", [StyleExps([String("\"generic/accordion-down.png\"")])])]
-    )
-  )
-]

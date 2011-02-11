@@ -129,6 +129,7 @@ external type Control4<T1, T2, T3, T4> { }
 external type Control5<T1, T2, T3, T4, T5> { }
 
 external type Callback {}
+
 external type Function0<RT> { }
 external type Function1<T1, RT> { }
 external type Function2<T1, T2, RT> { }

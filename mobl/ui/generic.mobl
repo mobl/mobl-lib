@@ -274,7 +274,7 @@ style itemPushedStyle {
 }
 
 style itemArrowStyle {
-  background-image: url(generic/arrow.png);
+  background-image: url("generic/arrow.png");
   background-position: right center;
   background-repeat: no-repeat;
 }
@@ -504,7 +504,7 @@ style searchBoxInputStyle {
   margin-left: 0px;
   width: 100%;
 
-  background-image: url(generic/search.png);
+  background-image: url("generic/search.png");
   background-repeat: no-repeat;
   background-position: right center;
 }
