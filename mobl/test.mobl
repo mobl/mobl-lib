@@ -8,8 +8,8 @@ var testLogs = Collection<TestSuiteResult>();
 var currentSuiteResult : TestSuiteResult = null; 
 
 type TestSuiteResult {
-	description : String
-	results     : Collection<TestResult>
+  description : String
+  results     : Collection<TestResult>
 }
 
 type TestResult {
@@ -37,9 +37,9 @@ function assert(value : Bool, description : String = "assert") {
 
 // Internal use only
 function runAllTests() {
-	foreach((description, runTests) in testSuites) {
-  	currentSuiteResult = TestSuiteResult(description=description, results=Collection<TestResult>());
-  	testLogs.add(currentSuiteResult);
+  foreach((description, runTests) in testSuites) {
+    currentSuiteResult = TestSuiteResult(description=description, results=Collection<TestResult>());
+    testLogs.add(currentSuiteResult);
     runTests(null); 
   }
 }
@@ -47,21 +47,21 @@ function runAllTests() {
 control testRunner() {
   group {
     list(tsr in testLogs) {
-    	item(style=suiteItemStyle) { label(tsr.description) }
-    	list(tr in tsr.results) {
-	      item(style=tr.success ? successItemStyle : failureItemStyle) {
-	        when(tr.success) {
-	          label("[OK] " + tr.description)
-	        } else {
-	          label("[FAIL] " + tr.description)
-	          when(tr.message) {
-	          	block(descriptionStyle) {
-	          		label(tr.message)
-	          	}
-	          }
-	        }
-	      }
-	    }
+      item(style=suiteItemStyle) { label(tsr.description) }
+      list(tr in tsr.results) {
+        item(style=tr.success ? successItemStyle : failureItemStyle) {
+          when(tr.success) {
+            label("[OK] " + tr.description)
+          } else {
+            label("[FAIL] " + tr.description)
+            when(tr.message) {
+              block(descriptionStyle) {
+                label(tr.message)
+              }
+            }
+          }
+        }
+      }
     }
   }
   script {
