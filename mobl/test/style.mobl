@@ -14,12 +14,21 @@ style failureItemStyle {
 	backgroundGradientMixin(#c22, #a22);
 }
 
-style suiteItemStyle {
+style mixin testItemStyleMixin($color) {
 	padding: 10px;
-	color: white;
+	color: $color;
 	font-weight: bold;
 	text-align: center;
+}
+
+style suiteItemStyle {
+	testItemStyleMixin(white);
 	backgroundGradientMixin(#000, #444);
+}
+
+style caseItemStyle {
+	testItemStyleMixin(black);
+	backgroundGradientMixin(#808080, #C0C0C0);
 }
 
 style descriptionStyle {

@@ -3,42 +3,75 @@ module mobl::test
 import mobl::ui::generic
 import mobl::test::style
 
-var testSuites : [(String, Callback)] = Array<(String, Callback)>();
+var testSuites : [(String, String, Callback)] = Array<(String, String, Callback)>();
 var testLogs = Collection<TestSuiteResult>();
-var currentSuiteResult : TestSuiteResult = null;
+var currentSuiteResult : TestSuiteResult = null; 
+var currentCaseResult : TestCaseResult = null; 
+var currentSuite : String = "suite";
+var currentCase : String = "case";
 
 type TestSuiteResult {
+  description : String
+  cases       : Collection<TestCaseResult>
+}
+
+type TestCaseResult {
   description : String
   results     : Collection<TestResult>
 }
 
 type TestResult {
-  description : String
   message     : String
   success     : Bool
 }
 
 @doc "Defines a new test suite"
-function testSuite(description : String, tests : Callback) {
-  testSuites.push((description, tests));
+function testSuite(suite : String, cases : Callback) {
+  currentSuite = suite;
+  cases(null);
 }
 
-function assertEqual(expected : Object, actual : Object, description : String = "assertEqual") {
+@doc "Defines a new test case"
+function testCase(description : String, tests : Callback) {
+  testSuites.push((currentSuite, description, tests));
+}
+
+function assertEqual(expected : Object, actual : Object) {
   if(expected == actual) {
-    currentSuiteResult.results.add(TestResult(description=description, success=true));
+    currentCaseResult.results.add(TestResult(success=true));
   } else {
-    currentSuiteResult.results.add(TestResult(description=description, success=false, message="Expected: " + expected + " Got: " + actual));
+    currentCaseResult.results.add(TestResult(success=false, message="Expected: " + expected + " Got: " + actual));
   }
 }
 
-function assert(value : Bool, description : String = "assert") {
-  currentSuiteResult.results.add(TestResult(description=description, success=value));
+function assert(value : Bool) {
+  currentCaseResult.results.add(TestResult(success=value));
+}
+
+function findTestCaseResult(description : String) : TestCaseResult {
+  foreach (kase in currentSuiteResult.cases) {
+  	if (kase.description == description) {
+  		return kase;
+  	}
+  }
+  return TestCaseResult(description=description, results=Collection<TestResult>());
+}
+
+function findTestSuiteResult(suite : String) : TestSuiteResult {
+  foreach (tsr in testLogs) {
+  	if (tsr.description == suite) {
+  		return tsr;
+  	}
+  }
+  return TestSuiteResult(description=suite, cases=Collection<TestCaseResult>());
 }
 
 // Internal use only
 function runAllTests() {
-  foreach((description, runTests) in testSuites) {
-    currentSuiteResult = TestSuiteResult(description=description, results=Collection<TestResult>());
+  foreach((suite, description, runTests) in testSuites) {
+    currentSuiteResult = findTestSuiteResult(suite);
+    currentCaseResult = findTestCaseResult(description);
+    currentSuiteResult.cases.add(currentCaseResult);
     testLogs.add(currentSuiteResult);
     runTests(null);
   }
@@ -48,15 +81,18 @@ control testRunner() {
   group {
     list(tsr in testLogs) {
       item(style=suiteItemStyle) { label(tsr.description) }
-      list(tr in tsr.results) {
-        item(style=tr.success ? successItemStyle : failureItemStyle) {
-          when(tr.success) {
-            label("[OK] " + tr.description)
-          } else {
-            label("[FAIL] " + tr.description)
-            when(tr.message) {
-              block(descriptionStyle) {
-                label(tr.message)
+      list(tcr in tsr.cases) {
+        item(style=caseItemStyle) { label(tcr.description) }
+        list(tr in tcr.results) {
+          item(style=tr.success ? successItemStyle : failureItemStyle) {
+            when(tr.success) {
+              label("[OK] ")
+            } else {
+              label("[FAIL] ")
+              when(tr.message) {
+                block(descriptionStyle) {
+                  label(tr.message)
+                }
               }
             }
           }
