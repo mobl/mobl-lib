@@ -8,7 +8,6 @@ var testSuites : [(String, String, Callback)] = Array<(String, String, Callback)
 var testLogs = Collection<TestSuiteResult>();
 var currentCaseResult : TestCaseResult = null; 
 var currentSuite : String = "suite";
-var currentCase : String = "case";
 
 @doc "Defines a new test suite"
 function testSuite(suite : String, cases : Callback) {
