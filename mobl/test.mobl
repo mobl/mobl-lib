@@ -33,31 +33,26 @@ function assert(value : Bool) {
   currentCaseResult.results.add(TestResult(success=value));
 }
 
-function findTestCaseResult(description : String, tsr : TestSuiteResult) : TestCaseResult {
-  foreach (kase in tsr.cases) {
-    if (kase.description == description) {
-      return kase;
-    }
+function find(property : String, value : String, collection : Collection<Object>, hollow : Object = null) : Dynamic {
+  var item = collection.filter(property, "=", value).one();
+  if (item == null) {
+  	item = hollow;
+    collection.add(item);
   }
-  return TestCaseResult(description=description, results=Collection<TestResult>());
+  return item;
 }
 
-function findTestSuiteResult(suite : String) : TestSuiteResult {
-  foreach (tsr in testLogs) {
-    if (tsr.description == suite) {
-      return tsr;
-    }
-  }
-  return TestSuiteResult(description=suite, cases=Collection<TestCaseResult>());
+function logTestSuite(suite : String, description : String) {
+  var tsr = find("description", suite, testLogs,
+    TestSuiteResult(description=suite, cases=Collection<TestCaseResult>()));
+  currentCaseResult = find("description", description, tsr.cases,
+    TestCaseResult(description=description, results=Collection<TestResult>()));
 }
 
 // Internal use only
 function runAllTests() {
   foreach((suite, description, runTests) in testSuites) {
-    var tsr = findTestSuiteResult(suite);
-    currentCaseResult = findTestCaseResult(description, tsr);
-    tsr.cases.add(currentCaseResult);
-    testLogs.add(tsr);
+  	logTestSuite(suite, description);
     runTests(null); 
   }
 }
