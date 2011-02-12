@@ -35,7 +35,7 @@ function assert(value : Bool) {
 
 function find(property : String, value : String, collection : Collection<Object>, hollow : Object = null) : Dynamic {
   var item = collection.filter(property, "=", value).one();
-  if (item == null) {
+  if (hollow != null && item == null) {
   	item = hollow;
     collection.add(item);
   }
