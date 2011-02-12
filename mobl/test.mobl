@@ -42,17 +42,17 @@ function find(property : String, value : String, collection : Collection<Object>
   return item;
 }
 
-function logTestSuite(suite : String, description : String) {
+function logTestSuite(suite : String, kase : String) {
   var tsr = find("description", suite, testLogs,
     TestSuiteResult(description=suite, cases=Collection<TestCaseResult>()));
-  currentCaseResult = find("description", description, tsr.cases,
-    TestCaseResult(description=description, results=Collection<TestResult>()));
+  currentCaseResult = find("description", kase, tsr.cases,
+    TestCaseResult(description=kase, results=Collection<TestResult>()));
 }
 
 // Internal use only
 function runAllTests() {
-  foreach((suite, description, runTests) in testSuites) {
-  	logTestSuite(suite, description);
+  foreach((suite, kase, runTests) in testSuites) {
+  	logTestSuite(suite, kase);
     runTests(null); 
   }
 }
