@@ -29,7 +29,7 @@ style narrowNumFieldStyle {
 control narrowNumField(n : Num, onchange : Callback = null) {
   <input type="text" databind=n onkeyup={
     if(!Math.isNaN(n)) {
-      onchange();
+      onchange(null);
     }
   } class=narrowNumFieldStyle/>
 }
