@@ -45,14 +45,16 @@ function logTestSuite(suite : String, kase : String) {
   var tsr = find("description", suite, testLogs,
     TestSuiteResult(description=suite, cases=Collection<TestCaseResult>()));
   currentCaseResult = find("description", kase, tsr.cases,
-    TestCaseResult(description=kase, results=Collection<TestResult>()));
+    TestCaseResult(description=kase, results=Collection<TestResult>(), elapsed=0));
 }
 
 // Internal use only
 function runAllTests() {
   foreach((suite, kase, runTests) in testSuites) {
   	logTestSuite(suite, kase);
-    runTests(null); 
+  	var start = now().getTime();
+    runTests(null);
+    currentCaseResult.elapsed = now().getTime() - start;
   }
 }
 
@@ -61,7 +63,7 @@ control testRunner() {
     list(tsr in testLogs) {
       item(style=suiteItemStyle) { label(tsr.description) }
       list(tcr in tsr.cases) {
-        item(style=caseItemStyle) { label(tcr.description) }
+        item(style=caseItemStyle) { label(tcr.description + " (elapsed " + tcr.elapsed + " ms)") }
         list(tr in tcr.results) {
           item(style=tr.success ? successItemStyle : failureItemStyle) {
             when(tr.success) {

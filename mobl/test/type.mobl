@@ -8,6 +8,7 @@ type TestSuiteResult {
 type TestCaseResult {
   description : String
   results     : Collection<TestResult>
+  elapsed     : Num
 }
 
 type TestResult {
