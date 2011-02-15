@@ -367,12 +367,14 @@ control link(url : String, target : String = "_blank") {
 }
 
 control screenContext() {
-  <div class="screenContext">
+  <div class="screenContext" style="position: relative;">
     <div class="initialElements">
       elements()
     </div>
   </div>
 }
+
+load js/jquery-ui-1.7.2.custom.min.js
 
 <javascript>
 var argspec = persistence.argspec;
@@ -670,6 +672,7 @@ mobl.findDeepestVisibleContext = function() {
   }
 };
 
+var TRANSITION_SPEED = 150;
 mobl.call = function (screenName, args, callback) {
     var screenFrame = {
         name: screenName,
@@ -689,15 +692,17 @@ mobl.call = function (screenName, args, callback) {
         if(screenFrame.dom.find("div.screenContext").length > 0) { // pop context
           mobl.contextStack.pop();
         }
-        screenFrame.dom.remove();
         mobl.delayedUpdateScrollers();
         if (screenContext.screens.length > 0) {
             var previousScreen = screenContext.screens[screenContext.screens.length - 1];
-            previousScreen.dom.show();
+            previousScreen.dom.show('slide', {direction: 'left'}, TRANSITION_SPEED);
             scrollTo(0, previousScreen.pageYOffset);
         } else {
-          screenContext.initialElements.show();
+          screenContext.initialElements.show('slide', {direction: 'left'}, TRANSITION_SPEED);
         }
+        screenFrame.dom.hide('slide', {direction: 'right'}, TRANSITION_SPEED, function() {
+        	screenFrame.dom.remove();
+        }); 
         if (callback) {
             callback.apply(null, arguments);
         }
@@ -711,17 +716,30 @@ mobl.call = function (screenName, args, callback) {
 
     var subs = screenTemplate.apply(null, args.concat( [ function (node) {
         node.attr('id', screenFrame.div);
+        node.css('position', 'absolute').css('top', '0').css('left', '0').css('width', '100%');
         screenFrame.dom = node;
         if (screenContext.screens.length > 1) {
-            var previousScreen = screenContext.screens[screenContext.screens.length - 2];
-            previousScreen.pageYOffset = window.pageYOffset;
-            previousScreen.dom.hide();
-            node.prependTo(screenContext.dom);
-            scrollTo(0, 0);
-        } else {
-          screenContext.initialElements = screenContext.dom.find("div.initialElements");
-          screenContext.initialElements.hide();
+          var previousScreen = screenContext.screens[screenContext.screens.length - 2];
+          previousScreen.pageYOffset = window.pageYOffset;
+          node.hide();
           node.prependTo(screenContext.dom);
+          node.show('slide', {direction: 'right'}, TRANSITION_SPEED);
+          previousScreen.dom.hide('slide', {direction: 'left'}, TRANSITION_SPEED);
+          scrollTo(0, 0);
+        } else {
+        	if(screenContext.dom.selector === 'body') {
+	          screenContext.initialElements = screenContext.dom.find("div.initialElements");
+	          node.prependTo(screenContext.dom);
+	          node.show();
+	          screenContext.initialElements.hide(); 
+        	} else {
+	          screenContext.initialElements = screenContext.dom.find("div.initialElements");
+	          node.hide();
+	          node.prependTo(screenContext.dom);
+	          node.show('slide', {direction: 'right'}, TRANSITION_SPEED);
+	          screenContext.initialElements.hide('slide', {direction: 'left'}, TRANSITION_SPEED); 
+	          scrollTo(0, 0);
+        	}
         }
         var localScreenContexts = node.find("div.screenContext");
         if(localScreenContexts.length > 0) {
