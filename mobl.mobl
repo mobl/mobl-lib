@@ -305,7 +305,7 @@ __ns.isTouchDevice = function() {
 };
 </javascript>
 
-external type JQuery { //: Dynamic {
+external type JQuery : Dynamic {
   length : Num
   sync function fadeIn(fn : Callback = null) : JQuery
   sync function fadeOut(fn : Callback = null) : JQuery
