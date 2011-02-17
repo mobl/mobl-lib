@@ -5,7 +5,7 @@ import mobl::test::style
 
 var testSuites : [(String, Callback)] = Array<(String, Callback)>();
 var testLogs = Collection<TestSuiteResult>();
-var currentSuiteResult : TestSuiteResult = null; 
+var currentSuiteResult : TestSuiteResult = null;
 
 type TestSuiteResult {
   description : String
@@ -40,7 +40,7 @@ function runAllTests() {
   foreach((description, runTests) in testSuites) {
     currentSuiteResult = TestSuiteResult(description=description, results=Collection<TestResult>());
     testLogs.add(currentSuiteResult);
-    runTests(null); 
+    runTests(null);
   }
 }
 

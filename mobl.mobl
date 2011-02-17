@@ -674,7 +674,29 @@ mobl.findDeepestVisibleContext = function() {
 };
 
 var TRANSITION_SPEED = 150;
-mobl.call = function (screenName, args, callback) {
+
+__ns.animations = {};
+
+__ns.animations.slide = function(prevNode, nextNode, forward, callback) {
+  nextNode.show('slide', {direction: forward ? 'right' : 'left'}, TRANSITION_SPEED);
+  prevNode.hide('slide', {direction: forward ? 'left' : 'right'}, TRANSITION_SPEED, callback);
+};
+
+__ns.animations.fade = function(prevNode, nextNode, forward, callback) {
+  nextNode.fadeIn(300);
+  prevNode.fadeOut(300, callback);
+};
+
+__ns.animations.none = function(prevNode, nextNode, forward, callback) {
+  nextNode.show();
+  prevNode.hide();
+  callback();
+};
+
+__ns.call = function (screenName, args, callback) {
+    var replace = args[args.length-2].get();
+    var animate = args[args.length-1].get();
+    args.splice(args.length-2, 2);
     var screenFrame = {
         name: screenName,
         args: args,
@@ -686,24 +708,28 @@ mobl.call = function (screenName, args, callback) {
     var screenContext = mobl.findDeepestVisibleContext();
 
     screenContext.screens.push(screenFrame);
+
+    // Called on "screen return"
     var callbackFn = function () {
         // when callback function is called (i.e. screen return)
-        subs.unsubscribe();
+        screenFrame.subs.unsubscribe();
         screenContext.screens.pop();
         if(screenFrame.dom.find("div.screenContext").length > 0) { // pop context
           mobl.contextStack.pop();
         }
         mobl.delayedUpdateScrollers();
+        var domNode;
         if (screenContext.screens.length > 0) {
             var previousScreen = screenContext.screens[screenContext.screens.length - 1];
-            previousScreen.dom.show('slide', {direction: 'left'}, TRANSITION_SPEED);
+            domNode = previousScreen.dom;
             scrollTo(0, previousScreen.pageYOffset);
         } else {
-          screenContext.initialElements.show('slide', {direction: 'left'}, TRANSITION_SPEED);
+          domNode = screenContext.initialElements;
+          scrollTo(0, 0);
         }
-        screenFrame.dom.hide('slide', {direction: 'right'}, TRANSITION_SPEED, function() {
-        	screenFrame.dom.remove();
-        }); 
+        __ns.animations[animate](screenFrame.dom, domNode, false, function() {
+          screenFrame.dom.remove();
+        });
         if (callback) {
             callback.apply(null, arguments);
         }
@@ -715,7 +741,7 @@ mobl.call = function (screenName, args, callback) {
     }
     var screenTemplate = current;
 
-    var subs = screenTemplate.apply(null, args.concat( [ function (node) {
+    screenFrame.subs = screenTemplate.apply(null, args.concat( [ function (node) {
         node.attr('id', screenFrame.div);
         node.css('position', 'absolute').css('top', '0').css('left', '0').css('width', '100%');
         screenFrame.dom = node;
@@ -724,23 +750,25 @@ mobl.call = function (screenName, args, callback) {
           previousScreen.pageYOffset = window.pageYOffset;
           node.hide();
           node.prependTo(screenContext.dom);
-          node.show('slide', {direction: 'right'}, TRANSITION_SPEED);
-          previousScreen.dom.hide('slide', {direction: 'left'}, TRANSITION_SPEED);
+          __ns.animations[animate](previousScreen.dom, node, true, function() { });
+          //node.show('slide', {direction: 'right'}, TRANSITION_SPEED);
+          //previousScreen.dom.hide('slide', {direction: 'left'}, TRANSITION_SPEED);
           scrollTo(0, 0);
         } else {
-        	if(screenContext.dom.selector === 'body') {
-	          screenContext.initialElements = screenContext.dom.find("div.initialElements");
-	          node.prependTo(screenContext.dom);
-	          node.show();
-	          screenContext.initialElements.hide(); 
-        	} else {
-	          screenContext.initialElements = screenContext.dom.find("div.initialElements");
-	          node.hide();
-	          node.prependTo(screenContext.dom);
-	          node.show('slide', {direction: 'right'}, TRANSITION_SPEED);
-	          screenContext.initialElements.hide('slide', {direction: 'left'}, TRANSITION_SPEED); 
-	          scrollTo(0, 0);
-        	}
+          if(screenContext.dom.selector === 'body') {
+            screenContext.initialElements = screenContext.dom.find("div.initialElements");
+            node.prependTo(screenContext.dom);
+            node.show();
+            screenContext.initialElements.hide();
+          } else {
+            screenContext.initialElements = screenContext.dom.find("div.initialElements");
+            node.hide();
+            node.prependTo(screenContext.dom);
+            //node.show('slide', {direction: 'right'}, TRANSITION_SPEED);
+            //screenContext.initialElements.hide('slide', {direction: 'left'}, TRANSITION_SPEED);
+            __ns.animations[animate](screenContext.initialElements, node, true, function() { });
+            scrollTo(0, 0);
+          }
         }
         var localScreenContexts = node.find("div.screenContext");
         if(localScreenContexts.length > 0) {
@@ -756,6 +784,14 @@ mobl.call = function (screenName, args, callback) {
         mobl.postCallHooks.forEach(function(fn) {
           fn(node);
         });
+
+        if(replace) {
+          var screenToRemove = screenContext.screens[screenContext.screens.length-2];
+          //screenToRemove.subs.unsubscribe();
+          //console.log(screenToRemove.dom.html());
+          screenToRemove.dom.remove();
+          screenContext.screens.splice(screenContext.screens.length-2, 1);
+        }
 
         $(function () {
             var scrollers = $("div#scrollwrapper div#content");
