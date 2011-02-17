@@ -5,19 +5,41 @@ import mobl::test::style
 import mobl::test::type
 
 var testSuites : [(String, String, Callback)] = Array<(String, String, Callback)>();
+var testCases : [(String, Callback)] = Array<(String, Callback)>();
 var testLogs = Collection<TestSuiteResult>();
-var currentCaseResult : TestCaseResult = null; 
-var currentSuite : String = "suite";
+var currentCaseResult : TestCaseResult = null;
+var caseSetUp : Callback = null;
+var caseTearDown : Callback = null;
 
 @doc "Defines a new test suite"
-function testSuite(suite : String, cases : Callback) {
-  currentSuite = suite;
-  cases(null);
+function testSuite(suite : String, cases : Array<Dynamic>) {
+  foreach ((description, block) in testCases) {
+    if (caseSetUp) {
+      testSuites.push((suite, description, caseSetUp));
+    }
+    testSuites.push((suite, description, block));
+    if (caseTearDown) {
+      testSuites.push((suite, description, caseTearDown));
+    }
+  }
+  testCases.length = 0;
+  caseSetUp = null;
+  caseTearDown = null;
 }
 
 @doc "Defines a new test case"
 function testCase(description : String, tests : Callback) {
-  testSuites.push((currentSuite, description, tests));
+  testCases.push((description, tests));
+}
+
+@doc "Defines a set up"
+function setUp(block : Callback) {
+  caseSetUp = block;
+}
+
+@doc "Defines a tear down"
+function tearDown(block : Callback) {
+  caseTearDown = block;
 }
 
 function assertEqual(expected : Object, actual : Object) {
@@ -45,7 +67,7 @@ function logTestSuite(suite : String, kase : String) {
   var tsr = find("description", suite, testLogs,
     TestSuiteResult(description=suite, cases=Collection<TestCaseResult>()));
   currentCaseResult = find("description", kase, tsr.cases,
-    TestCaseResult(description=kase, results=Collection<TestResult>(), elapsed=0));
+    TestCaseResult(description=kase, results=Collection<TestResult>(), elapsed=0, content=""));
 }
 
 // Internal use only
@@ -63,7 +85,7 @@ control testRunner() {
     list(tsr in testLogs) {
       item(style=suiteItemStyle) { label(tsr.description) }
       list(tcr in tsr.cases) {
-        item(style=caseItemStyle) { label(tcr.description + " (elapsed " + tcr.elapsed + " ms)") }
+        item(style=caseItemStyle) { label(tcr.description + " (" + tcr.elapsed + " ms)") }
         list(tr in tcr.results) {
           item(style=tr.success ? successItemStyle : failureItemStyle) {
             when(tr.success) {
@@ -74,6 +96,9 @@ control testRunner() {
                 block(descriptionStyle) {
                   label(tr.message)
                 }
+                // block(descriptionStyle) {
+                //   label("Line: ")
+                // }
               }
             }
           }
