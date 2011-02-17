@@ -67,7 +67,7 @@ function logTestSuite(suite : String, kase : String) {
   var tsr = find("description", suite, testLogs,
     TestSuiteResult(description=suite, cases=Collection<TestCaseResult>()));
   currentCaseResult = find("description", kase, tsr.cases,
-    TestCaseResult(description=kase, results=Collection<TestResult>(), elapsed=0, content=""));
+    TestCaseResult(description=kase, results=Collection<TestResult>(), elapsed=0));
 }
 
 // Internal use only
