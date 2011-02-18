@@ -5,7 +5,7 @@ import mobl::ui::stylemixin
 
 load mobl/ui/generic_ext.css
 load mobl/ui/generic/search.png
-/* 
+/*
 load mobl/ui/generic/css-beziers.js
 load mobl/ui/generic/touchscroll.js
 load mobl/ui/generic/touchscroll.css*/
@@ -246,7 +246,7 @@ control group() {
 
 control image(url : String, width : Num = null, height : Num = null, onclick : Callback = null, style : Style = null, valign : String = null, align : String = null) {
   <img src=url width=width height=height class=style onclick=onclick valign=valign align=align/>
-} 
+}
 
 style mixin itemMixin($fontColor, $backgroundColor) {
   background-color: $backgroundColor;
@@ -346,6 +346,17 @@ control numField(n : Num, placeholder : String = null, label : String = null, on
     </span>
   } else {
     <input type="text" class=textFieldStyle placeholder=placeholder databind=n onchange=onchange onblur={ scrollUp(); }/>
+  }
+}
+
+control passwordField(s : String, placeholder : String = null, label : String = null, onchange : Callback = null, onkeyup : Callback = null) {
+  when(label) {
+    <span style="float: left; margin-top: 0.2em; width: 5em; color: #666;" databind=label/>
+    <span style="float: left">
+      <input type="password" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
+    </span>
+  } else {
+    <input type="password" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
   }
 }
 
