@@ -57,7 +57,7 @@ function assert(value : Bool) {
 function find(property : String, value : String, collection : Collection<Object>, hollow : Object = null) : Dynamic {
   var item = collection.filter(property, "=", value).one();
   if (hollow != null && item == null) {
-  	item = hollow;
+    item = hollow;
     collection.add(item);
   }
   return item;
@@ -73,37 +73,52 @@ function logTestSuite(suite : String, kase : String) {
 // Internal use only
 function runAllTests() {
   foreach((suite, kase, runTests) in testSuites) {
-  	logTestSuite(suite, kase);
-  	var start = now().getTime();
+    logTestSuite(suite, kase);
+    var start = now().getTime();
     runTests(null);
     currentCaseResult.elapsed = now().getTime() - start;
   }
 }
 
-control testRunner() {
-  group {
-    list(tsr in testLogs) {
-      item(style=suiteItemStyle) { label(tsr.description) }
-      list(tcr in tsr.cases) {
-        item(style=caseItemStyle) { label(tcr.description + " (" + tcr.elapsed + " ms)") }
-        list(tr in tcr.results) {
-          item(style=tr.success ? successItemStyle : failureItemStyle) {
-            when(tr.success) {
-              label("[OK] ")
-            } else {
-              label("[FAIL] ")
-              when(tr.message) {
-                block(descriptionStyle) {
-                  label(tr.message)
-                }
-                // block(descriptionStyle) {
-                //   label("Line: ")
-                // }
-              }
-            }
+control showTestResults(results : Collection<TestResult>) {
+  list(result in results) {
+    item(style=result.success ? successItemStyle : failureItemStyle) {
+      when(result.success) {
+        label("[OK] ")
+      } else {
+        label("[FAIL] ")
+        when(result.message) {
+          block(descriptionStyle) {
+            label(result.message)
           }
         }
       }
+    }
+  }
+}
+
+control testRunner() {
+  var space = /\s/g
+  group {
+    list(tsr in testLogs) {
+      var tsr_id = tsr.description.replace(space, "_")
+      item(style=suiteItemStyle, pushedStyle=suiteItemStyle, onclick={
+          $("#" + tsr_id).slideToggle();
+        }) {
+        label(tsr.description)
+      }
+      <div id=tsr_id>
+        list(tcr in tsr.cases) {
+          var tcr_id = tcr.description.replace(space, "_")
+          item(style=caseItemStyle, pushedStyle=caseItemStyle, onclick={
+            $("#" + tcr_id).slideToggle();
+          }) {
+            label(tcr.description + " (" + tcr.elapsed + " ms)") }
+          <div id=tcr_id>
+            showTestResults(tcr.results)
+          </div>
+        }
+      </div>
     }
   }
   script {
