@@ -62,7 +62,7 @@ control itemArrow(onclick : Callback = null, onswipe : Callback = null) {
 }
 
 control checkBox(b : Bool, label : String = "") {
-  <span onclick={ b = b ? false : true; }>
+  <span onclick={ b = !b; }>
     <img src=b ? "mobl/ui/ios/checkbox-checked.png" : "mobl/ui/ios/checkbox.png" class="checkbox" />
     <span databind=label/>
   </span>
