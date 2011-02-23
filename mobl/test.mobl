@@ -101,7 +101,7 @@ control testRunner() {
   var space = /\s/g
   group {
     list(tsr in testLogs) {
-      var tsr_id = tsr.description.replace(space, "_")
+      var tsr_id = tsr.description.replace(space, "__")
       item(style=suiteItemStyle, pushedStyle=suiteItemStyle, onclick={
           $("#" + tsr_id).slideToggle();
         }) {
@@ -109,7 +109,7 @@ control testRunner() {
       }
       <div id=tsr_id>
         list(tcr in tsr.cases) {
-          var tcr_id = tcr.description.replace(space, "_")
+          var tcr_id = tcr.description.replace(space, "__")
           item(style=caseItemStyle, pushedStyle=caseItemStyle, onclick={
             $("#" + tcr_id).slideToggle();
           }) {
