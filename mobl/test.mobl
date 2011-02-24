@@ -54,6 +54,10 @@ function assert(value : Bool) {
   currentCaseResult.results.add(TestResult(success=value));
 }
 
+function click(er : Callback) {
+  er(null);
+}
+
 function find(property : String, value : String, collection : Collection<Object>, hollow : Object = null) : Dynamic {
   var item = collection.filter(property, "=", value).one();
   if (hollow != null && item == null) {
@@ -105,7 +109,7 @@ control testRunner() {
       item(style=suiteItemStyle, pushedStyle=suiteItemStyle, onclick={
           $("#" + tsr_id).slideToggle();
         }) {
-        label(tsr.description)
+        label(tsr.description + " (" + tsr.cases.count().toString() + ")")
       }
       <div id=tsr_id>
         list(tcr in tsr.cases) {

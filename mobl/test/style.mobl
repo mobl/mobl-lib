@@ -3,7 +3,6 @@ module mobl::test::style
 import mobl::ui::generic
 import mobl::ui::stylemixin
 
-
 style successItemStyle {
 	padding: 10px;
 	backgroundGradientMixin(#0C0, #0A0);
