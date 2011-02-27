@@ -6,10 +6,15 @@ import mobl::test::type
 
 var testSuites : [(String, String, Callback)] = Array<(String, String, Callback)>();
 var testCases : [(String, Callback)] = Array<(String, Callback)>();
-var testLogs = Collection<TestSuiteResult>();
+var testLog = Collection<TestSuiteResult>();
 var currentCaseResult : TestCaseResult = null;
 var caseSetUp : Callback = null;
 var caseTearDown : Callback = null;
+var space = /\s/g;
+var underscores = "__";
+var suiteMode = false;
+var currentSuite = "";
+var suiteButtonSymbol = ">>";
 
 @doc "Defines a new test suite"
 function testSuite(suite : String, cases : Array<Dynamic>) {
@@ -68,7 +73,7 @@ function find(property : String, value : String, collection : Collection<Object>
 }
 
 function logTestSuite(suite : String, kase : String) {
-  var tsr = find("description", suite, testLogs,
+  var tsr = find("description", suite, testLog,
     TestSuiteResult(description=suite, cases=Collection<TestCaseResult>()));
   currentCaseResult = find("description", kase, tsr.cases,
     TestCaseResult(description=kase, results=Collection<TestResult>(), elapsed=0));
@@ -76,12 +81,25 @@ function logTestSuite(suite : String, kase : String) {
 
 // Internal use only
 function runAllTests() {
-  testLogs.destroyAll();
+  testLog.destroyAll();
   foreach((suite, kase, runTests) in testSuites) {
     logTestSuite(suite, kase);
     var start = now().getTime();
     runTests(null);
     currentCaseResult.elapsed = now().getTime() - start;
+  }
+}
+
+// Internal use only
+function runSuite(name : String = currentSuite) {
+  testLog.destroyAll();
+  foreach((suite, kase, runTests) in testSuites) {
+    if (suite == name) {
+      logTestSuite(suite, kase);
+      var start = now().getTime();
+      runTests(null);
+      currentCaseResult.elapsed = now().getTime() - start;
+    }
   }
 }
 
@@ -103,27 +121,45 @@ control showTestResults(results : Collection<TestResult>) {
 }
 
 control testRunner() {
-  var space = /\s/g
-  var underscores = "__"
-  group {
-    list(tsr in testLogs) {
-      var cases = tsr.cases
-      var count = cases.count()
-      var tsr_id = tsr.description.replace(space, underscores)
-      item(style=suiteItemStyle, pushedStyle=suiteItemStyle, onclick={
-          $("#" + tsr_id).slideToggle();
-        }) {
-        label(tsr.description)
+  header("Specifications") {
+    button("Run", onclick={
+      if (suiteMode) {
+      	runSuite();
+      } else {
+        runAllTests();
       }
-      <div id=tsr_id>
-        list(tcr in cases) {
-          var tcr_id = tcr.description.replace(space, underscores)
+    })
+  }
+  group {
+    list(suite in testLog) {
+      var cases = suite.cases
+      var count = cases.count()
+      var suite_id = suite.description.replace(space, underscores)
+      item(style=suiteItemStyle, pushedStyle=suiteItemStyle, onclick={
+          $("#" + suite_id).slideToggle();
+        }) {
+        label(suite.description)
+        label(suiteButtonSymbol, style=suiteButtonStyle, onclick={
+          suiteMode = !suiteMode;
+          if (suiteMode) {
+          	suiteButtonSymbol = "<<";
+          	currentSuite = suite.description;
+            runSuite(suite.description);
+          } else {
+          	suiteButtonSymbol = ">>";
+          	runAllTests();
+          }
+        })
+      }
+      <div id=suite_id>
+        list(kase in cases) {
+          var kase_id = kase.description.replace(space, underscores)
           item(style=caseItemStyle,
                pushedStyle=caseItemStyle,
-               onclick={ $("#" + tcr_id).slideToggle(); })
-               { label(tcr.description + " (" + tcr.elapsed + " ms)") }
-          <div id=tcr_id>
-            showTestResults(tcr.results)
+               onclick={ $("#" + kase_id).slideToggle(); })
+               { label(kase.description + " (" + kase.elapsed + " ms)") }
+          <div id=kase_id>
+            showTestResults(kase.results)
           </div>
         }
       </div>

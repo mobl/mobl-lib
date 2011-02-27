@@ -33,3 +33,7 @@ style caseItemStyle {
 style descriptionStyle {
 	font-size: 70%;
 }
+
+style suiteButtonStyle {
+  float: right;
+}
