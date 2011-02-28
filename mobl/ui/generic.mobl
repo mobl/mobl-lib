@@ -306,7 +306,7 @@ control checkBox(b : Bool, label : String = "", onchange : Callback = null) {
   }/>
 }
 
-style textFieldStyle {
+style mixin textFieldStyleMixin($background, $border) {
   display: inline-block;
   -webkit-appearance: none;
   -webkit-box-flex: 100;
@@ -315,38 +315,85 @@ style textFieldStyle {
   -webkit-text-size-adjust: 140%;
   -moz-text-size-adjust: 140%;
   -webkit-appearance: textarea;
-  background: #fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(white),
-    to(white) );
-  border: 0;
+  background: $background;
+  border: $border;
   color: black;
   display: block;
   font-size: 1.2em;
   height: 1.2em;
-  padding: 0;
+  padding: 5px;
   margin-left: 0px;
-  width: 100%;
+  width: 90%;
+  borderRadiusMixin(5px);
 }
 
-control textField(s : String, placeholder : String = null, label : String = null, onchange : Callback = null, onkeyup : Callback = null) {
-  when(label) {
-    <span style="float: left; margin-top: 0.2em; width: 5em; color: #666;" databind=label/>
-    <span style="float: left">
-      <input type="text" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
-    </span>
-  } else {
-    <input type="text" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
-  }
+style textFieldStyle {
+  textFieldStyleMixin(#fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(white), to(white)), 0);
 }
 
-control numField(n : Num, placeholder : String = null, label : String = null, onchange : Callback = null) {
-  when(label) {
-    <span style="float: left; margin-top: 0.2em; width: 5em; color: #666;" databind=label/>
-    <span style="float: left">
-      <input type="text" class=textFieldStyle placeholder=placeholder databind=n onchange=onchange onblur={ scrollUp(); }/>
-    </span>
-  } else {
-    <input type="text" class=textFieldStyle placeholder=placeholder databind=n onchange=onchange onblur={ scrollUp(); }/>
+style textFieldInvalidStyle {
+  textFieldStyleMixin(#fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FBB), to(#FAA)), 1px solid red);
+}
+
+style textFieldLabelStyle {
+  color: #666;
+}
+
+style validationMessageStyle {
+  color: red;
+}
+
+function alwaysOkValidator(s : String) : String {
+  return "";
+}
+
+control textField(s : String, placeholder : String = null, label : String = null, validator : Function1<String,String> = alwaysOkValidator, onchange : Callback = null, onkeyup : Callback = null) {
+  var temp : String = s
+
+  var identifier = random(999)
+  var validationMessage = validator(s)
+  script {
+    async {
+      sleep(200);
+      setValidationError(identifier, !validationMessage);
+    }
   }
+
+  when(label) {
+    mobl::label(label, style=textFieldLabelStyle)
+  }
+  <input type="text" class=validationMessage ? textFieldInvalidStyle : textFieldStyle placeholder=placeholder databind=temp onchange=onchange onkeyup={
+    if(onkeyup) {
+      onkeyup(event);
+    }
+    validationMessage = validator(temp);
+    if(!validationMessage) {
+      s = temp;
+    }
+    setValidationError(identifier, !validationMessage);
+  } onblur={ scrollUp(); }/>
+  mobl::label(validationMessage, style=validationMessageStyle)
+}
+
+control emailField(s : String, placeholder : String = null, label : String = null, validator : Function1<String,String> = emailValidator, onchange : Callback = null, onkeyup : Callback = null) {
+  textField(s, placeholder, label, validator, onchange, onkeyup)
+}
+
+function validateNum(n : Num) : String {
+  return Math.isNaN(n) ? "Not a valid numeric value" : "";
+}
+
+control numField(n : Num, placeholder : String = null, label : String = null, validator : Function1<Num,String> = validateNum, onchange : Callback = null, onkeyup : Callback = null) {
+  function validator2(s : String) : String {
+    var n2 = parseNum(s);
+    var m = validator(n2);
+    if(!m) {
+      n = n2;
+    }
+    return m;
+  }
+  var s = "" + n
+  textField(s, placeholder, label, validator2, onchange, onkeyup)
 }
 
 control passwordField(s : String, placeholder : String = null, label : String = null, onchange : Callback = null, onkeyup : Callback = null) {

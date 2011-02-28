@@ -693,6 +693,16 @@ __ns.animations.none = function(prevNode, nextNode, forward, callback) {
   callback();
 };
 
+__ns.getCurrentScreen = function() {
+  var screenContext = mobl.findDeepestVisibleContext();
+  for(var i = 0; i < screenContext.screens.length; i++) {
+    if(screenContext.screens[i].dom.is(':visible')) {
+      return screenContext.screens[i];
+    }
+  }
+  return null;
+};
+
 __ns.call = function (screenName, args, callback) {
     var replace = args[args.length-2].get();
     var animate = args[args.length-1].get();
@@ -1109,3 +1119,33 @@ window.onresize = function() {
   mobl.window.get().innerHeight = window.innerHeight;
 };
 </javascript>
+
+// VALIDATION
+
+function emailValidator(s : String) : String {
+  return /^[A-Z0-9_%+.\-]+@[A-Z0-9.\-]+\.[A-Z]{2,4}$/i.test(s) ? "" : "Invalid e-mail address";
+}
+
+@doc "Internal validation use"
+external sync function setValidationError(id : Num, ok : Bool) : void
+
+var allInputValid = true;
+
+<javascript>
+__ns.setValidationError = function(id, ok) {
+  var screen = mobl.getCurrentScreen();
+  screen.validations = screen.validations || {};
+  screen.validations[id] = ok;
+
+  var isValid = true;
+  for(var p in screen.validations) {
+    if(screen.validations.hasOwnProperty(p)) {
+      if(!screen.validations[p]) {
+        isValid = false;
+      }
+    }
+  }
+  __ns.allInputValid.set(isValid);
+};
+</javascript>
+
