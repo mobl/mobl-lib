@@ -16,7 +16,7 @@ __ns.fetchLanguageBundle = function(path, callback) {
 };
 
 __ns._ = function(key, placeholders) {
-  var s = bundle[key];
+  var s = bundle[key] || key;
   var parts = s.split('%%');
   s = parts[0];
   for(var i = 0; i < placeholders.length; i++) {

@@ -113,6 +113,7 @@ NoClickDelay.prototype = {
   onTouchEnd : function(e) {
     this.element.removeEventListener('touchmove', this, false);
     this.element.removeEventListener('touchend', this, false);
+    e.preventDefault();
 
     // console.log("The end");
     if (!this.moved) {
