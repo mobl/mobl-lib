@@ -285,7 +285,7 @@ __ns.LocalStorage = {
   },
   getItem: function(key, defaultValue) {
     var val = JSON.parse(window.localStorage.getItem(key) || "null") || defaultValue;
-    if(val && typeof val === 'object') {
+    if(val && typeof val === 'object' && !val.addEventListener) {
       return new mobl.ObservableObject(val);
     } else {
       return val;

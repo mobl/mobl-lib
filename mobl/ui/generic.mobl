@@ -350,7 +350,7 @@ control textField(s : String, placeholder : String = null, label : String = null
       }
     }
 
-    <input type="text" class=validationMessage ? style : invalidStyle placeholder=placeholder databind=temp onchange=onchange onkeyup={
+    <input type="text" class=validationMessage ? invalidStyle : style placeholder=placeholder databind=temp onchange=onchange onkeyup={
       if(onkeyup) {
         onkeyup(event);
       }
