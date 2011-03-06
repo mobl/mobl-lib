@@ -124,7 +124,7 @@ control testRunner() {
   header("Specifications") {
     button("Run", onclick={
       if (suiteMode) {
-      	runSuite();
+        runSuite();
       } else {
         runAllTests();
       }
@@ -142,12 +142,12 @@ control testRunner() {
         label(suiteButtonSymbol, style=suiteButtonStyle, onclick={
           suiteMode = !suiteMode;
           if (suiteMode) {
-          	suiteButtonSymbol = "<<";
-          	currentSuite = suite.description;
+            suiteButtonSymbol = "<<";
+            currentSuite = suite.description;
             runSuite(suite.description);
           } else {
-          	suiteButtonSymbol = ">>";
-          	runAllTests();
+            suiteButtonSymbol = ">>";
+            runAllTests();
           }
         })
       }
