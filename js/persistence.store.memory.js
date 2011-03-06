@@ -16,8 +16,9 @@ if(!persistence.store) {
 
 persistence.store.memory = {};
 
-persistence.store.memory.config = function(persistence) {
+persistence.store.memory.config = function(persistence, dbname) {
   var argspec = persistence.argspec;
+  dbname = dbname || 'persistenceData';
 
   var allObjects = {}; // entityName -> LocalQueryCollection
 
@@ -66,10 +67,14 @@ persistence.store.memory.config = function(persistence) {
     persistence.asyncForEach(fns, function(fn, callback) {
         fn(session, tx, callback);
       }, function() {
-        var trackedObjects = this.trackedObjects;
+        var trackedObjects = persistence.trackedObjects;
         for(var id in trackedObjects) {
           if(trackedObjects.hasOwnProperty(id)) {
-            trackedObjects[id]._dirtyProperties = {};
+            if (persistence.objectsToRemove.hasOwnProperty(id)) {
+              delete trackedObjects[id];
+            } else {
+              trackedObjects[id]._dirtyProperties = {};
+            }
           }
         }
         args.callback();
@@ -83,17 +88,17 @@ persistence.store.memory.config = function(persistence) {
   };
 
   persistence.loadFromLocalStorage = function(callback) {
-    var dump = window.localStorage.getItem('persistenceData');
+    var dump = window.localStorage.getItem(dbname);
     if(dump) {
       this.loadFromJson(dump, callback);
     } else {
-      callback();
+      callback && callback();
     }
   };
 
   persistence.saveToLocalStorage = function(callback) {
     this.dumpToJson(function(dump) {
-        window.localStorage.setItem('persistenceData', dump);
+        window.localStorage.setItem(dbname, dump);
         if(callback) {
           callback();
         }
@@ -116,6 +121,10 @@ persistence.store.memory.config = function(persistence) {
     callback();
   };
 
+  /**
+   * Dummy
+   */
+  persistence.close = function() {};
 
   // QueryCollection's list
 
@@ -222,5 +231,6 @@ persistence.store.memory.config = function(persistence) {
 
 try {
   exports.config = persistence.store.memory.config;
+  exports.getSession = function() { return persistence; };
 } catch(e) {}
 

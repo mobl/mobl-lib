@@ -1,139 +1,123 @@
-try {
-  if(!window) {
-    window = {};
-    //exports.console = console;
-  }
-} catch(e) {
-  window = {};
-  exports.console = console;
-}
-
-var persistence = (window && window.persistence) ? window.persistence : {}; 
-
-if(!persistence.store) {
-  persistence.store = {};
-}
-
-persistence.store.sql = {};
-
-persistence.store.sql.config = function(persistence, dialect) {
-  var argspec = persistence.argspec;
+/**
+ * Default type mapper. Override to support more types or type options.
+ */
+var defaultTypeMapper = {
+  /**
+   * SQL type for ids
+   */
+  idType: "VARCHAR(32)",
   
   /**
-   * Default type mapper. Override to support more types or type options.
+   * SQL type for class names (used by mixins)
    */
-  persistence.typeMapper = {
-    /**
-     * SQL type for ids
-     */
-    idType: "VARCHAR(32)",
-    
-    /**
-     * SQL type for class names (used by mixins)
-     */
-    classNameType: "TEXT",
-    
-    /**
-     * Returns SQL type for column definition
-     */
-    columnType: function(type){
-      switch(type) {
-      case 'JSON': return 'TEXT';
-      case 'BOOL': return 'INT';
-      case 'DATE': return 'INT';
-      default: return type;
-      }
-    },
-    
-    inVar: function(str, type){
-      return str;
-    },
-    outVar: function(str, type){
-      return str;
-    },
-    outId: function(str){
-      return "'" + str + "'";
-    },
-    /**
-     * Converts a value from the database to a value suitable for the entity
-     * (also does type conversions, if necessary)
-     */
-    dbValToEntityVal: function(val, type){
-      if (val === null || val === undefined) {
-        return val;
-      }
-      switch (type) {
-        case 'DATE':
-          // SQL is in seconds and JS in miliseconds
-          return new Date(parseInt(val, 10) * 1000);
-        case 'BOOL':
-          return val === 1 || val === '1';
-          break;
-        case 'INT':
-          return +val;
-          break;
-        case 'BIGINT':
-          return +val;
-          break;
-        case 'JSON':
-          if (val) {
-            return JSON.parse(val);
-          }
-          else {
-            return val;
-          }
-          break;
-        default:
-          return val;
-      }
-    },
-    
-    /**
-     * Converts an entity value to a database value, inverse of
-     *   dbValToEntityVal
-     */
-    entityValToDbVal: function(val, type){
-      if (val === undefined || val === null) {
-        return null;
-      }
-      else if (type === 'JSON' && val) {
-        return JSON.stringify(val);
-      }
-      else if (val.id) {
-        return val.id;
-      }
-      else if (type === 'BOOL') {
-        return (val === 'false') ? 0 : (val ? 1 : 0);
-      }
-      else if (type === 'DATE' || val.getTime) {
-        // In order to make SQLite Date/Time functions work we should store
-        // values in seconds and not as miliseconds as JS Date.getTime()
-        val = new Date(val);
-        return Math.round(val.getTime() / 1000);
-      }
-      else {
-        return val;
-      }
-    },
-    /**
-     * Shortcut for inVar when type is id -- no need to override
-     */
-    inIdVar: function(str){
-      return this.inVar(str, this.idType);
-    },
-    /**
-     * Shortcut for outVar when type is id -- no need to override
-     */
-    outIdVar: function(str){
-      return this.outVar(str, this.idType);
-    },
-    /**
-     * Shortcut for entityValToDbVal when type is id -- no need to override
-     */
-    entityIdToDbId: function(id){
-      return this.entityValToDbVal(id, this.idType);
+  classNameType: "TEXT",
+
+  /**
+   * Returns SQL type for column definition
+   */
+  columnType: function(type){
+    switch(type) {
+    case 'JSON': return 'TEXT';
+    case 'BOOL': return 'INT';
+    case 'DATE': return 'INT';
+    default: return type;
     }
+  },
+
+  inVar: function(str, type){
+    return str;
+  },
+  outVar: function(str, type){
+    return str;
+  },
+  outId: function(str){
+    return "'" + str + "'";
+  },
+  /**
+   * Converts a value from the database to a value suitable for the entity
+   * (also does type conversions, if necessary)
+   */
+  dbValToEntityVal: function(val, type){
+    if (val === null || val === undefined) {
+      return val;
+    }
+    switch (type) {
+      case 'DATE':
+        // SQL is in seconds and JS in miliseconds
+        return new Date(parseInt(val, 10) * 1000);
+      case 'BOOL':
+        return val === 1 || val === '1';
+        break;
+      case 'INT':
+        return +val;
+        break;
+      case 'BIGINT':
+        return +val;
+        break;
+      case 'JSON':
+        if (val) {
+          return JSON.parse(val);
+        }
+        else {
+          return val;
+        }
+        break;
+      default:
+        return val;
+    }
+  },
+
+  /**
+   * Converts an entity value to a database value, inverse of
+   *   dbValToEntityVal
+   */
+  entityValToDbVal: function(val, type){
+    if (val === undefined || val === null) {
+      return null;
+    }
+    else if (type === 'JSON' && val) {
+      return JSON.stringify(val);
+    }
+    else if (val.id) {
+      return val.id;
+    }
+    else if (type === 'BOOL') {
+      return (val === 'false') ? 0 : (val ? 1 : 0);
+    }
+    else if (type === 'DATE' || val.getTime) {
+      // In order to make SQLite Date/Time functions work we should store
+      // values in seconds and not as miliseconds as JS Date.getTime()
+      val = new Date(val);
+      return Math.round(val.getTime() / 1000);
+    }
+    else {
+      return val;
+    }
+  },
+  /**
+   * Shortcut for inVar when type is id -- no need to override
+   */
+  inIdVar: function(str){
+    return this.inVar(str, this.idType);
+  },
+  /**
+   * Shortcut for outVar when type is id -- no need to override
+   */
+  outIdVar: function(str){
+    return this.outVar(str, this.idType);
+  },
+  /**
+   * Shortcut for entityValToDbVal when type is id -- no need to override
+   */
+  entityIdToDbId: function(id){
+    return this.entityValToDbVal(id, this.idType);
   }
+}
+
+function config(persistence, dialect) {
+  var argspec = persistence.argspec;
+
+  persistence.typeMapper = dialect.typeMapper || defaultTypeMapper;
 
   persistence.generatedTables = {}; // set
 
@@ -894,6 +878,16 @@ persistence.store.sql.config = function(persistence, dialect) {
   };
 };
 
-try {
-  exports.config = persistence.store.sql.config;
-} catch(e) {}
+if (typeof exports !== 'undefined') {
+	exports.defaultTypeMapper = defaultTypeMapper;
+	exports.config = config;
+}
+else {
+	window = window || {};
+	window.persistence = window.persistence || {};
+	window.persistence.store = window.persistence.store || {};
+	window.persistence.store.sql = {
+		defaultTypeMapper: defaultTypeMapper,
+		config: config
+	};
+}

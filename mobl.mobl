@@ -266,7 +266,42 @@ external type Entity<T> {
   static function fromSelectJSON(json : JSON) : T
 
   function fetch(rel : String) : T
+  sync function toJSON() : JSON
+  function selectJSON(properties : [String]) : JSON
 }
+
+external type LocalStorage {
+  static sync function setItem(key : String, value : Object) : void
+  static sync function getItem(key : String, defaultValue : ? = null) : ?
+  static sync function getNum(key : String, defaultValue : Num = 0) : Num
+  static sync function getString(key : String, defaultValue : String = "") : String
+  static sync function getBool(key : String, defaultValue : Bool = false) : Bool
+}
+
+<javascript>
+__ns.LocalStorage = {
+  setItem: function(key, value) {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  },
+  getItem: function(key, defaultValue) {
+    var val = JSON.parse(window.localStorage.getItem(key) || "null") || defaultValue;
+    if(val && typeof val === 'object' && !val.addEventListener) {
+      return new mobl.ObservableObject(val);
+    } else {
+      return val;
+    }
+  },
+  getNum: function(key, defaultValue) {
+    return this.get(key, defaultValue);
+  },
+  getString: function(key, defaultValue) {
+    return this.get(key, defaultValue);
+  },
+  getBool: function(key, defaultValue) {
+    return this.get(key, defaultValue);
+  }
+};
+</javascript>
 
 external type Type<T> {
 
@@ -316,10 +351,13 @@ external type JQuery : Dynamic {
   sync function find(selector : String) : JQuery
   sync function parent() : JQuery
   sync function parents(selector : String) : JQuery
+  sync function children() : JQuery
+  sync function contents() : JQuery
   sync function hide() : JQuery
   sync function show() : JQuery
   sync function toggle() : JQuery
   sync function detach() : JQuery
+
 
   sync function addClass(cssClass : String) : JQuery
   sync function hasClass(cssClass : String) : Bool
@@ -360,10 +398,28 @@ control label(s : Object, style : Style = null, onclick : Callback = null) {
   <span databind=s class=style onclick=onclick></span>
 }
 
+control block(cssClass : String = null, id : String = null, onclick : Callback = null, onswipe : Callback = null) {
+  <div id=id class=cssClass onclick=onclick onswipe=onswipe>
+  elements()
+  </div>
+}
+
+control span(cssClass : Style = null, id : String = null, onclick : Callback = null, onswipe : Callback = null) {
+  <span id=id class=cssClass onclick=onclick onswipe=onswipe>
+  elements()
+  </span>
+}
+
 control link(url : String, target : String = "_blank") {
-  <a href=url target=target>
+  l@<a href=url target=target>
   elements()
   </a>
+  script {
+    // Bit hacky, but ok, there's no elements API yet
+    if(l.contents().length == 0) {
+      l.text(url);
+    }
+  }
 }
 
 control screenContext() {
@@ -691,6 +747,16 @@ __ns.animations.none = function(prevNode, nextNode, forward, callback) {
   nextNode.show();
   prevNode.hide();
   callback();
+};
+
+__ns.getCurrentScreen = function() {
+  var screenContext = mobl.findDeepestVisibleContext();
+  for(var i = 0; i < screenContext.screens.length; i++) {
+    if(screenContext.screens[i].dom.is(':visible')) {
+      return screenContext.screens[i];
+    }
+  }
+  return null;
 };
 
 __ns.call = function (screenName, args, callback) {
@@ -1109,3 +1175,33 @@ window.onresize = function() {
   mobl.window.get().innerHeight = window.innerHeight;
 };
 </javascript>
+
+// VALIDATION
+
+function emailValidator(s : String) : String {
+  return /^[A-Z0-9_%+.\-]+@[A-Z0-9.\-]+\.[A-Z]{2,4}$/i.test(s) ? "" : "Invalid e-mail address";
+}
+
+@doc "Internal validation use"
+external sync function setValidationError(id : Num, ok : Bool) : void
+
+var allInputValid = true;
+
+<javascript>
+__ns.setValidationError = function(id, ok) {
+  var screen = mobl.getCurrentScreen();
+  screen.validations = screen.validations || {};
+  screen.validations[id] = ok;
+
+  var isValid = true;
+  for(var p in screen.validations) {
+    if(screen.validations.hasOwnProperty(p)) {
+      if(!screen.validations[p]) {
+        isValid = false;
+      }
+    }
+  }
+  __ns.allInputValid.set(isValid);
+};
+</javascript>
+

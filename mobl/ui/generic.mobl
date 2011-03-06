@@ -43,12 +43,12 @@ style loadingStyle {
   z-index: 99;
 }
 
-control whenLoaded(value : Object) {
+control whenLoaded(value : Object, style : Style = loadingStyle, loadingMessage : String = "Loading...") {
   when(value) {
     elements()
   } else {
-    block(loadingStyle) {
-      "Loading..."
+    block(style) {
+      label(loadingMessage)
       image("mobl/ui/generic/loading-large.gif", valign="middle")
     }
   }
@@ -220,18 +220,6 @@ control backButton(text : String = "Back", style : Style = backButtonStyle, push
   button(text, style=style, pushedStyle=pushedStyle, onclick=onclick)
 }
 
-control block(cssClass : String = null, id : String = null, onclick : Callback = null) {
-  <div id=id class=cssClass onclick=onclick>
-  elements()
-  </div>
-}
-
-control span(cssClass : Style = null, id : String = null, onclick : Callback = null) {
-  <span id=id class=cssClass onclick=onclick>
-  elements()
-  </span>
-}
-
 style groupStyle {
   list-style: none;
   margin: 0;
@@ -282,7 +270,7 @@ style itemArrowStyle {
 control item(style : Style = itemStyle, pushedStyle : Style = itemPushedStyle, onclick : Callback = null, onswipe : Callback = null, hideArrow : Bool = false) {
   var pushed = false
   el@<li class=itemStyle class=onclick && hideArrow == false ? mergeStyles([pushed ? pushedStyle : style, itemArrowStyle]) : (pushed ? pushedStyle : style)
-  onclick=onclick ? {
+  onswipe=onswipe onclick=onclick ? {
     pushed = true;
     sleep(100);
     async {
@@ -306,7 +294,7 @@ control checkBox(b : Bool, label : String = "", onchange : Callback = null) {
   }/>
 }
 
-style textFieldStyle {
+style mixin textFieldStyleMixin($background, $border) {
   display: inline-block;
   -webkit-appearance: none;
   -webkit-box-flex: 100;
@@ -315,48 +303,120 @@ style textFieldStyle {
   -webkit-text-size-adjust: 140%;
   -moz-text-size-adjust: 140%;
   -webkit-appearance: textarea;
-  background: #fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(white),
-    to(white) );
-  border: 0;
+  background: $background;
+  border: $border;
   color: black;
   display: block;
   font-size: 1.2em;
   height: 1.2em;
-  padding: 0;
+  padding: 5px;
   margin-left: 0px;
+  width: 90%;
+  borderRadiusMixin(5px);
+}
+
+style textFieldStyle {
+  textFieldStyleMixin(#fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(white), to(white)), 0);
+}
+
+style textFieldInvalidStyle {
+  textFieldStyleMixin(#fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FBB), to(#FAA)), 1px solid red);
+}
+
+style textFieldLabelStyle {
+  color: #666;
+}
+
+style validationMessageStyle {
+  color: red;
+}
+
+function alwaysOkValidator(s : String) : String {
+  return "";
+}
+
+control textField(s : String, placeholder : String = null, label : String = null, validator : Function1<String,String> = null, style : Style = textFieldStyle, invalidStyle : Style = textFieldInvalidStyle, onchange : Callback = null, onkeyup : Callback = null) {
+  when(label) {
+    mobl::label(label, style=textFieldLabelStyle)
+  }
+  when(validator) {
+    var temp : String = s
+    var identifier = random(999)
+    var validationMessage = validator(s)
+    script {
+      async {
+        sleep(200);
+        setValidationError(identifier, !validationMessage);
+      }
+    }
+
+    <input type="text" class=validationMessage ? invalidStyle : style placeholder=placeholder databind=temp onchange=onchange onkeyup={
+      if(onkeyup) {
+        onkeyup(event);
+      }
+      validationMessage = validator(temp);
+      if(!validationMessage) {
+        s = temp;
+      }
+      setValidationError(identifier, !validationMessage);
+    } onblur={ scrollUp(); }/>
+    mobl::label(validationMessage, style=validationMessageStyle)
+  } else { // no validator, cheap solution
+    <input type="text" class=style placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
+  }
+}
+
+control emailField(s : String, placeholder : String = null, label : String = null, validator : Function1<String,String> = emailValidator, style : Style = textFieldStyle, invalidStyle : Style = textFieldInvalidStyle, onchange : Callback = null, onkeyup : Callback = null) {
+  textField(s, placeholder, label, validator, style, invalidStyle, onchange, onkeyup)
+}
+
+function validateNum(n : Num) : String {
+  return Math.isNaN(n) ? "Not a valid numeric value" : "";
+}
+
+control numField(n : Num, label : String = null, placeholder : String = null, validator : Function1<Num,String> = validateNum, style : Style = textFieldStyle, invalidStyle : Style = textFieldInvalidStyle, onchange : Callback = null, onkeyup : Callback = null) {
+  function validator2(s : String) : String {
+    var n2 = parseNum(s);
+    var m = validator(n2);
+    if(!m) {
+      n = n2;
+    }
+    return m;
+  }
+  var s = "" + n
+  textField(s, placeholder, label, validator2, style, invalidStyle, onchange, onkeyup)
+}
+
+control passwordField(s : String, placeholder : String = null, label : String = null, style : Style = textFieldStyle, onchange : Callback = null, onkeyup : Callback = null) {
+  when(label) {
+    <span style="float: left; margin-top: 0.2em; width: 5em; color: #666;" databind=label/>
+    <span style="float: left">
+      <input type="password" class=style placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
+    </span>
+  } else {
+    <input type="password" class=style placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
+  }
+}
+
+style selectFieldStyle {
+  display: block;
   width: 100%;
+  border: 0;
+  font-size: 18px;
+  padding: 3px;
 }
 
-control textField(s : String, placeholder : String = null, label : String = null, onchange : Callback = null, onkeyup : Callback = null) {
-  when(label) {
-    <span style="float: left; margin-top: 0.2em; width: 5em; color: #666;" databind=label/>
-    <span style="float: left">
-      <input type="text" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
-    </span>
-  } else {
-    <input type="text" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
+control selectField(value : String, options : [(String, String)], style : Style = selectFieldStyle, optionStyle : Style = null) {
+  sel@<select class=style onchange={
+    value = sel.val();
+  }>
+  list((optionValue, optionDescription) in options) {
+    <option databind=optionDescription class=optionStyle value=optionValue selected=value == optionValue ? "selected" : ""/>
   }
-}
-
-control numField(n : Num, placeholder : String = null, label : String = null, onchange : Callback = null) {
-  when(label) {
-    <span style="float: left; margin-top: 0.2em; width: 5em; color: #666;" databind=label/>
-    <span style="float: left">
-      <input type="text" class=textFieldStyle placeholder=placeholder databind=n onchange=onchange onblur={ scrollUp(); }/>
-    </span>
-  } else {
-    <input type="text" class=textFieldStyle placeholder=placeholder databind=n onchange=onchange onblur={ scrollUp(); }/>
-  }
-}
-
-control passwordField(s : String, placeholder : String = null, label : String = null, onchange : Callback = null, onkeyup : Callback = null) {
-  when(label) {
-    <span style="float: left; margin-top: 0.2em; width: 5em; color: #666;" databind=label/>
-    <span style="float: left">
-      <input type="password" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
-    </span>
-  } else {
-    <input type="password" class=textFieldStyle placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
+  </select>
+  script {
+    // Hack, moving the options out of the list's span
+    sel.append(sel.children().eq(0).children());
   }
 }
 
@@ -416,51 +476,6 @@ style tabbarStyle activeTabButtonStyle {
   -moz-border-radius-topleft: 8px;
 }
 
-/*
-style activeTabStyle tabbarStyle {
-  width: auto;
-  display: inline-block;
-  margin-top: 10px;
-  margin-bottom: 0;
-  margin-left: auto;
-  margin-right: auto;
-  border: 1px solid #444;
-  margin-top: 0.3em;
-}
-
-style activeTabStyle tabbarStyle inActiveTabButtonStyle {
-  padding-right: 15px;
-  padding-left: 15px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  margin-left: 0;
-  line-height: 37px;
-  height: 39px;
-  margin-bottom: 0;
-  background-color: white;
-  color: black;
-  border: 0;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-}
-
-style activeTabStyle tabbarStyle activeTabButtonStyle {
-  background-color: $baseColor;
-  color: #fefefe;
-  position: static;
-  padding-right: 15px;
-  padding-left: 15px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  margin-left: 0;
-  line-height: 37px;
-  height: 37px;
-  margin-bottom: 0;
-  border: 0;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-}
-*/
 style inActiveTabStyle {
   display: none;
 }

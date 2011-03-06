@@ -23,24 +23,26 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// Some set-up code for non-browser environments
-if(typeof window === 'undefined') {
-  window = {};
+if (typeof exports !== 'undefined') {
+	exports.createPersistence = function() {
+		return initPersistence({})
+	}
+	var singleton;
+	exports.__defineGetter__("persistence", function () {
+    	if (!singleton)
+	  		singleton = exports.createPersistence();
+	  	return singleton;
+	});
 }
-//if(typeof exports !== 'undefined') {
-  //exports.console = console;
-//}
+else {
+	window = window || {};
+	window.persistence = initPersistence(window.persistence || {});
+}
 
-window.persistence = (window && window.persistence) ? window.persistence : createPersistence();
 
-function createPersistence() {
-  var persistence = {};
-
-  if(typeof exports !== 'undefined') {
-    exports.createPersistence = createPersistence;
-    exports.persistence = persistence;
-  }
-
+function initPersistence(persistence) {
+	if (persistence.isImmutable) // already initialized
+		return persistence;
 
 /**
  * Check for immutable fields
@@ -1300,10 +1302,9 @@ persistence.get = function(arg1, arg2) {
       if (!this.subscribers[eventType]) { // No subscribers to this event type
         return;
       }
-      for (var sid in this.subscribers[eventType]) {
-        if(this.subscribers[eventType].hasOwnProperty(sid)) {
-          this.subscribers[eventType][sid].apply(null, arguments);
-        }
+      var subscribers = this.subscribers[eventType].slice(0);
+      for(var i = 0; i < subscribers.length; i++) {
+        subscribers[i].apply(null, arguments);
       }
     };
 
