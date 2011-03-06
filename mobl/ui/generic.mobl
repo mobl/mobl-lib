@@ -374,7 +374,7 @@ function validateNum(n : Num) : String {
   return Math.isNaN(n) ? "Not a valid numeric value" : "";
 }
 
-control numField(n : Num, label : String = null, validator : Function1<Num,String> = validateNum, style : Style = textFieldStyle, invalidStyle : Style = textFieldInvalidStyle, onchange : Callback = null, onkeyup : Callback = null) {
+control numField(n : Num, label : String = null, placeholder : String = null, validator : Function1<Num,String> = validateNum, style : Style = textFieldStyle, invalidStyle : Style = textFieldInvalidStyle, onchange : Callback = null, onkeyup : Callback = null) {
   function validator2(s : String) : String {
     var n2 = parseNum(s);
     var m = validator(n2);
@@ -384,7 +384,7 @@ control numField(n : Num, label : String = null, validator : Function1<Num,Strin
     return m;
   }
   var s = "" + n
-  textField(s, null, label, validator2, style, invalidStyle, onchange, onkeyup)
+  textField(s, placeholder, label, validator2, style, invalidStyle, onchange, onkeyup)
 }
 
 control passwordField(s : String, placeholder : String = null, label : String = null, style : Style = textFieldStyle, onchange : Callback = null, onkeyup : Callback = null) {
