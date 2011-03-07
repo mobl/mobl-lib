@@ -5,7 +5,7 @@ load js/gears_init.js
 load js/jquery-ui-1.7.2.custom.min.js
 load js/mobl.boot.js
 load js/gestures.js
-load js/iscroll.js
+//load js/iscroll.js
 
 // These will automatically be loaded
 resource js/jquery-1.4.min.js
@@ -278,7 +278,7 @@ external type LocalStorage {
   static sync function getBool(key : String, defaultValue : Bool = false) : Bool
 }
 
-<javascript>
+<javascript for=LocalStorage>
 __ns.LocalStorage = {
   setItem: function(key, value) {
     window.localStorage.setItem(key, JSON.stringify(value));
@@ -434,7 +434,7 @@ control screenContext() {
 <javascript>
 var argspec = persistence.argspec;
 
-mobl.$ = jQuery;
+__ns.$ = jQuery;
 
 __ns.sleep = function(time, callback) {
   setTimeout(callback, time);
@@ -442,7 +442,7 @@ __ns.sleep = function(time, callback) {
 
 __ns.Dynamic = {};
 
-mobl.repeat = function(time, callback) {
+__ns.repeat = function(time, callback) {
   setInterval(callback, time);
 };
 
