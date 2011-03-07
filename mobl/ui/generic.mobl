@@ -10,9 +10,9 @@ load mobl/ui/generic/css-beziers.js
 load mobl/ui/generic/touchscroll.js
 load mobl/ui/generic/touchscroll.css*/
 
-resource mobl/ui/generic/arrow.png
-resource mobl/ui/generic/contextmenu.png
-resource mobl/ui/generic/loading-large.gif
+//resource mobl/ui/generic/arrow.png
+//resource mobl/ui/generic/contextmenu.png
+//resource mobl/ui/generic/loading-large.gif
 
 style $baseColor = rgb(72, 100, 180)
 style $baseColorGreen = rgb(60, 150, 30)
@@ -49,7 +49,7 @@ control whenLoaded(value : Object, style : Style = loadingStyle, loadingMessage 
   } else {
     block(style) {
       label(loadingMessage)
-      image("mobl/ui/generic/loading-large.gif", valign="middle")
+      image($data(mobl/ui/generic/loading-large.gif), valign="middle")
     }
   }
 }
@@ -262,7 +262,7 @@ style itemPushedStyle {
 }
 
 style itemArrowStyle {
-  background-image: url("generic/arrow.png");
+  background-image: url($data(mobl/ui/generic/arrow.png));
   background-position: right center;
   background-repeat: no-repeat;
 }
@@ -530,7 +530,7 @@ style searchBoxInputStyle {
   margin-left: 0px;
   width: 100%;
 
-  background-image: url("generic/search.png");
+  background-image: url($data(mobl/ui/generic/search.png));
   background-repeat: no-repeat;
   background-position: right center;
 }
