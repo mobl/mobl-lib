@@ -405,9 +405,12 @@ style selectFieldStyle {
   padding: 3px;
 }
 
-control selectField(value : String, options : [(String, String)], style : Style = selectFieldStyle, optionStyle : Style = null) {
+control selectField(value : String, options : [(String, String)], onchange : Callback = null, style : Style = selectFieldStyle, optionStyle : Style = null) {
   sel@<select class=style onchange={
     value = sel.val();
+    if(onchange) {
+      onchange(event);
+    }
   }>
   list((optionValue, optionDescription) in options) {
     <option databind=optionDescription class=optionStyle value=optionValue selected=value == optionValue ? "selected" : ""/>
