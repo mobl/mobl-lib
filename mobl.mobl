@@ -16,8 +16,8 @@ resource js/persistence.store.memory.js
 resource js/persistence.search.js
 
 // Images
-resource img/loading.gif
-resource img/default-icon.png
+//resource img/loading.gif
+//resource img/default-icon.png
 
 /**
  * Built-in types
