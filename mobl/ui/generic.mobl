@@ -4,7 +4,6 @@ import mobl
 import mobl::ui::stylemixin
 
 load mobl/ui/generic_ext.css
-load mobl/ui/generic/search.png
 /*
 load mobl/ui/generic/css-beziers.js
 load mobl/ui/generic/touchscroll.js
@@ -816,8 +815,8 @@ external control floatBox(top : Num = null, right : Num = null, bottom : Num = n
 }*/
 
 
-resource mobl/ui/generic/accordion-down.png
-resource mobl/ui/generic/accordion-right.png
+//resource mobl/ui/generic/accordion-down.png
+//resource mobl/ui/generic/accordion-right.png
 
 style accordionStyle {
   width: 100%;
@@ -860,11 +859,11 @@ style accordionStyle inActiveSectionHeaderStyle {
 }
 
 style accordionStyle activeSectionHeaderStyle:before {
-  content: url("generic/accordion-down.png");
+  content: url($data(mobl/ui/generic/accordion-down.png));
 }
 
 style accordionStyle inActiveSectionHeaderStyle:before {
-  content: url("generic/accordion-right.png");
+  content: url($data(mobl/ui/generic/accordion-right.png));
 }
 
 style accordionStyle inActiveSectionStyle {
@@ -970,9 +969,9 @@ control headerCol(width : String = null) {
 }
 
 // SCROLLERS, disabled ATM
-
-external sync function setupScrollers() : void
 external sync function scrollUp() : void
+/*
+external sync function setupScrollers() : void
 
 control scroller(height : Num = 200) {
   <div class="scroller">
@@ -982,7 +981,7 @@ control scroller(height : Num = 200) {
     setupScrollers();
   }
 }
-
+*/
 <javascript>
 setTimeout(function() {
   scrollTo(0, -1);
@@ -1004,7 +1003,7 @@ __ns.setupScrollers = function() {
   }, 250);
 };
 
-setInterval(function() {
+/*setInterval(function() {
   var allScrollers = $("div.scroller");
   for(var i = 0; i < allScrollers.length; i++) {
     var scroller = allScrollers.eq(i).data("scroller");
@@ -1012,5 +1011,5 @@ setInterval(function() {
        scroller.setupScroller();
     }
   }
-}, 1000);
+}, 1000);*/
 </javascript>

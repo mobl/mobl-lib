@@ -16,7 +16,7 @@ resource js/persistence.store.memory.js
 resource js/persistence.search.js
 
 // Images
-resource mobl/loading.gif
+resource img/loading.gif
 resource img/default-icon.png
 
 /**
