@@ -215,7 +215,7 @@ style backButtonPushedStyle:before {
   content: "\00ab\00a0";
 }
 
-control backButton(text : String = "Back", style : Style = backButtonStyle, pushedStyle : Style = backButtonPushedStyle, onclick : Callback = { screen return; }) {
+control backButton(text : String = _("Back"), style : Style = backButtonStyle, pushedStyle : Style = backButtonPushedStyle, onclick : Callback = { screen return; }) {
   button(text, style=style, pushedStyle=pushedStyle, onclick=onclick)
 }
 
@@ -370,7 +370,7 @@ control emailField(s : String, placeholder : String = null, label : String = nul
 }
 
 function validateNum(n : Num) : String {
-  return Math.isNaN(n) ? "Not a valid numeric value" : "";
+  return Math.isNaN(n) ? _("Not a valid numeric value") : "";
 }
 
 control numField(n : Num, label : String = null, placeholder : String = null, validator : Function1<Num,String> = validateNum, style : Style = textFieldStyle, invalidStyle : Style = textFieldInvalidStyle, onchange : Callback = null, onkeyup : Callback = null) {
@@ -677,7 +677,7 @@ style loadMoreStyle {
   -moz-border-radius-bottomright: 20px;
 }
 
-control stagedList(coll : Collection<?>, listCtrl : Control1<?>, initialItems : Num = 10, step : Num = 10) {
+control stagedList(coll : Collection<?>, listCtrl : Control1<?>, initialItems : Num = 10, step : Num = 10, moreLabel : String = _("More")) {
   var n : Num = initialItems
   var total : Num = coll.count()
   group {
@@ -688,7 +688,7 @@ control stagedList(coll : Collection<?>, listCtrl : Control1<?>, initialItems : 
       <li class=loadMoreStyle onclick={
           n = n + step;
         }>
-        "More"
+        label(moreLabel)
       </li>
     }
   }
@@ -704,7 +704,7 @@ control markableList(items : [(Bool, ?)]) {
   }
 }
 
-screen selectList(title : String, coll : Collection<?>) : [?] {
+screen selectList(title : String, coll : Collection<?>, doneButtonLabel : String = _("Done")) : [?] {
   var items = Array<(Bool, ?)>()
   script {
     foreach(it in coll) {
@@ -715,7 +715,7 @@ screen selectList(title : String, coll : Collection<?>) : [?] {
     backButton(onclick={
       return null;
     })
-    button("Done", onclick={
+    button(doneButtonLabel, onclick={
       var selected = Array<?>();
       foreach((checked, it) in items) {
         if(checked) {
@@ -728,9 +728,9 @@ screen selectList(title : String, coll : Collection<?>) : [?] {
   markableList(items)
 }
 
-control searchList(Ent : Type<Entity<?>>, masterItem : Control1<?>, detailItem : Control1<?>, resultLimit : Num = 10) {
+control searchList(Ent : Type<Entity<?>>, masterItem : Control1<?>, detailItem : Control1<?>, resultLimit : Num = 10, searchTermPlaceholder : String = _("Search term")) {
   var phrase = ""
-  searchBox(phrase, placeholder="Search term")
+  searchBox(phrase, placeholder=searchTermPlaceholder)
   masterDetail(Ent.searchPrefix(phrase) limit resultLimit, masterItem, detailItem)
 }
 
@@ -750,8 +750,8 @@ style progressStyle {
     z-index: 99;
 }
 
-function startLoading() {
-  var loading = $("<div id='progress' class='" + progressStyle + "'>Loading...</div>");
+function startLoading(loadingMessage : String = "Loading...", style : Style = progressStyle) {
+  var loading = $("<div id='progress' class='" + style + "'>" + loadingMessage + "</div>");
   $("body").prepend(loading);
 }
 
