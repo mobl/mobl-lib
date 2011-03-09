@@ -578,7 +578,7 @@ control contextMenu() {
   script {
     menu.hide();
   }
-  img@<img src="mobl/ui/generic/contextmenu.png" style="float: right;" onclick={
+  img@<img src=$data(mobl/ui/generic/contextmenu.png) style="float: right;" onclick={
     var target = img.parent();
     target.css("position", "relative");
     img.hide();
