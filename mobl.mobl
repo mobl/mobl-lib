@@ -1171,13 +1171,11 @@ mobl.implementInterface = function(sourceModule, targetModule, items) {
                         that.triggerEvent('change', that, value);
                     }
                 }));
-            } else {
-                //console.log("Could not rebind for: " + this.prop);
-                //console.log(this.ref.get());
             }
         }
+        //console.log("rebinding");
         for(var i = 0; i < this.childRefs.length; i++) {
-            subs.addSub(this.childRefs[i].rebind(value[this.childRefs[i].prop]));
+            subs.addSub(this.childRefs[i].rebind());//value[this.childRefs[i].prop]));
         }
         return subs;
     };

@@ -4,12 +4,12 @@ external type Audio {
   volume : Num
   currentTime : Num
   loaded : Bool
-  static sync function load(url : String) : Audio
   sync function play() : void
   sync function pause() : void
   sync function getDuration() : Num
   sync function destroy() : void
 
+  static sync function load(url : String) : Audio
   static sync function canPlayMp3() : Bool
   static sync function canPlayWav() : Bool
   static sync function canPlayVorbis() : Bool
