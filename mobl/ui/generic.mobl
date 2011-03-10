@@ -528,18 +528,19 @@ style searchBoxInputStyle {
   display: block;
   font-size: 1.2em;
   height: 1.2em;
-  padding: 0;
+  //padding-left: 23px;
+  padding: 0 0 0 38px;
   margin-left: 0px;
   width: 100%;
 
   background-image: url($data(mobl/ui/generic/search.png));
   background-repeat: no-repeat;
-  background-position: right center;
+  background-position: left center;
 }
 
-control searchBox(s : String, placeholder : String = null, onsearch : Callback = null, onkeyup : Callback = null) {
+control searchBox(s : String, placeholder : String = _("Search term"), onsearch : Callback = null, onkeyup : Callback = null) {
   <div class=searchboxStyle>
-    <input type="text" class=searchBoxInputStyle placeholder=placeholder databind=s onchange=onsearch onkeyup=onkeyup autocorrect="off" autocapitalize="off" autocomplete="off"/>
+    <input type="search" class=searchBoxInputStyle placeholder=placeholder databind=s onchange=onsearch onkeyup=onkeyup autocorrect=false autocapitalize=false autocomplete=false/>
   </div>
 }
 

@@ -193,6 +193,7 @@ external type Math {
   static sync function sqrt(n : Num) : Num
   static sync function tan(n : Num) : Num
   static sync function max(n1: Num, n2 : Num) : Num
+  static sync function min(n1: Num, n2 : Num) : Num
 
   static sync function pi() : Num
   static sync function isNaN(n : Num) : Bool
