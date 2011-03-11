@@ -7,9 +7,18 @@ service YQL {
     uri = "http://query.yahooapis.com/v1/public/yql?q=" + escape(q) + "&format=json"
     mapper = yqlMapper
   }
+  resource fetchXMLAsJSON(url : String) : JSON {
+    uri = "http://query.yahooapis.com/v1/public/yql?q=" + escape("select * from html where url = '" + url + "'") + "&format=json"
+    mapper = yqlMapper
+  }
+  resource fetchURL(url : String) : String {
+    uri = "http://query.yahooapis.com/v1/public/yql?q=" + escape("select * from html where url = '" + url + "'") + "&format=html"
+    encoding = "text"
+  }
 }
 
 function yqlMapper(result : JSON) : JSON {
+  log(result);
   if(result.error) {
     return result;
   } else {

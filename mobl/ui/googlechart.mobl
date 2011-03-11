@@ -38,7 +38,7 @@ function googleChartUrl(
 
     params.push(("cht", type));
     params.push(("chtt", title));
-    params.push(("chs",size._1 + "x" + size._2));
+    params.push(("chs",""+size._1 + "x" + size._2));
 
     var _data : Array<String> = [];
     foreach (serie in data) { _data.push(separateby(",", serie)); }
@@ -65,7 +65,7 @@ function googleChartUrl(
         }
     }
     var _permittedValues : Array<String> = [];
-    foreach (permittedValue in permittedValues) { _permittedValues.push(permittedValue._1 + "," + permittedValue._2) ; }
+    foreach (permittedValue in permittedValues) { _permittedValues.push(""+permittedValue._1 + "," + permittedValue._2) ; }
     params.push(("chds", separateby(",", _permittedValues))) ;
 
     if(barWidth != null) {
@@ -93,7 +93,7 @@ function googleChartUrl(
         }
     }
     var _axisRanges : Array<String> = [];
-    foreach (axisRange in axisRanges) { _axisRanges.push(axisRange._1 + "," + axisRange._2 + "," + axisRange._3 + (axisRange._4 == null ? "" : "," + axisRange._4 ) ) ; }
+    foreach (axisRange in axisRanges) { _axisRanges.push(""+axisRange._1 + "," + axisRange._2 + "," + axisRange._3 + (axisRange._4 == null ? "" : "," + axisRange._4 ) ) ; }
     params.push(("chxr", separateby("|", _axisRanges))) ;
 
     if(fills != null) {
@@ -103,7 +103,7 @@ function googleChartUrl(
     }
     if(labels != null) {
         var _labels : Array<String> = [];
-        foreach ((index, lbls) in labels) { _labels.push(index + ":|"+separateby("|", lbls)) ; }
+        foreach ((index, lbls) in labels) { _labels.push(""+index + ":|"+separateby("|", lbls)) ; }
         params.push(("chxl", separateby("|", _labels))) ;
     }
     if(extraAttrs != null) {
