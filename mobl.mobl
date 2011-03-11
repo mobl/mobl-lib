@@ -903,8 +903,15 @@ __ns.call = function (screenName, args, callback) {
     }, callbackFn ]));
 };
 
-mobl.ref = function(e, property) {
-    return new mobl.Reference(e, property);
+mobl.ref = function(r, prop) {
+  if(prop) {
+    for(var i = 0; i < r.childRefs.length; i++) {
+      if(r.childRefs[i].prop === prop) {
+        return r.childRefs[i];
+      }
+    }
+  }
+  return new mobl.Reference(r, prop);
 };
 
 function fromScope(that, prop) {
@@ -1154,8 +1161,9 @@ mobl.implementInterface = function(sourceModule, targetModule, items) {
             this.ref.get()[this.prop] = value;
             this.triggerEvent('change', this, value);
         }
-        for(var i = 0; i < this.childRefs.length; i++) {
-            var childRef = this.childRefs[i];
+        var childRefs = this.childRefs.slice(0);
+        for(var i = 0; i < childRefs.length; i++) {
+            var childRef = childRefs[i];
             childRef.rebind();
             childRef.triggerEvent('change', childRef, childRef.get());
         }
@@ -1173,9 +1181,10 @@ mobl.implementInterface = function(sourceModule, targetModule, items) {
                 }));
             }
         }
-        //console.log("rebinding");
-        for(var i = 0; i < this.childRefs.length; i++) {
-            subs.addSub(this.childRefs[i].rebind());//value[this.childRefs[i].prop]));
+        //console.log("rebinding", this);
+        var childRefs = this.childRefs.slice(0);
+        for(var i = 0; i < childRefs.length; i++) {
+            subs.addSub(childRefs[i].rebind());//value[this.childRefs[i].prop]));
         }
         return subs;
     };
