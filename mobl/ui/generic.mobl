@@ -631,7 +631,7 @@ control masterDetail(items : Collection<Dynamic>, masterItem : Control1<Dynamic>
               masterItem(it)
             }
           } else {
-            item(hideArrow=true, onclick={ current = it; }) {
+            item(hideArrow=true, onclick={ current = it; scrollUp();}) {
               masterItem(it)
             }
           }
@@ -639,7 +639,11 @@ control masterDetail(items : Collection<Dynamic>, masterItem : Control1<Dynamic>
       }
     </div>
     <div style="float:left; width:66.5%; position:relative; margin-left: 0.5%;">
-      detail(current)
+      when(current) {
+        detail(current)
+      } else {
+        label(_("Select an item on the left"))
+      }
     </div>
   </div>
 }

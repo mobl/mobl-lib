@@ -330,6 +330,8 @@ external sync function isLandscape() : Bool
 external sync function isPortrait() : Bool
 external sync function isTouchDevice() : Bool
 
+external function isOnline() : Bool
+
 <javascript>
 __ns.isIphone = function() { return !!navigator.userAgent.match(/iPhone/i) || !!navigator.userAgent.match(/iPod/i); };
 __ns.isIpad = function() { return !!navigator.userAgent.match(/iPad/i); };
@@ -338,6 +340,14 @@ __ns.isLandscape = function() { return window.innerHeight < window.innerWidth; }
 __ns.isPortrait = function() { return window.innerHeight >= window.innerWidth; };
 __ns.isTouchDevice = function() {
    return 'ontouchstart' in document.documentElement;
+};
+__ns.isOnline = function(callback) {
+  var i = new Image();
+  i.onload = function() {
+    callback(true);
+  };
+  i.onerror = function() { callback(false); };
+  i.src = 'http://gfx2.hotmail.com/mail/uxp/w4/m4/pr014/h/s7.png?d=' + escape(Date());
 };
 </javascript>
 
@@ -421,6 +431,11 @@ control link(url : String, target : String = "_blank") {
       l.text(url);
     }
   }
+}
+
+@doc "New-line control"
+control nl() {
+  <br/>
 }
 
 control screenContext() {
