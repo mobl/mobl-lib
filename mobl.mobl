@@ -1218,7 +1218,7 @@ type Window {
 
 var window : Window = Window();
 
-<javascript>
+<javascript for=Window>
 __ns.window.get().innerWidth = window.innerWidth;
 __ns.window.get().innerHeight = window.innerHeight;
 window.onresize = function() {
