@@ -810,7 +810,7 @@ setInterval(function() {
     var screenContext = mobl.findDeepestVisibleContext();
     if(screenContext) {
       var screens = screenContext.screens;
-      if(screens.length > 0) {
+      if(screens.length > 1) {
         screens[screens.length-1].callbackFn(null);
       }
     }
@@ -829,7 +829,7 @@ __ns.call = function (screenName, args, callback) {
         dom: null
     };
     if(!screenName.match(/\.root$/)) {
-      location.hash = screenName + Math.round(Math.random() * 1000);
+      location.hash = "" + Math.round(Math.random() * 99999);
     }
     oldHash = location.hash;
 
