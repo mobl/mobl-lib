@@ -810,7 +810,7 @@ setInterval(function() {
     var screenContext = mobl.findDeepestVisibleContext();
     if(screenContext) {
       var screens = screenContext.screens;
-      if(screens.length > 1) {
+      if(screens.length > 1 || (screenContext.initialElements.length > 0 && screens.length > 0)) {
         screens[screens.length-1].callbackFn(null);
       }
     }
