@@ -803,6 +803,20 @@ __ns.getCurrentScreen = function() {
   return null;
 };
 
+var oldHash = null;
+setInterval(function() {
+  if(location.hash !== oldHash) {
+    oldHash = location.hash;
+    var screenContext = mobl.findDeepestVisibleContext();
+    if(screenContext) {
+      var screens = screenContext.screens;
+      if(screens.length > 0) {
+        screens[screens.length-1].callbackFn(null);
+      }
+    }
+  }
+}, 250);
+
 __ns.call = function (screenName, args, callback) {
     var replace = args[args.length-2].get();
     var animate = args[args.length-1].get();
@@ -814,6 +828,10 @@ __ns.call = function (screenName, args, callback) {
         div: screenName.replace(/\./g, '__'),
         dom: null
     };
+    if(!screenName.match(/\.root$/)) {
+      location.hash = screenName + Math.round(Math.random() * 1000);
+    }
+    oldHash = location.hash;
 
     var screenContext = mobl.findDeepestVisibleContext();
 
@@ -844,6 +862,8 @@ __ns.call = function (screenName, args, callback) {
             callback.apply(null, arguments);
         }
     };
+    screenFrame.callbackFn = callbackFn;
+
     var parts = screenName.split('.');
     var current = window;
     for(var i = 0; i < parts.length; i++) {
