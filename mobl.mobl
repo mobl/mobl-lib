@@ -477,10 +477,10 @@ __ns._ = function(key, placeholders) {
 
 external sync function dummyMapper(d : ?) : ?
 
-external function invokeService(url : String, method : String = "GET", encoding : String = "json", data : String = null, mapper : Function1<?,?> = dummyMapper) : Dynamic
+external function httpRequest(url : String, method : String = "GET", encoding : String = "json", data : String = null, mapper : Function1<?,?> = dummyMapper) : Dynamic
 
-<javascript for=ajaxCall>
-__ns.invokeService = function(url, method, encoding, data, mapper, callback) {
+<javascript for=httpRequest>
+__ns.httpRequest = function(url, method, encoding, data, mapper, callback) {
   $.ajax({
     url: url,
     dataType: encoding,
