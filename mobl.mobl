@@ -305,7 +305,7 @@ __ns.LocalStorage = {
 </javascript>
 
 external type Type<T> {
-
+  //static sync function fromJSON(json : JSON) : T
 }
 
 external sync function log(o : Object) : void
@@ -475,6 +475,32 @@ __ns._ = function(key, placeholders) {
 };
 </javascript>
 
+external sync function dummyMapper(d : ?) : ?
+
+external function invokeService(url : String, method : String = "GET", encoding : String = "json", data : String = null, mapper : Function1<?,?> = dummyMapper) : Dynamic
+
+<javascript for=ajaxCall>
+__ns.invokeService = function(url, method, encoding, data, mapper, callback) {
+  $.ajax({
+    url: url,
+    dataType: encoding,
+    type: method,
+    data: data,
+    error: function(_, message, error) {
+      console.error(message);
+      console.error(error);
+      callback(null);
+    },
+    success: function(data) {
+       var result = mapper(data, callback);
+       if(result !== undefined) {
+         callback(result);
+       }
+    }
+  });
+};
+</javascript>
+
 <javascript>
 var argspec = persistence.argspec;
 
@@ -484,7 +510,13 @@ __ns.sleep = function(time, callback) {
   setTimeout(callback, time);
 };
 
-__ns.Dynamic = {};
+__ns.Dynamic = function(props) {
+  for(var p in props) {
+    if(props.hasOwnProperty(p)) {
+      this[p] = props[p];
+    }
+  }
+};
 
 __ns.repeat = function(time, callback) {
   setInterval(callback, time);
@@ -616,6 +648,43 @@ mobl.html = function(html, elements, callback) {
   ref108.rebind();
   root192.append(node180);
   callback(root192); return;
+};
+
+mobl.defineType = function(qid, SuperType, fields) {
+  function Type(obj) {
+    this._data = {};
+    if(this.initialize) {
+      this.initialize();
+    }
+    for(var p in obj) {
+      if(obj.hasOwnProperty(p)) {
+        this[p] = obj[p];
+      }
+    }
+  }
+  for(var prop in fields) {
+    if(fields.hasOwnProperty(prop)) {
+      (function() {
+        var p = prop;
+        if(fields[p] === null) {
+          Type.prototype.__defineGetter__(p, function() {
+            return this._data[p];
+          });
+          Type.prototype.__defineSetter__(p, function(val) {
+            this._data[p] = val;
+            this.triggerEvent('change', this, p, val);
+          });
+        } else if(fields[p][0] === '[') {
+
+        }
+      }());
+    }
+  }
+  Type.prototype = SuperType ? new SuperType() : new persistence.Observable();
+  Type.fromJSON = function(json) {
+    return new Type(json);
+  };
+  return Type;
 };
 
 persistence.entityDecoratorHooks.push(function(Entity) {
@@ -808,7 +877,7 @@ setInterval(function() {
   if(location.hash !== oldHash) {
     oldHash = location.hash;
     var screenContext = mobl.findDeepestVisibleContext();
-    if(screenContext) {
+    if(screenContext && screenContext.initialElements) {
       var screens = screenContext.screens;
       if(screens.length > 1 || (screenContext.initialElements.length > 0 && screens.length > 0)) {
         screens[screens.length-1].callbackFn(null);
@@ -836,7 +905,6 @@ __ns.call = function (screenName, args, callback) {
     var screenContext = mobl.findDeepestVisibleContext();
 
     screenContext.screens.push(screenFrame);
-
     // Called on "screen return"
     var callbackFn = function () {
         // when callback function is called (i.e. screen return)
@@ -1027,21 +1095,6 @@ mobl.remoteCollection = function(uri, datatype, processor) {
   };
 };
 
-mobl.instantiate = function(sup, props) {
-  var obj = {};
-  for(var p in sup) {
-    if(sup.hasOwnProperty(p)) {
-      obj[p] = sup[p];
-    }
-  }
-  for(var p in props) {
-    if(props.hasOwnProperty(p)) {
-      obj[p] = props[p];
-    }
-  }
-  return new mobl.ObservableObject(obj);
-};
-
 mobl.ObservableObject = function(props) {
   this._data = props;
   this.subscribers = {};
@@ -1051,11 +1104,11 @@ mobl.ObservableObject = function(props) {
       (function() {
         var p = property;
         that.__defineGetter__(p, function() {
-          return that._data[p];
+          return this._data[p];
         });
         that.__defineSetter__(p, function(val) {
-          that._data[p] = val;
-          that.triggerEvent('change', that, p, val);
+          this._data[p] = val;
+          this.triggerEvent('change', this, p, val);
         });
       }());
     }
