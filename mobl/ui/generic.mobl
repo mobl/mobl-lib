@@ -1,6 +1,5 @@
 module mobl::ui::generic
 
-import mobl
 import mobl::ui::stylemixin
 
 load mobl/ui/generic_ext.css

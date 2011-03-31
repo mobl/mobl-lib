@@ -166,6 +166,11 @@ external type DateTime {
   @doc "Day of the month"
   sync function setDate(d : Num) : Num
 
+  sync function setHours(h : Num) : void
+  sync function setMinutes(m : Num) : void
+  sync function setSeconds(s : Num) : void
+  sync function setMilliseconds(ms : Num) : void
+
   sync function toString() : String
   sync function toDateString() : String
 
@@ -251,6 +256,7 @@ external type Collection<T> {
   sync function limit(n : Num) : Collection<T>
   sync function skip(n : Num) : Collection<T>
   sync function add(item : T) : void
+  sync function addAll(items : [T]) : void
   sync function remove(item : T) : void
   sync function updated() : void
 }
