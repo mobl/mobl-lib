@@ -7,6 +7,7 @@ import mobl::test::type
 var testSuites : [(String, String, Callback)] = Array<(String, String, Callback)>();
 var testCases : [(String, Callback)] = Array<(String, Callback)>();
 var testLog = Collection<TestSuiteResult>();
+
 var currentCaseResult : TestCaseResult = null;
 var caseSetUp : Callback = null;
 var caseTearDown : Callback = null;

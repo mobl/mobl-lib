@@ -608,8 +608,8 @@ control masterDetail(items : Collection<Dynamic>, masterItem : Control1<Dynamic>
 }
 
 screen detailScreen(it : Dynamic, detail : Control1<Dynamic>) {
-  header("Detail") {
-    backButton("Back", onclick={ screen return; })
+  header(_("Detail")) {
+    backButton(_("Back"), onclick={ screen return; })
   }
   detail(it)
 }
@@ -686,7 +686,7 @@ control stagedList(coll : Collection<?>, listCtrl : Control1<?>, initialItems : 
   var total : Num = coll.count()
   group {
     list(it in coll limit n) {
-      item(onclick={}) { listCtrl(it) }
+      item(onclick={ 	}) { listCtrl(it) }
     }
     when(n < total) {
       <li class=loadMoreStyle onclick={

@@ -405,6 +405,11 @@ external type JQueryPosition {
   left : Num
 }
 
+external sync function dyn(o : Object) : Dynamic
+<javascript for=dyn>
+__ns.dyn = function(o) { return o; };
+</javascript>
+
 external sync function $(sel : String) : JQuery
 
 // Controls
@@ -538,7 +543,7 @@ mobl.log = function(s, _, callback) {
 };
 
 __ns.parseNum = function(s) {
-  return parseInt(s, 10);
+  return parseFloat(s, 10);
 };
 
 __ns.escape = function(s) {
@@ -668,6 +673,7 @@ mobl.defineType = function(qid, SuperType, fields) {
       }
     }
   }
+  Type.prototype = SuperType ? new SuperType() : new persistence.Observable();
   for(var prop in fields) {
     if(fields.hasOwnProperty(prop)) {
       (function() {
@@ -686,7 +692,6 @@ mobl.defineType = function(qid, SuperType, fields) {
       }());
     }
   }
-  Type.prototype = SuperType ? new SuperType() : new persistence.Observable();
   Type.fromJSON = function(json) {
     return new Type(json);
   };
@@ -901,7 +906,7 @@ __ns.call = function (screenName, args, callback) {
         args: args,
         callback: callback,
         div: screenName.replace(/\./g, '__'),
-        dom: null
+        dom: $("<div>")
     };
     if(!screenName.match(/\.root$/)) {
       location.hash = "" + Math.round(Math.random() * 99999);

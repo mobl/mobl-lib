@@ -16,12 +16,23 @@ style narrowNumFieldStyle {
   -webkit-text-size-adjust: 140%;
   -moz-text-size-adjust: 140%;
   -webkit-appearance: textarea;
-  background: #fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(white),
-    to(white) );
+  /*background: #fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(white),
+    to(white) );*/
+  background: transparent;
   border: 0;
-  font-size: 1em;
-  height: 1em;
+  font-size: 17px;
+  height: 17px;
   padding: 0;
+  margin: 0;
+  text-align: center;
+  width: 3em;
+}
+
+style monthStyle {
+  font-size: 17px;
+  height: 17px;
+  padding: 0;
+  margin: 0;
   text-align: center;
   width: 3em;
 }
@@ -52,6 +63,7 @@ control datePicker(d : DateTime) {
     narrowNumField(day, onchange={ d.setDate(day); d=d; })<br/>
     button("-", onclick={
       d.setDate(d.getDate() - 1);
+      day = d.getDate();
       d = d;
     })
     </div>
@@ -60,7 +72,7 @@ control datePicker(d : DateTime) {
       d.setMonth(d.getMonth() + 1);
       d = d;
     })<br/>
-    label(getMonthName(d.getMonth()))<br/>
+    label(getMonthName(d.getMonth()), style=monthStyle)<br/>
     button("-", onclick={
       d.setMonth(d.getMonth() - 1);
       d = d;
