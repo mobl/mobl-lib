@@ -637,8 +637,14 @@ mobl.formatDate = function(date) {
 
 mobl.range = function(from, to) {
   var ar = [];
-  for(var i = from; i < to; i++) {
-    ar.push(i);
+  if(from <= to) {
+    for(var i = from; i < to; i++) {
+      ar.push(i);
+    }
+  } else {
+    for(var i = from; i > to; i--) {
+      ar.push(i);
+    }
   }
   return ar;
 };
