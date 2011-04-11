@@ -41,6 +41,7 @@ function addSwipeListener(el, listener) {
   function onTouchEnd(e) {
     cancelTouch();
     if (Math.abs(dx) > 50) {
+      e.direction = dx > 0 ? 'right' : 'left';
       listener(e);
     }
   }
