@@ -1,0 +1,38 @@
+module mobl::ui::toggle
+
+control toggle(val : Bool, cb : Callback = null) {
+	
+	var s : Style = val ? toggleOnStyle : toggleOffStyle
+	span(s, onclick={
+		val = !val;
+		if (cb) {
+			cb(val);
+		}
+		
+		s = val ? toggleOnStyle : toggleOffStyle;	})
+}
+
+style mixin toggleStyle() {
+	display: inline-block;
+	list-style: none;
+	-WebKit-appearance: none;
+	
+	height: 27px;
+	width: 95px;
+	margin: 0px;
+	
+	background: url($data(mobl/ui/generic/iphone-switch-yesno.png)) no-repeat center;
+	
+	-webkit-transition: 0.15s linear;
+	-moz-transition: 0.15s linear;
+}
+                                   
+style toggleOnStyle {
+	toggleStyle();
+	background-position-x: 0px;
+}
+                     
+style toggleOffStyle {
+	toggleStyle();
+	background-position-x: -95px;
+}
