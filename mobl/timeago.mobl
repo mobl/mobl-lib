@@ -1,0 +1,29 @@
+module mobl::timeago
+
+load js/jquery-timeago.js
+
+external sync function isoDateString(date : DateTime) : String
+external sync function timeAgo(date : DateTime) : String
+external sync function timeAgoElement(elem : JQuery) : String
+
+<javascript>
+__ns.isoDateString = function(date) {
+	if (date) {
+		return new Date(date.getTime()).toISOString();
+	} else {
+		return null;
+	}
+};
+
+__ns.timeAgo = function(date) {
+	if (date) {
+		return $.timeago(new Date(date.getTime()));
+	} else {
+		return null;
+	}
+};
+
+__ns.timeAgoElement = function(elem) {
+	elem.timeago();
+};
+</javascript>

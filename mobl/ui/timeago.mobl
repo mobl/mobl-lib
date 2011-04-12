@@ -1,0 +1,14 @@
+module mobl::ui::timeago
+import mobl::timeago
+
+control timeAgoLabel(date : DateTime, style : Style = null) {
+	time@<time datetime=isoDateString(date)></time>
+	
+	script {
+		if (style) {
+			time.addClass(style);
+		}
+		
+		timeAgoElement(time);
+	}
+}
