@@ -1,0 +1,128 @@
+/*
+ * PhasedRenderedList
+ * (c) 2011, Author: Willem Bult
+ *
+ * Renders a set of controls given a control and an array of objects in multiple passes.
+ * Convenient when the collection of objects is large and we want the user not
+ * to have to wait for all of them to render.
+ *
+ *
+ * Example usage:
+ *
+ * control myListItem(name : String) {
+ *     item { label(name) }	
+ * }
+ *
+ * control myList(names : Array<String>) {
+ *     function keepTrack(name : String, element : JQuery) {
+ *         log("Created element for " + name);
+ *     }
+ *
+ *     phasedRenderedList(names, myListItem, callBack = keepTrack) {}
+ * }
+ *
+ */
+module mobl::ui::phasedRenderedList
+
+/*
+ * Recursive function to create a set of controls in batches, asynchronously
+ * The control should take 1 object from the given array as its argument
+ *
+ * ctrl: the control to create for each object
+ * items: the objects to pass to the control
+ * callBack: the function to pass each control to along with the item it was created with
+ * batchSize: the size of the batch in each pass
+ * delay: the delay between passes
+ * offset: the offset in the items array to start creating controls at
+ *
+ */
+ 
+function createControlsPhased(ctrl : Control1<Object>, items : Array<Object>, callBack : Function2<Object, JQuery, ?>, batchSize : Num = 50, delay : Num = 500, offset : Num = 0) {
+	// the index in the items array to stop rendering at 
+	var end = Math.min(offset + batchSize, items.length);
+	
+	// render the items in this batch
+	foreach (i in range(offset, end)) {
+		var item : Object = items.get(i);
+		
+		var renderedControl : JQuery = renderControl1(ctrl, item);
+		
+		async {
+			callBack(item, renderedControl);
+		}
+	}
+	
+	// if there are more items, recursively call myself after delay
+	if (items.length > end) {
+		sleep(delay);
+		async{
+			createControlsPhased(ctrl, items, callBack = callBack, batchSize = batchSize, delay = delay, offset = end);
+		}
+	}
+	
+}
+
+
+/*
+ * Control for a list of items that is rendered in multiple passes, asynchronously
+ *
+ * items: list of objects to render
+ * ctrl: control to use to render an item
+ * batchSize: number of controls to render on every pass
+ * delay: delay between passes
+ * callBack: an optional function to call when an element gets added to the list
+ */	
+control phasedRenderedList(items : Array<Object>, ctrl : Control1<Object>, batchSize : Num = 25, delay : Num = 500, callBack : Function2<Object, JQuery, ?> = null) {
+	root@<span>
+	elements()
+	</span>
+	
+	function controlCreated(item : Object, elem : JQuery) {
+		elem.appendTo(root);
+		
+		if (callBack) {
+			callBack(item, elem);
+		}
+	}
+		
+	script {
+		createControlsPhased(ctrl, items, callBack = controlCreated, batchSize = batchSize, delay = delay);
+	}
+}
+
+external function renderControlSolo(ctrl : Control) : JQuery
+external function renderControl1(ctrl : Control1<Object>, item : Object) : JQuery
+external function renderControl2(ctrl : Control2<Object, Object>, item1 : Object, item2 : Object) : JQuery
+
+<javascript>
+/*
+ * renderControl(ctrl, [arg, ...])
+ *
+ * takes a dynamic number of arguments:
+ *  - first argument is the control function
+ *  - further arguments are passed to the control function as arguments
+ *
+ * returns result from the control function (jQuery object)
+ */
+__ns.renderControlSolo = function(ctrl, callback) {
+	ctrl(null, callback);
+};
+
+__ns.renderControl = function(ctrl) {
+	
+	var newArguments = new Array();
+	for (var i = 1; i < arguments.length - 1; i++) {
+		newArguments.push(mobl.ref(arguments[i]));
+	}
+	
+	// elements (null)
+	newArguments.push(null);
+	// callback
+	newArguments.push(arguments[arguments.length - 1]);
+	
+	ctrl.apply(null, newArguments);
+};
+
+__ns.renderControl1 = __ns.renderControl;
+__ns.renderControl2 = __ns.renderControl;
+</javascript>
