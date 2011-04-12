@@ -61,9 +61,9 @@ mobl.imagefetch.Base64 = {
 };
 
 mobl.imagefetch.downloadImageAsBase64 = function(url, callback) {
-  if(url.indexOf('http://') !== -1) {
+  /*if(url.indexOf('http://') !== -1) {
     url = mobl.proxyUrl(url);
-  }
+  }*/
   $.ajax({
     url: url,
     dataType: "text",
