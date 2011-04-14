@@ -70,7 +70,16 @@ external type RegExp : Object {
     sync function compile(regexp : RegExp, modifier : String) : void
     sync function exec(string : String) : [String]
     sync function test(string : String) : Bool
+    static sync function fromString(regex : String) : RegExp
 }
+
+<javascript for=RegExp>
+__ns.RegExp = {
+  fromString: function(regexp) {
+    return new RegExp(regexp);
+  }
+};
+</javascript>
 
 external type Array<T> {
   length : Num
