@@ -15,7 +15,7 @@ load mobl/ui/generic/touchscroll.css*/
 style $baseColor = rgb(72, 100, 180)
 style $baseColorGreen = rgb(60, 150, 30)
 style $baseColorRed = rgb(150, 50, 20)
-style $baseColorRedish = rgb(150, 80, 0) 
+style $baseColorRedish = rgb(150, 80, 0)
 
 style $buttonFromColor = rgb($baseColor.r+170, $baseColor.g+170, $baseColor.b+170)
 style $buttonToColor = rgb($baseColor.r+120, $baseColor.g+120, $baseColor.b + 120)
@@ -267,9 +267,9 @@ style itemArrowStyle {
 }
 
 style itemDownArrowStyle {
-  background-image: url($data(mobl/ui/generic/arrowDown.png)); 
+  background-image: url($data(mobl/ui/generic/arrowDown.png));
   background-position: right center;
-  background-repeat: no-repeat;	
+  background-repeat: no-repeat;
 }
 
 control item(style : Style = itemStyle, pushedStyle : Style = itemPushedStyle, onclick : Callback = null, onswipe : Callback = null, hideArrow : Bool = false) {
@@ -492,19 +492,23 @@ style activeTabStyle {
 }
 
 @doc "A tabset, takes a list of tuples as argument, e.g. [(\"Tab 1\", \"icon url\", tab1), (\"Tab 2\", \"icon uri\", tab2)] where tab1 and tab2 are controls with no arguments"
-control tabSet(tabs : [(String, String, Control)]) {
-  var activeTabName : String = tabs.get(0)._1
+control tabSet(tabs : [(String, String, Control)], activeTab : String = null) {
+  script {
+    if(activeTab == null) {
+      activeTab = tabs[0]._1;
+    }
+  }
   var s = ""
 
   block(tabbarStyle) {
     list((tabName, tabIcon, tabControl) in tabs) {
-      span(onclick={ activeTabName = tabName; }, cssClass=activeTabName == tabName ? activeTabButtonStyle : inActiveTabButtonStyle) {
+      span(onclick={ activeTab = tabName; }, cssClass=activeTab == tabName ? activeTabButtonStyle : inActiveTabButtonStyle) {
         label(tabName)
       }
     }
   }
   list((tabName, tabIcon, tabControl) in tabs) {
-    block(activeTabName == tabName ? activeTabStyle : inActiveTabStyle) {
+    block(activeTab == tabName ? activeTabStyle : inActiveTabStyle) {
       screenContext {
         tabControl()
       }

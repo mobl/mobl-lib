@@ -46,9 +46,20 @@ control narrowNumField(n : Num, onchange : Callback = null) {
 }
 
 control datePicker(d : DateTime) {
+  script {
+    // If date is null, reset
+    if(d == null) {
+      d = now();
+    }
+  }
   var visible = false
   var day = d.getDate()
   var year = d.getFullYear()
+  function updates() {
+    year = d.getFullYear();
+    day = d.getDate();
+    d = d;
+  }
   label(d.toDateString(), onclick={
     visible = visible ? false : true;
   })
@@ -57,38 +68,34 @@ control datePicker(d : DateTime) {
     <div style="float: left; text-align: center;">
     button("+", onclick={
       d.setDate(d.getDate() + 1);
-      day = d.getDate();
-      d = d;
+      updates();
     })<br/>
     narrowNumField(day, onchange={ d.setDate(day); d=d; })<br/>
     button("-", onclick={
       d.setDate(d.getDate() - 1);
-      day = d.getDate();
-      d = d;
+      updates();
     })
     </div>
     <div style="float: left; text-align: center;">
     button("+", onclick={
       d.setMonth(d.getMonth() + 1);
-      d = d;
+      updates();
     })<br/>
     label(getMonthName(d.getMonth()), style=monthStyle)<br/>
     button("-", onclick={
       d.setMonth(d.getMonth() - 1);
-      d = d;
+      updates();
     })
     </div>
     <div style="float: left; text-align: center;">
     button("+", onclick={
       d.setFullYear(d.getFullYear() + 1);
-      year = d.getFullYear();
-      d = d;
+      updates();
     })<br/>
     narrowNumField(year, onchange={ d.setFullYear(year); d=d; })<br/>
     button("-", onclick={
       d.setFullYear(d.getFullYear() - 1);
-      year = d.getFullYear();
-      d = d;
+      updates();
     })
     </div>
   }
