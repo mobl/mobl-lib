@@ -1181,6 +1181,31 @@ mobl.implementInterface = function(sourceModule, targetModule, items) {
       return obj;
     };
 
+    var batchedEvents = [];
+
+    function processEvents() {
+      var toTrigger = [];
+      for(var i = 0; i < batchedEvents.length; i++) {
+        var ev = batchedEvents[i];
+        var found = false;
+        for(var j = 0; j < toTrigger.length; j++) {
+          var ev2 = toTrigger[j];
+          if(ev.obj === ev2.obj && ev.eventType === ev2.eventType) {
+            found = true;
+            break;
+          }
+        }
+        if(!found) {
+          toTrigger.push(ev);
+        }
+      }
+      for(i = 0; i < toTrigger.length; i++) {
+        var ev = toTrigger[i];
+        ev.fn.apply(null, ev.args);
+      }
+      batchedEvents = [];
+    }
+
     function CompSubscription(name) {
       this.subscriptions = [];
       this.name = name;
@@ -1188,6 +1213,26 @@ mobl.implementInterface = function(sourceModule, targetModule, items) {
 
     CompSubscription.prototype.addSub = function(sub) {
       if(sub) {
+        if(sub.node && sub.eventType.indexOf('change') !== -1) {
+          var fn = sub.fn;
+          sub.unsubscribe();
+          sub = mobl.domBind(sub.node, sub.eventType, function() {
+            batchedEvents.push({obj: sub.node, eventType: sub.eventType, fn: fn, args: Array.prototype.slice.call(arguments)});
+            if(batchedEvents.length === 1) {
+              setTimeout(processEvents, 300);
+            }
+          });
+        } else if(sub.obj && sub.obj._filter && sub.eventType.indexOf('change') !== -1) {
+          var fn = sub.fn;
+          sub.unsubscribe();
+          sub = sub.obj.addEventListener(sub.eventType, function() {
+            batchedEvents.push({obj: sub.obj, eventType: sub.eventType, fn: fn, args: Array.prototype.slice.call(arguments)});
+            if(batchedEvents.length === 1) {
+              setTimeout(processEvents, 300);
+            }
+          });
+        }
+
         this.subscriptions.push(sub);
       }
     };
@@ -1199,7 +1244,6 @@ mobl.implementInterface = function(sourceModule, targetModule, items) {
       this.subscriptions = [];
     };
 
-
     function DomSubscription(node, eventType, fn) {
       this.node = node;
       this.eventType = eventType;
@@ -1208,6 +1252,10 @@ mobl.implementInterface = function(sourceModule, targetModule, items) {
 
     DomSubscription.prototype.unsubscribe = function() {
       this.node.unbind(this.eventType, this.fn);
+    };
+
+    DomSubscription.prototype.equals = function(o) {
+      return this.node === o.node && this.eventType === o.eventType && this.fn === o.fn;
     };
 
     mobl.domBind = function(node, eventType, fn) {
