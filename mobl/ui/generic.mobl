@@ -973,24 +973,24 @@ style trStyle:last-child tdStyle {
 
 
 @doc "Renders a table, use row { } for rows and cell { } for cells"
-control table() {
-  <table class=tableStyle>elements()</table>
+control table(style : Style = tableStyle) {
+  <table class=style>elements()</table>
 }
 
-control row() {
-  <tr class=trStyle>elements()</tr>
+control row(style : Style = trStyle) {
+  <tr class=style>elements()</tr>
 }
 
-control cell(width : String = null) {
-  <td width=width class=tdStyle>elements()</td>
+control cell(width : String = null, style : Style = tdStyle) {
+  <td width=width class=style>elements()</td>
 }
 
-control col(width : String = null) {
-  <td width=width class=tdStyle>elements()</td>
+control col(width : String = null, style : Style = tdStyle) {
+  <td width=width class=style>elements()</td>
 }
 
-control headerCol(width : String = null) {
-  <td width=width class=tdStyle><strong>elements()</strong></td>
+control headerCol(width : String = null, style : Style = style) {
+  <td width=width class=style><strong>elements()</strong></td>
 }
 
 // SCROLLERS, disabled ATM

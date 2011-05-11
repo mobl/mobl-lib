@@ -45,9 +45,9 @@ control narrowNumField(n : Num, onchange : Callback = null) {
   } class=narrowNumFieldStyle/>
 }
 
-control datePicker(d : DateTime) {
+control datePicker(d : DateTime, onchange : Callback = null) {
   script {
-    // If date is null, reset
+    // If date is null, set to now
     if(d == null) {
       d = now();
     }
@@ -59,6 +59,9 @@ control datePicker(d : DateTime) {
     year = d.getFullYear();
     day = d.getDate();
     d = d;
+    if(onchange) {
+      onchange(null);
+    }
   }
   label(d.toDateString(), onclick={
     visible = visible ? false : true;

@@ -389,6 +389,7 @@ external type JQuery : Dynamic {
   sync function hasClass(cssClass : String) : Bool
   sync function css(name : String, val : String) : JQuery
   sync function html() : String
+  sync function text() : String
   sync function val() : String
   sync function is(what : String) : Bool
 
