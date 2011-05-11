@@ -60,7 +60,7 @@ control datePicker(d : DateTime, onchange : Callback = null) {
     day = d.getDate();
     d = d;
     if(onchange) {
-      onchange(null);
+      onchange(d);
     }
   }
   label(d.toDateString(), onclick={
@@ -98,6 +98,60 @@ control datePicker(d : DateTime, onchange : Callback = null) {
     narrowNumField(year, onchange={ d.setFullYear(year); d=d; })<br/>
     button("-", onclick={
       d.setFullYear(d.getFullYear() - 1);
+      updates();
+    })
+    </div>
+  }
+  <div style="clear: both"/>
+  </div>
+}
+
+
+/**
+ * Author: Terje Pedersen
+ */
+control timePicker(d : DateTime, onchange : Callback = null) {
+  script {
+    if(d==null) { d=now(); }
+  }
+
+  var visible = false
+  var hours = d.getHours()
+  var minutes = d.getMinutes()
+
+  function updates() {
+    hours = d.getHours();
+    minutes = d.getMinutes();
+    d = d;
+    if(onchange) {
+      onchange(d);
+    }
+  }
+
+  label((hours.toString().length==1?"0":"")+hours.toString()+":"+(minutes.toString().length==1?"0":"")+minutes.toString(), onclick={
+    visible = visible ? false : true;
+  })
+  <div>
+  when(visible) {
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setHours(d.getHours() + 1);
+      updates();
+    })<br/>
+    narrowNumField(hours, onchange={ d.setHours(hours); updates(); })<br/>
+    button("-", onclick={
+      d.setHours(d.getHours() - 1);
+      updates();
+    })
+    </div>
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setMinutes(d.getMinutes() + 1);
+      updates();
+    })<br/>
+    narrowNumField(minutes, onchange={ d.setMinutes(minutes); updates(); })<br/>
+    button("-", onclick={
+      d.setMinutes(d.getMinutes() - 1);
       updates();
     })
     </div>
