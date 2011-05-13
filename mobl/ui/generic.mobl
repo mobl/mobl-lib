@@ -989,7 +989,7 @@ control col(width : String = null, style : Style = tdStyle) {
   <td width=width class=style>elements()</td>
 }
 
-control headerCol(width : String = null, style : Style = style) {
+control headerCol(width : String = null, style : Style = tdStyle) {
   <td width=width class=style><strong>elements()</strong></td>
 }
 
