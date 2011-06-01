@@ -630,7 +630,7 @@ style selectedItemStyle {
 }
 
 @when window.innerWidth > 500
-control masterDetail(items : Collection<Dynamic>, masterItem : Control1<Dynamic>, detail : Control1<Dynamic>) {
+control masterDetail(items : Collection<?>, masterItem : Control1<Dynamic>, detail : Control1<Dynamic>) {
   var current : Dynamic = items.one()
   <div width="100%">
     <div style="float:left; width:33%; position:relative; border-right: solid 1px #cccccc;">
