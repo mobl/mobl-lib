@@ -988,10 +988,8 @@ __ns.call = function (screenName, args, callback) {
           previousScreen.pageYOffset = window.pageYOffset;
           node.hide();
           node.prependTo(screenContext.dom);
-          setTimeout(function() {
-          	__ns.animations[animate](previousScreen.dom, node, true, function() { node.trigger("screen", [node] ); });
-            scrollTo(0, 0);
-          }, 200);
+          __ns.animations[animate](previousScreen.dom, node, true, function() { node.trigger("screen", [node] ); });
+          scrollTo(0, 0);
         } else {
           if(screenContext.dom.selector === 'body') {
             screenContext.initialElements = screenContext.dom.find("div.initialElements");
