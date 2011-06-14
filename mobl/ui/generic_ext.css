@@ -1,3 +1,39 @@
+@-webkit-keyframes slidein-fromright {
+ from {
+   -webkit-transform: translateX(100%);
+ }
+ to {
+   -webkit-transform: translateX(0%);
+ }
+}
+
+@-webkit-keyframes slideout-toleft {
+ from {
+   -webkit-transform: translateX(0%);
+ }
+ to {
+   -webkit-transform: translateX(-100%);
+ }
+}
+
+@-webkit-keyframes slidein-fromleft {
+ from {
+   -webkit-transform: translateX(-100%);
+ }
+ to {
+   -webkit-transform: translateX(0%);
+ }
+}
+
+@-webkit-keyframes slideout-toright {
+ from {
+   -webkit-transform: translateX(0%);
+ }
+ to {
+   -webkit-transform: translateX(100%);
+ }
+}
+
 body {
   background-color: #f0f0f0;
   font-family: Arial;

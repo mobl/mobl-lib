@@ -869,13 +869,26 @@ mobl.findDeepestVisibleContext = function() {
   }
 };
 
-var TRANSITION_SPEED = 150;
+var TRANSITION_SPEED = 250;
 
 __ns.animations = {};
 
 __ns.animations.slide = function(prevNode, nextNode, forward, callback) {
-  nextNode.show('slide', {direction: forward ? 'right' : 'left'}, TRANSITION_SPEED);
-  prevNode.hide('slide', {direction: forward ? 'left' : 'right'}, TRANSITION_SPEED, callback);
+  nextNode.show();
+  nextNode.css('-webkit-animation-duration', TRANSITION_SPEED + 'ms');
+  
+  if (forward) {
+  	nextNode.css('-webkit-animation-name', 'slidein-fromright');
+  	prevNode.css('-webkit-animation-name', 'slideout-toleft');
+  } else {
+  	nextNode.css('-webkit-animation-name', 'slidein-fromleft');
+  	prevNode.css('-webkit-animation-name', 'slideout-toright');
+  }
+  
+  setTimeout(function() {
+  	prevNode.hide();
+  	callback();
+  }, TRANSITION_SPEED);
 };
 
 __ns.animations.fade = function(prevNode, nextNode, forward, callback) {
@@ -968,17 +981,17 @@ __ns.call = function (screenName, args, callback) {
 
     screenFrame.subs = screenTemplate.apply(null, args.concat( [ function (node) {
         node.attr('id', screenFrame.div);
-        node.css('position', 'absolute').css('top', '0').css('left', '0').css('width', '100%');
+        node.css('position', 'absolute').css('top', '0').css('left', '0px').css('width', '100%');
         screenFrame.dom = node;
         if (screenContext.screens.length > 1) {
           var previousScreen = screenContext.screens[screenContext.screens.length - 2];
           previousScreen.pageYOffset = window.pageYOffset;
           node.hide();
           node.prependTo(screenContext.dom);
-          __ns.animations[animate](previousScreen.dom, node, true, function() { });
-          //node.show('slide', {direction: 'right'}, TRANSITION_SPEED);
-          //previousScreen.dom.hide('slide', {direction: 'left'}, TRANSITION_SPEED);
-          scrollTo(0, 0);
+          setTimeout(function() {
+          	__ns.animations[animate](previousScreen.dom, node, true, function() { node.trigger("screen", [node] ); });
+            scrollTo(0, 0);
+          }, 200);
         } else {
           if(screenContext.dom.selector === 'body') {
             screenContext.initialElements = screenContext.dom.find("div.initialElements");
@@ -989,8 +1002,6 @@ __ns.call = function (screenName, args, callback) {
             screenContext.initialElements = screenContext.dom.find("div.initialElements");
             node.hide();
             node.prependTo(screenContext.dom);
-            //node.show('slide', {direction: 'right'}, TRANSITION_SPEED);
-            //screenContext.initialElements.hide('slide', {direction: 'left'}, TRANSITION_SPEED);
             __ns.animations[animate](screenContext.initialElements, node, true, function() { });
             scrollTo(0, 0);
           }
@@ -1017,7 +1028,7 @@ __ns.call = function (screenName, args, callback) {
           screenToRemove.dom.remove();
           screenContext.screens.splice(screenContext.screens.length-2, 1);
         }
-
+/*
         $(function () {
             var scrollers = $("div#scrollwrapper div#content");
             var i = 0;
@@ -1029,7 +1040,7 @@ __ns.call = function (screenName, args, callback) {
                 }
                 mobl.delayedUpdateScrollers();
             }
-        });
+        });*/
     }, callbackFn ]));
 };
 
