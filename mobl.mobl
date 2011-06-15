@@ -874,21 +874,30 @@ var TRANSITION_SPEED = 250;
 __ns.animations = {};
 
 __ns.animations.slide = function(prevNode, nextNode, forward, callback) {
-  nextNode.show();
-  nextNode.css('-webkit-animation-duration', TRANSITION_SPEED + 'ms');
-  
-  if (forward) {
-  	nextNode.css('-webkit-animation-name', 'slidein-fromright');
-  	prevNode.css('-webkit-animation-name', 'slideout-toleft');
+  //nextNode.show('slide', {direction: forward ? 'right' : 'left'}, TRANSITION_SPEED);
+  //prevNode.hide('slide', {direction: forward ? 'left' : 'right'}, TRANSITION_SPEED, callback);
+
+  if(__ns.isIphone()) {
+    nextNode.show();
+    nextNode.css('-webkit-animation-duration', TRANSITION_SPEED + 'ms');
+
+    if (forward) {
+      nextNode.css('-webkit-animation-name', 'slidein-fromright');
+      prevNode.css('-webkit-animation-name', 'slideout-toleft');
+    } else {
+      nextNode.css('-webkit-animation-name', 'slidein-fromleft');
+      prevNode.css('-webkit-animation-name', 'slideout-toright');
+    }
+
+    setTimeout(function() {
+      prevNode.hide();
+      callback();
+    }, TRANSITION_SPEED);
   } else {
-  	nextNode.css('-webkit-animation-name', 'slidein-fromleft');
-  	prevNode.css('-webkit-animation-name', 'slideout-toright');
+    nextNode.show();
+    prevNode.hide();
+    callback();
   }
-  
-  setTimeout(function() {
-  	prevNode.hide();
-  	callback();
-  }, TRANSITION_SPEED);
 };
 
 __ns.animations.fade = function(prevNode, nextNode, forward, callback) {
