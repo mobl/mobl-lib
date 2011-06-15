@@ -877,7 +877,7 @@ __ns.animations.slide = function(prevNode, nextNode, forward, callback) {
   //nextNode.show('slide', {direction: forward ? 'right' : 'left'}, TRANSITION_SPEED);
   //prevNode.hide('slide', {direction: forward ? 'left' : 'right'}, TRANSITION_SPEED, callback);
 
-  if(__ns.isIphone()) {
+  //if(__ns.isIphone()) {
     nextNode.show();
     nextNode.css('-webkit-animation-duration', TRANSITION_SPEED + 'ms');
 
@@ -893,11 +893,11 @@ __ns.animations.slide = function(prevNode, nextNode, forward, callback) {
       prevNode.hide();
       callback();
     }, TRANSITION_SPEED);
-  } else {
+  /*} else {
     nextNode.show();
     prevNode.hide();
     callback();
-  }
+  }*/
 };
 
 __ns.animations.fade = function(prevNode, nextNode, forward, callback) {
