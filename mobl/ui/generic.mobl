@@ -340,7 +340,7 @@ function alwaysOkValidator(s : String) : String {
   return "";
 }
 
-control textField(s : String, placeholder : String = null, label : String = null, validator : Function1<String,String> = null, style : Style = textFieldStyle, invalidStyle : Style = textFieldInvalidStyle, onchange : Callback = null, onkeyup : Callback = null) {
+control textField(s : String, placeholder : String = null, label : String = null, inputType : String = "text", validator : Function1<String,String> = null, style : Style = textFieldStyle, invalidStyle : Style = textFieldInvalidStyle, onchange : Callback = null, onkeyup : Callback = null) {
   when(label) {
     mobl::label(label, style=textFieldLabelStyle)
   }
@@ -355,7 +355,7 @@ control textField(s : String, placeholder : String = null, label : String = null
       }
     }
 
-    <input type="text" class=validationMessage ? invalidStyle : style placeholder=placeholder databind=temp onchange=onchange onkeyup={
+    <input type=inputType class=validationMessage ? invalidStyle : style placeholder=placeholder databind=temp onchange=onchange onkeyup={
       if(onkeyup) {
         onkeyup(event);
       }
@@ -367,13 +367,25 @@ control textField(s : String, placeholder : String = null, label : String = null
     } onblur={ scrollUp(); }/>
     mobl::label(validationMessage, style=validationMessageStyle)
   } else { // no validator, cheap solution
-    <input type="text" class=style placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
+    <input type=inputType class=style placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
   }
 }
 
 control emailField(s : String, placeholder : String = null, label : String = null, validator : Function1<String,String> = emailValidator, style : Style = textFieldStyle, invalidStyle : Style = textFieldInvalidStyle, onchange : Callback = null, onkeyup : Callback = null) {
-  textField(s, placeholder, label, validator, style, invalidStyle, onchange, onkeyup)
+  textField(s, placeholder, label, "email", validator, style, invalidStyle, onchange, onkeyup)
 }
+
+control telField(phoneNumber : String, placeholder : String = null, label : String = null, validator : Function1<String,String> = null, style : Style = textFieldStyle, invalidStyle : Style = textFieldInvalidStyle, onchange : Callback = null, onkeyup : Callback = null) {
+  textField(phoneNumber, placeholder, label, "tel", validator, style, invalidStyle, onchange, onkeyup)
+}
+
+control rangeField(n : Num, min : Num = 0, max : Num = 100, step : Num = 1, placeholder : String = null, label : String = null, onchange : Callback = null, onkeyup : Callback = null) {
+  when(label) {
+    mobl::label(label, style=textFieldLabelStyle)
+  }
+  <input type="range" databind=n min=min max=max step=step style="width: 99%;" onchange=onchange onkeyup=onkeyup placeholder=placeholder/>
+}
+
 
 function validateNum(n : Num) : String {
   return Math.isNaN(n) ? _("Not a valid numeric value") : "";
@@ -389,7 +401,7 @@ control numField(n : Num, label : String = null, placeholder : String = null, va
     return m;
   }
   var s = "" + n
-  textField(s, placeholder, label, validator2, style, invalidStyle, onchange, onkeyup)
+  textField(s, placeholder, label, "number", validator2, style, invalidStyle, onchange, onkeyup)
 }
 
 control passwordField(s : String, placeholder : String = null, label : String = null, style : Style = textFieldStyle, onchange : Callback = null, onkeyup : Callback = null) {

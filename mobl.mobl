@@ -15,10 +15,6 @@ resource js/persistence.store.websql.js
 resource js/persistence.store.memory.js
 resource js/persistence.search.js
 
-// Images
-//resource img/loading.gif
-//resource img/default-icon.png
-
 /**
  * Built-in types
  */
@@ -50,7 +46,10 @@ external type String : Object {
 
 @doc "Numeric type, represents both integers and floating point numbers"
 @persistable
-external type Num : Object { }
+external type Num : Object {
+  sync function toFixed(digitsAfterDecimal : Num = 0) : String
+  sync function toPrecision(digits : Num) : String
+}
 
 @persistable
 external type Bool : Object { }
@@ -72,6 +71,12 @@ external type RegExp : Object {
     sync function test(string : String) : Bool
     static sync function fromString(regex : String) : RegExp
 }
+
+<javascript>
+__ns.Bool = {};
+__ns.Num = {};
+__ns.String = {};
+</javascript>
 
 <javascript for=RegExp>
 __ns.RegExp = {
