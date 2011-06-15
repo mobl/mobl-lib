@@ -890,8 +890,8 @@ style accordionStyle activeSectionStyle {
   display: block;
 }
 
-control accordion(sections : [(String, Control)], defaultSection : String = null) {
-  var activeSection : String = defaultSection ? defaultSection : sections.get(0)._1
+control accordion(sections : [(String, Control)], activeSection : String = null) {
+  var activeSection : String = activeSection ? activeSection : sections.get(0)._1
 
   block(accordionStyle) {
     list((sectionName, sectionControl) in sections) {
