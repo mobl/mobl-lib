@@ -15,7 +15,7 @@ load mobl/ui/generic/touchscroll.css*/
 style $baseColor = rgb(72, 100, 180)
 style $baseColorGreen = rgb(60, 150, 30)
 style $baseColorRed = rgb(150, 50, 20)
-style $baseColorRedish = rgb(150, 80, 0) 
+style $baseColorRedish = rgb(150, 80, 0)
 
 style $buttonFromColor = rgb($baseColor.r+170, $baseColor.g+170, $baseColor.b+170)
 style $buttonToColor = rgb($baseColor.r+120, $baseColor.g+120, $baseColor.b + 120)
@@ -267,9 +267,9 @@ style itemArrowStyle {
 }
 
 style itemDownArrowStyle {
-  background-image: url($data(mobl/ui/generic/arrowDown.png)); 
+  background-image: url($data(mobl/ui/generic/arrowDown.png));
   background-position: right center;
-  background-repeat: no-repeat;	
+  background-repeat: no-repeat;
 }
 
 control item(style : Style = itemStyle, pushedStyle : Style = itemPushedStyle, onclick : Callback = null, onswipe : Callback = null, hideArrow : Bool = false) {
@@ -890,8 +890,8 @@ style accordionStyle activeSectionStyle {
   display: block;
 }
 
-control accordion(sections : [(String, Control)]) {
-  var activeSection : String = sections.get(0)._1
+control accordion(sections : [(String, Control)], defaultSection : String = null) {
+  var activeSection : String = defaultSection ? defaultSection : sections.get(0)._1
 
   block(accordionStyle) {
     list((sectionName, sectionControl) in sections) {
