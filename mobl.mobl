@@ -935,7 +935,24 @@ setInterval(function() {
   }
 }, 250);
 
+
+__ns.screenTransitionLock = false;
+
+__ns.acquireScreenTransitionLock = function() {
+    if (__ns.screenTransitionLock === true)
+        return false;
+    __ns.screenTransitionLock = true;
+    return true;
+};
+
+$("html").bind("screenTransitionEnded", function() {
+    __ns.screenTransitionLock = false;
+});
+
 __ns.call = function (screenName, args, callback) {
+    if (!__ns.acquireScreenTransitionLock()) {
+       return false;
+    }
     var replace = args[args.length-2].get();
     var animate = args[args.length-1].get();
     args.splice(args.length-2, 2);
@@ -956,28 +973,32 @@ __ns.call = function (screenName, args, callback) {
     screenContext.screens.push(screenFrame);
     // Called on "screen return"
     var callbackFn = function () {
-        // when callback function is called (i.e. screen return)
-        screenFrame.subs.unsubscribe();
-        screenContext.screens.pop();
-        if(screenFrame.dom.find("div.screenContext").length > 0) { // pop context
-          mobl.contextStack.pop();
-        }
-        mobl.delayedUpdateScrollers();
-        var domNode;
-        if (screenContext.screens.length > 0) {
-            var previousScreen = screenContext.screens[screenContext.screens.length - 1];
-            domNode = previousScreen.dom;
-            scrollTo(0, previousScreen.pageYOffset);
-        } else {
-          domNode = screenContext.initialElements;
-          scrollTo(0, 0);
-        }
-        __ns.animations[animate](screenFrame.dom, domNode, false, function() {
-          screenFrame.dom.remove();
-        });
-        if (callback) {
-            callback.apply(null, arguments);
-        }
+      if (!__ns.acquireScreenTransitionLock()) {
+         return false;
+      }
+      // when callback function is called (i.e. screen return)
+      screenFrame.subs.unsubscribe();
+      screenContext.screens.pop();
+      if(screenFrame.dom.find("div.screenContext").length > 0) { // pop context
+        mobl.contextStack.pop();
+      }
+      mobl.delayedUpdateScrollers();
+      var domNode;
+      if (screenContext.screens.length > 0) {
+          var previousScreen = screenContext.screens[screenContext.screens.length - 1];
+          domNode = previousScreen.dom;
+          scrollTo(0, previousScreen.pageYOffset);
+      } else {
+        domNode = screenContext.initialElements;
+        scrollTo(0, 0);
+      }
+      __ns.animations[animate](screenFrame.dom, domNode, false, function() {
+        screenFrame.dom.remove();
+        domNode.trigger("screenTransitionEnded");
+      });
+      if (callback) {
+          callback.apply(null, arguments);
+      }
     };
     screenFrame.callbackFn = callbackFn;
 
@@ -997,7 +1018,7 @@ __ns.call = function (screenName, args, callback) {
           previousScreen.pageYOffset = window.pageYOffset;
           node.hide();
           node.prependTo(screenContext.dom);
-          __ns.animations[animate](previousScreen.dom, node, true, function() { node.trigger("screen", [node] ); });
+          __ns.animations[animate](previousScreen.dom, node, true, function() { node.trigger("screenTransitionEnded"); });
           scrollTo(0, 0);
         } else {
           if(screenContext.dom.selector === 'body') {
@@ -1005,11 +1026,12 @@ __ns.call = function (screenName, args, callback) {
             node.prependTo(screenContext.dom);
             node.show();
             screenContext.initialElements.hide();
+            node.trigger("screenTransitionEnded");
           } else {
             screenContext.initialElements = screenContext.dom.find("div.initialElements");
             node.hide();
             node.prependTo(screenContext.dom);
-            __ns.animations[animate](screenContext.initialElements, node, true, function() { });
+            __ns.animations[animate](screenContext.initialElements, node, true, function() { node.trigger("screenTransitionEnded"); });
             scrollTo(0, 0);
           }
         }
