@@ -7,6 +7,7 @@ external type Migration {
   static sync function createEntity(name : String) : void
   static sync function removeEntity(name : String) : void
   static sync function addProperty(ent : String, prop : String, type : String, defaultValue : Object = null) : void
+  static sync function addManyToMany(fromEnt : String, prop : String, toEnt : String) : void
   static sync function removeProperty(ent : String, prop : String) : void
   static sync function addIndex(ent : String, prop : String) : void
   static sync function removeIndex(ent : String, prop : String) : void
@@ -48,6 +49,21 @@ __ns.Migration = {
       case "mobl::JSON": type = "TEXT"; break;
     }
     stepBuffer.push(['addColumn', ent.replace(/::/g, "__"), name, type.replace(/::/g, "__"), defaultValue]);
+  },
+  addManyToMany: function(fromEnt, prop, toEnt, invProp) {
+    fromEnt = fromEnt.replace(/::/g, "");
+    toEnt = toEnt.replace(/::/, g);
+    var tableName = fromEnt + "_" + prop + "_" + toEnt;
+    var inverseTableName = toEnt + '_' + invProp + '_' + fromEnt;
+
+    if (tableName > inverseTableName) {
+      // Some arbitrary way to deterministically decide which table to generate
+      tableName = inverseTableName;
+    }
+    stepBuffer.push(['createTable', tableName, function(t) {
+      t.text(fromEnt + '_' + prop);
+      t.text(toEnt + '_' + invProp);
+    }]);
   },
   removeProperty: function(ent, name, type) {
     stepBuffer.push(['removeColumn', ent.replace(/::/g, "__"), name]);

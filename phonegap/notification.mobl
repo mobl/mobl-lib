@@ -1,0 +1,25 @@
+module phonegap::notification
+
+external type Notification {
+  static function alert(message : String, title : String = "Alert", buttonName : String = "OK") : void
+  static function confirm(message : String, title : String = "Confirm", buttons : [String] = ["OK", "Cancel"]) : String
+  static sync function beep(times : Num) : void
+  static sync function vibrate(ms : Num) : void
+}
+
+<javascript for=Notification>
+__ns.Notification = {
+  alert: function(message, title, buttonName, callback) {
+    navigator.notification.alert(message, callback, title, buttonName);
+  },
+  confirm: function(message, title, buttons, calback) {
+    navigator.notification.alert(message, function(button) { callback(buttons[button]); }, title, buttons.join(","));
+  },
+  beep: function(times) {
+    navigator.notification.beep(times);
+  },
+  vibrate: function(ms) {
+    navigator.notification.vibrate(ms);
+  }
+};
+</javascript>

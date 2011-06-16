@@ -1,0 +1,28 @@
+module phonegap::accelerometer
+
+external type Accelerometer {
+  static function getCurrentAcceleration() : Acceleration
+  static sync function watchAcceleration(success : Function1<Acceleration, void>, error : Function0<void>, frequency : Num = 10000) : Num
+  static sync function clearWatch(id : Num) : void
+}
+
+external type Acceleration {
+  x : Num
+  y : Num
+  z : Num
+  timestamp : Num
+}
+
+<javascript for=Accelerometer>
+__ns.Accelerometer = {
+  getCurrentAcceleration: function(callback) {
+    return navigator.accelerometer.getCurrentAcceleration(callback, function() { callback(null); });
+  },
+  watchAcceleration: function(success, error, frequency) {
+    return navigator.accelerometer.watchAcceleration(success, error, {frequency: frequency});
+  },
+  clearWatch: function(id) {
+    navigator.accelerometer.clearWatch(id);
+  }
+};
+</javascript>

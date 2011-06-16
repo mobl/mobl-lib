@@ -1,0 +1,95 @@
+module phonegap::nativecontrol
+
+load phonegap.js
+load phonegap/NativeControls.js
+
+control nativeTabSet(tabs : [(String, String, Control)]) {
+  var currentTab : Control = tabs.get(0)._3
+  currentTab()
+  script {
+    NativeControls.createTabBar();
+    var allTabs = Array<String>();
+    foreach((name, icon, ctrl) in tabs) {
+      NativeControls.createTabBarItem(name, name, icon, {
+        currentTab = ctrl;
+      });
+      allTabs.push(name);
+    }
+    NativeControls.showTabBar();
+    NativeControls.showTabBarItems(allTabs);
+    NativeControls.selectTabBarItem(allTabs[0]);
+  }
+}
+
+// Primitives
+
+external type NativeControls {
+  static sync function createTabBar() : void
+  static sync function showTabBar() : void
+  static sync function createTabBarItem(id : String, title : String, image : String, onselect : Callback) : void
+  static sync function showTabBarItems(ids : [String]) : void
+  static sync function selectTabBarItem(id : String) : void
+  static sync function createToolBar() : void
+  static sync function setToolBarTitle(title : String) : void
+}
+
+external type TabBarIcons {
+  static sync function more() : String
+  static sync function favorites() : String
+  static sync function featured() : String
+  static sync function topRated() : String
+  static sync function recents() : String
+  static sync function contacts() : String
+  static sync function history() : String
+  static sync function bookmarks() : String
+  static sync function search() : String
+  static sync function downloads() : String
+  static sync function mostRecent() : String
+  static sync function mostViewed() : String
+}
+
+<javascript>
+__ns.NativeControls = {
+  createTabBar: function() {
+    window.plugins.nativeControls.createTabBar();
+  },
+  showTabBar: function() {
+    window.plugins.nativeControls.showTabBar();
+  },
+  createTabBarItem: function(id, title, image, onselect) {
+    window.plugins.nativeControls.createTabBarItem(id, title, image, {onSelect: onselect});
+  },
+  showTabBarItems: function(ids) {
+    window.plugins.nativeControls.showTabBarItems.apply(window.plugins.nativeControls, ids);
+  },
+  selectTabBarItem: function(id) {
+    window.plugins.nativeControls.selectTabBarItem(id);
+  },
+  createToolBar: function() {
+    window.plugins.nativeControls.createToolBar();
+  },
+  setToolBarTitle: function(title) {
+    alert("Yeah");
+    window.plugins.nativeControls.setToolBarTitle(title);
+  }
+};
+
+__ns.TabBarIcons = {
+  more: function() { return "tabButton:More"; },
+  favorites: function() { return "tabButton:Favorites"; },
+  featured: function() { return "tabButton:Featured"; },
+  topRated: function() { return "tabButton:TopRated"; },
+  recents: function() { return "tabButton:Recents"; },
+  contacts: function() { return "tabButton:Contacts"; },
+  history: function() { return "tabButton:History"; },
+  bookmarks: function() { return "tabButton:Bookmarks"; },
+  search: function() { return "tabButton:Search"; },
+  downloads: function() { return "tabButton:Downloads"; },
+  mostRecent: function() { return "tabButton:MostRecent"; },
+  mostViewed: function() { return "tabButton:MostViewed"; }
+};
+/*        window.plugins.nativeControls.createTabBarItem('favorites', 'Favorites', 'tabButton:Favorites', {onSelect: function() { alert("Yeah!"); }});
+        window.plugins.nativeControls.showTabBar();
+        window.plugins.nativeControls.showTabBarItems('favorites');*/
+
+</javascript>

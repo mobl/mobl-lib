@@ -65,6 +65,7 @@ style headerStyle {
   font-weight: bold;
   margin: 0;
   z-index: 2;
+  width: 100%;
 }
 
 style headerContainerStyle {
@@ -82,11 +83,15 @@ style headerTextStyle {
   text-overflow: ellipsis;
 }
 
-control header(text : String, onclick : Callback = null) {
-  <div class=headerStyle onclick=onclick>
+control header(text : String, fixedPosition : Bool = false, onclick : Callback = null) {
+  <div class=headerStyle onclick=onclick style=fixedPosition ? "position:fixed;" : null>
     <div class=headerContainerStyle><div databind=text class=headerTextStyle/></div>
     elements()
   </div>
+  // And a div to take its place (so that we won't overlap the top part of the screen)
+  when(fixedPosition) {
+    <div id="hello" style="height: 2.9em;"/>
+  }
 }
 
 style mixin buttonMixin($fromColor, $toColor) {
@@ -447,9 +452,11 @@ style tabbarStyle {
   font-size: 16px;
   z-index: 3;
   width: 100%;
+  //position: fixed;
   border-bottom: 1px solid #444;
-  margin-top: 0.3em;
+  margin-top: 3px;
   margin-bottom: 0;
+  background-color: #f0f0f0;
 }
 
 style tabbarStyle inActiveTabButtonStyle {
@@ -519,6 +526,7 @@ control tabSet(tabs : [(String, String, Control)], activeTab : String = null) {
       }
     }
   }
+  //<div style="height: 39px;"/>
   list((tabName, tabIcon, tabControl) in tabs) {
     block(activeTab == tabName ? activeTabStyle : inActiveTabStyle) {
       screenContext {
