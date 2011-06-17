@@ -935,23 +935,30 @@ setInterval(function() {
   }
 }, 250);
 
+/*
+ * screenTransitionLock holds the name of the last screen transitioning in/out
+ * A new screen can always be called (for auto-loading screens),
+ * but when the same screen is requested twice in a row (while still processing)
+ * the request is discarded to avoid corrupting the screen context.
+ */
+__ns.screenTransitionLock = null;
 
-__ns.screenTransitionLock = false;
-
-__ns.acquireScreenTransitionLock = function() {
-    if (__ns.screenTransitionLock === true)
-        return false;
-    __ns.screenTransitionLock = true;
-    return true;
+__ns.acquireScreenTransitionLock = function(resource) {
+	if (__ns.screenTransitionLock === resource) {
+		return false;
+	}
+	
+	__ns.screenTransitionLock = resource;
+	return true;
 };
 
 $("html").bind("screenTransitionEnded", function() {
-    __ns.screenTransitionLock = false;
+	__ns.screenTransitionLock = null;
 });
 
 __ns.call = function (screenName, args, callback) {
-    if (!__ns.acquireScreenTransitionLock()) {
-       return false;
+	if (!__ns.acquireScreenTransitionLock(screenName)) {
+    		return false;
     }
     var replace = args[args.length-2].get();
     var animate = args[args.length-1].get();
@@ -973,7 +980,7 @@ __ns.call = function (screenName, args, callback) {
     screenContext.screens.push(screenFrame);
     // Called on "screen return"
     var callbackFn = function () {
-      if (!__ns.acquireScreenTransitionLock()) {
+      if (!__ns.acquireScreenTransitionLock(screenName)) {
          return false;
       }
       // when callback function is called (i.e. screen return)
