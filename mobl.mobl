@@ -890,13 +890,17 @@ __ns.animations.slide = function(prevNode, nextNode, forward, callback) {
     prevNode.css({"-webkit-transition-duration": TRANSITION_SPEED + "ms", "-webkit-transition-timing-function": "ease-in-out"});
     nextNode.css("-webkit-transform", "translate3d(0px,0px,0px)");
     prevNode.css("-webkit-transform", "translate3d(" + (forward ? "-100%" : "100%") + ",0px,0px)");
-
-    setTimeout(function() {
-      prevNode.hide();
-      nextNode.css({"-webkit-transition-duration": null, "-webkit-transition-timing-function": null});
-      prevNode.css({"-webkit-transition-duration": null, "-webkit-transition-timing-function": null});
-      callback();
-    }, TRANSITION_SPEED);
+    
+    var animEndCount = 0;
+    nextNode.parent().bind("webkitTransitionEnd", function() {
+      animEndCount += 1;
+      if (animEndCount === 2) {
+		  prevNode.hide();
+	      nextNode.css({"-webkit-transition-duration": null, "-webkit-transition-timing-function": null});
+	      prevNode.css({"-webkit-transition-duration": null, "-webkit-transition-timing-function": null});
+	      callback();
+      }
+	});
   }, 5);
 };
 
