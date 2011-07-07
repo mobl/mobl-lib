@@ -281,7 +281,7 @@ external type Entity<T> {
   @doc "A virtual collection containing all instances of this entity"
   static sync function all() : Collection<T>
   static function load(id : String) : T
-  static function findBy(property : String, value : String) : T
+  static function findBy(property : String, value : Object) : T
   static sync function search(query : String) : Collection<T>
   static sync function searchPrefix(query : String) : Collection<T>
   static function fromSelectJSON(json : JSON) : T
@@ -944,21 +944,21 @@ setInterval(function() {
 __ns.screenTransitionLock = null;
 
 __ns.acquireScreenTransitionLock = function(resource) {
-	if (__ns.screenTransitionLock === resource) {
-		return false;
-	}
-	
-	__ns.screenTransitionLock = resource;
-	return true;
+  if (__ns.screenTransitionLock === resource) {
+    return false;
+  }
+
+  __ns.screenTransitionLock = resource;
+  return true;
 };
 
 $("html").bind("screenTransitionEnded", function() {
-	__ns.screenTransitionLock = null;
+  __ns.screenTransitionLock = null;
 });
 
 __ns.call = function (screenName, args, callback) {
-	if (!__ns.acquireScreenTransitionLock(screenName)) {
-    		return false;
+  if (!__ns.acquireScreenTransitionLock(screenName)) {
+        return false;
     }
     var replace = args[args.length-2].get();
     var animate = args[args.length-1].get();
@@ -1233,6 +1233,7 @@ mobl.implementInterface = function(sourceModule, targetModule, items) {
 
     function processEvents() {
       var toTrigger = [];
+
       for(var i = 0; i < batchedEvents.length; i++) {
         var ev = batchedEvents[i];
         var found = false;
@@ -1247,11 +1248,11 @@ mobl.implementInterface = function(sourceModule, targetModule, items) {
           toTrigger.push(ev);
         }
       }
+      batchedEvents = [];
       for(i = 0; i < toTrigger.length; i++) {
         var ev = toTrigger[i];
         ev.fn.apply(null, ev.args);
       }
-      batchedEvents = [];
     }
 
     function CompSubscription(name) {
