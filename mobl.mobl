@@ -882,21 +882,23 @@ __ns.animations.slide = function(prevNode, nextNode, forward, callback) {
   //nextNode.show('slide', {direction: forward ? 'right' : 'left'}, TRANSITION_SPEED);
   //prevNode.hide('slide', {direction: forward ? 'left' : 'right'}, TRANSITION_SPEED, callback);
 
-  nextNode.show();
   nextNode.css("-webkit-transform", "translate3d(" + (forward ? "100%" : "-100%") + ",0px,0px)");
-
+  nextNode.css("-webkit-transition-duration", TRANSITION_SPEED + "ms");
+  nextNode.show();
+  
   setTimeout(function() {
     nextNode.css({"-webkit-transition-duration": TRANSITION_SPEED + "ms", "-webkit-transition-timing-function": "ease-in-out"});
     prevNode.css({"-webkit-transition-duration": TRANSITION_SPEED + "ms", "-webkit-transition-timing-function": "ease-in-out"});
     nextNode.css("-webkit-transform", "translate3d(0px,0px,0px)");
     prevNode.css("-webkit-transform", "translate3d(" + (forward ? "-100%" : "100%") + ",0px,0px)");
-
-    setTimeout(function() {
+    
+    prevNode.bind("webkitTransitionEnd", function() {
+      prevNode.unbind("webkitTransitionEnd");
       prevNode.hide();
       nextNode.css({"-webkit-transition-duration": null, "-webkit-transition-timing-function": null});
       prevNode.css({"-webkit-transition-duration": null, "-webkit-transition-timing-function": null});
       callback();
-    }, TRANSITION_SPEED);
+	});
   }, 5);
 };
 
@@ -1004,7 +1006,7 @@ __ns.call = function (screenName, args, callback) {
         domNode.trigger("screenTransitionEnded");
       });
       if (callback) {
-          callback.apply(null, arguments);
+        callback.apply(null, arguments);
       }
     };
     screenFrame.callbackFn = callbackFn;
