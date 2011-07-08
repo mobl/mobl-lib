@@ -449,9 +449,9 @@ control numField(n : Num,
   function validateNum(n : Num) : String {
     if(Math.isNaN(n)) {
       return _("Not a valid numeric value");
-    } else if(n > max) {
+    } else if(max != null && n > max) {
       return _("Number is too high, maximum is: %%", [max]);
-    } else if(n < min) {
+    } else if(min != null && n < min) {
       return _("Number is too low, minimum is: %%", [min]);
     } else {
       return "";
