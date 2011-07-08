@@ -885,20 +885,20 @@ __ns.animations.slide = function(prevNode, nextNode, forward, callback) {
   nextNode.css("-webkit-transform", "translate3d(" + (forward ? "100%" : "-100%") + ",0px,0px)");
   nextNode.css("-webkit-transition-duration", TRANSITION_SPEED + "ms");
   nextNode.show();
-  
+
   setTimeout(function() {
     nextNode.css({"-webkit-transition-duration": TRANSITION_SPEED + "ms", "-webkit-transition-timing-function": "ease-in-out"});
     prevNode.css({"-webkit-transition-duration": TRANSITION_SPEED + "ms", "-webkit-transition-timing-function": "ease-in-out"});
     nextNode.css("-webkit-transform", "translate3d(0px,0px,0px)");
     prevNode.css("-webkit-transform", "translate3d(" + (forward ? "-100%" : "100%") + ",0px,0px)");
-    
+
     prevNode.bind("webkitTransitionEnd", function() {
       prevNode.unbind("webkitTransitionEnd");
       prevNode.hide();
       nextNode.css({"-webkit-transition-duration": null, "-webkit-transition-timing-function": null});
       prevNode.css({"-webkit-transition-duration": null, "-webkit-transition-timing-function": null});
       callback();
-	});
+  });
   }, 5);
 };
 
@@ -1235,7 +1235,6 @@ mobl.implementInterface = function(sourceModule, targetModule, items) {
 
     function processEvents() {
       var toTrigger = [];
-
       for(var i = 0; i < batchedEvents.length; i++) {
         var ev = batchedEvents[i];
         var found = false;
