@@ -962,9 +962,10 @@ __ns.call = function (screenName, args, callback) {
   if (!__ns.acquireScreenTransitionLock(screenName)) {
         return false;
     }
-    var replace = args[args.length-2].get();
-    var animate = args[args.length-1].get();
-    args.splice(args.length-2, 2);
+    var replace = args[args.length-3].get();
+    var animate = args[args.length-2].get();
+    var target = args[args.length-1].get();
+    args.splice(args.length-3, 3);
     var screenFrame = {
         name: screenName,
         args: args,
@@ -977,7 +978,12 @@ __ns.call = function (screenName, args, callback) {
     }
     oldHash = location.hash;
 
-    var screenContext = mobl.findDeepestVisibleContext();
+    var screenContext;
+    if(!target) {
+      screenContext = mobl.findDeepestVisibleContext();
+    } else if(target === '_top') {
+      screenContext = mobl.contextStack[0][0];
+    }
 
     screenContext.screens.push(screenFrame);
     // Called on "screen return"
@@ -1452,4 +1458,3 @@ __ns.setValidationError = function(id, ok) {
   __ns.allInputValid.set(isValid);
 };
 </javascript>
-
