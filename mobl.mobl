@@ -464,8 +464,8 @@ control nl() {
   <br/>
 }
 
-control screenContext() {
-  <div class="screenContext" style="position: relative;">
+control screenContext(id : String = null) {
+  <div class="screenContext" id=id style="position: relative;">
     <div class="initialElements">
       elements()
     </div>
@@ -854,11 +854,12 @@ mobl.contextStack = [];
 if(mobl.contextStack.length === 0) {
   mobl.contextStack.push([{
     screens: [],
-    dom: null
+    dom: null,
+    id: '_top'
   }]);
 }
 
-mobl.findDeepestVisibleContext = function() {
+mobl.findDeepestVisibleContext = function(target) {
   var idx = mobl.contextStack.length-1;
   while(idx >= 0) {
     var top = mobl.contextStack[idx];
@@ -866,7 +867,7 @@ mobl.findDeepestVisibleContext = function() {
       if(!top[i].dom) { // body
         top[i].dom = $("body");
       }
-      if(top[i].dom.is(':visible')) {
+      if(top[i].dom.is(':visible') && (!target || target === top[i].id)) {
         return top[i];
       }
     }
@@ -978,11 +979,9 @@ __ns.call = function (screenName, args, callback) {
     }
     oldHash = location.hash;
 
-    var screenContext;
-    if(!target) {
-      screenContext = mobl.findDeepestVisibleContext();
-    } else if(target === '_top') {
-      screenContext = mobl.contextStack[0][0];
+    var screenContext = mobl.findDeepestVisibleContext(target);
+    if(!screenContext) {
+      alert("Error: no matching visible screen context found");
     }
 
     screenContext.screens.push(screenFrame);
@@ -1056,7 +1055,8 @@ __ns.call = function (screenName, args, callback) {
           for(var i = 0; i < localScreenContexts.length; i++) {
             ar.push({
               screens: [],
-              dom: localScreenContexts.eq(i)
+              dom: localScreenContexts.eq(i),
+              id: localScreenContexts.eq(i).attr('id')
             });
           }
           mobl.contextStack.push(ar);
