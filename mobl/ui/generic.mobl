@@ -576,7 +576,7 @@ style activeTabStyle {
 }
 
 @doc "A tabset, takes a list of tuples as argument, e.g. [(\"Tab 1\", \"icon url\", tab1), (\"Tab 2\", \"icon uri\", tab2)] where tab1 and tab2 are controls with no arguments"
-control tabSet(tabs : [(String, String, Control)], activeTab : String = null) {
+control tabSet(tabs : [(String, String, Control)], activeTab : String = null, screenContextId : String = "tabSetContext") {
   script {
     if(activeTab == null) {
       activeTab = tabs[0]._1;
@@ -594,7 +594,7 @@ control tabSet(tabs : [(String, String, Control)], activeTab : String = null) {
   //<div style="height: 39px;"/>
   list((tabName, tabIcon, tabControl) in tabs) {
     block(activeTab == tabName ? activeTabStyle : inActiveTabStyle) {
-      screenContext {
+      screenContext(screenContextId) {
         tabControl()
       }
     }
