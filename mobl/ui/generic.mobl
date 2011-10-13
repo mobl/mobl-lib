@@ -420,8 +420,6 @@ control rangeField(n : Num, min : Num = 0, max : Num = 100, step : Num = 1, plac
   <input type="range" databind=n min=min max=max step=step style="width: 99%;" onchange=onchange onkeyup=onkeyup placeholder=placeholder/>
 }
 
-
-
 control numField(n : Num,
                 label : String = null,
                 placeholder : String = null,
@@ -465,7 +463,9 @@ control numField(n : Num,
   }
 
   var validationMessage = validator(n)
-
+  when(label) {
+    mobl::label(label, style=textFieldLabelStyle)
+  }
   <input type="number" class=validationMessage ? invalidStyle : style placeholder=placeholder databind=n onchange=onchange onkeyup={
     validationMessage=validator(n);
     if(onkeyup) onkeyup(event);

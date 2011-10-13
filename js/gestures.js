@@ -135,7 +135,10 @@ NoClickDelay.prototype = {
 $.event.special.tap = {
   add : function(callback) {
     if (mobl.isTouchDevice()) {
-      new NoClickDelay(this, callback);
+      var that = this;
+      setTimeout(function() {
+        new NoClickDelay(that, callback);
+      });
     } else {
       $(this).bind('click', callback);
     }
@@ -153,90 +156,96 @@ $.event.special.touchdown = {
   add : function(callback) {
     var that = $(this);
 
-    if (mobl.isTouchDevice()) {
-      that.bind('touchstart', function(event) {
-        event = event.originalEvent;
-        // event.preventDefault();
-        if (event.touches.length === 1) {
-          var touch = event.touches[0];
-          event.x = touch.pageX - that.offset().left;
-          event.y = touch.pageY - that.offset().top;
-          event.clientX = touch.pageX;
-          event.clientY = touch.pageY;
+    setTimeout(function() {
+      if (mobl.isTouchDevice()) {
+        that.bind('touchstart', function(event) {
+          event = event.originalEvent;
+          // event.preventDefault();
+          if (event.touches.length === 1) {
+            var touch = event.touches[0];
+            event.x = touch.pageX - that.offset().left;
+            event.y = touch.pageY - that.offset().top;
+            event.clientX = touch.pageX;
+            event.clientY = touch.pageY;
+            callback(event);
+          }
+        });
+      } else {
+        that.mousedown(function(event) {
+          // event.preventDefault();
+          this.dragging = true;
+          event.x = event.offsetX || event.layerX - that.offset().left;
+          event.y = event.offsetY || event.layerY - that.offset().top;
           callback(event);
-        }
-      });
-    } else {
-      that.mousedown(function(event) {
-        // event.preventDefault();
-        this.dragging = true;
-        event.x = event.offsetX || event.layerX - that.offset().left;
-        event.y = event.offsetY || event.layerY - that.offset().top;
-        callback(event);
-      });
-    }
+        });
+      }
+    });
   }
 };
 
 $.event.special.touchdrag = {
   add : function(callback) {
     var that = $(this);
-    if (mobl.isTouchDevice()) {
-      that.bind('touchmove', function(event) {
-        event = event.originalEvent;
-        // event.preventDefault();
-        if (event.touches.length === 1) {
-          var touch = event.touches[0];
-          event.x = touch.pageX - that.offset().left;
-          event.y = touch.pageY - that.offset().top;
-          event.clientX = touch.pageX;
-          event.clientY = touch.pageY;
-          callback(event);
-        }
-      });
-    } else {
-      that
-          .mousemove(function(event) {
-            // event.preventDefault();
-            if (this.dragging) {
-              event.x = event.offsetX || event.layerX
-                  - that.offset().left;
-              event.y = event.offsetY || event.layerY
-                  - that.offset().top;
-              callback(event);
-            }
-          });
-      that.mouseup(function() {
-        this.dragging = false;
-      });
-    }
+    setTimeout(function() {
+      if (mobl.isTouchDevice()) {
+        that.bind('touchmove', function(event) {
+          event = event.originalEvent;
+          // event.preventDefault();
+          if (event.touches.length === 1) {
+            var touch = event.touches[0];
+            event.x = touch.pageX - that.offset().left;
+            event.y = touch.pageY - that.offset().top;
+            event.clientX = touch.pageX;
+            event.clientY = touch.pageY;
+            callback(event);
+          }
+        });
+      } else {
+        that
+            .mousemove(function(event) {
+              // event.preventDefault();
+              if (this.dragging) {
+                event.x = event.offsetX || event.layerX
+                    - that.offset().left;
+                event.y = event.offsetY || event.layerY
+                    - that.offset().top;
+                callback(event);
+              }
+            });
+        that.mouseup(function() {
+          this.dragging = false;
+        });
+      }
+    });
   }
 };
 
 $.event.special.touchup = {
   add : function(callback) {
     var that = $(this);
-    if (mobl.isTouchDevice()) {
-      that.bind('touchend', function(event) {
-        event = event.originalEvent;
-        event.preventDefault();
-        if (event.changedTouches.length === 1) {
-          var touch = event.changedTouches[0];
-          event.x = touch.pageX - that.offset().left;
-          event.y = touch.pageY - that.offset().top;
-          event.clientX = touch.pageX;
-          event.clientY = touch.pageY;
+    setTimeout(function() {
+      if (mobl.isTouchDevice()) {
+        that.bind('touchend', function(event) {
+          event = event.originalEvent;
+          event.preventDefault();
+          if (event.changedTouches.length === 1) {
+            var touch = event.changedTouches[0];
+            event.x = touch.pageX - that.offset().left;
+            event.y = touch.pageY - that.offset().top;
+            event.clientX = touch.pageX;
+            event.clientY = touch.pageY;
+            callback(event);
+          }
+        });
+      } else {
+        that.mouseup(function(event) {
+          event.preventDefault();
+          this.dragging = false;
+          event.x = event.offsetX || event.layerX - that.offset().left;
+          event.y = event.offsetY || event.layerY - that.offset().top;
           callback(event);
-        }
-      });
-    } else {
-      that.mouseup(function(event) {
-        event.preventDefault();
-        this.dragging = false;
-        event.x = event.offsetX || event.layerX - that.offset().left;
-        event.y = event.offsetY || event.layerY - that.offset().top;
-        callback(event);
-      });
-    }
+        });
+      }
+    });
   }
 };
