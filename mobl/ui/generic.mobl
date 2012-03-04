@@ -326,11 +326,11 @@ style mixin textFieldStyleMixin($background, $border) {
 }
 
 style textFieldStyle {
-  textFieldStyleMixin(#fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(white), to(white)), 0);
+  textFieldStyleMixin(#fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(white), to(white)), 0);	// TODO  add corresponding -moz spec
 }
 
 style textFieldInvalidStyle {
-  textFieldStyleMixin(#fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FBB), to(#FAA)), 1px solid red);
+  textFieldStyleMixin(#fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FBB), to(#FAA)), 1px solid red);	// TODO  add corresponding -moz spec
 }
 
 style textFieldLabelStyle {
@@ -831,6 +831,7 @@ control searchList(Ent : Type<Entity<?>>, masterItem : Control1<?>, detailItem :
 
 style progressStyle {
     -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
     background-color: rgba(0,0,0,0.7);
     color: white;
     font-size: 2em;

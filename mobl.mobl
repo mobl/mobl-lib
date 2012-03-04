@@ -923,21 +923,32 @@ __ns.animations.slide = function(prevNode, nextNode, forward, callback) {
   //nextNode.show('slide', {direction: forward ? 'right' : 'left'}, TRANSITION_SPEED);
   //prevNode.hide('slide', {direction: forward ? 'left' : 'right'}, TRANSITION_SPEED, callback);
 
-  nextNode.css("-webkit-transform", "translate3d(" + (forward ? "100%" : "-100%") + ",0px,0px)");
-  nextNode.css("-webkit-transition-duration", TRANSITION_SPEED + "ms");
+  var browserPrefix = jQuery.browser.mozilla ? '-moz-' : '-webkit-';
+  var makeCss = function(prop, value) {
+  	var css = {};
+  	css[browserPrefix + prop] = value;
+  	return css;
+  };
+
+  nextNode.css(makeCss("transform", "translate3d(" + (forward ? "100%" : "-100%") + ",0px,0px)"));
+  nextNode.css(makeCss("transition-duration", TRANSITION_SPEED + "ms"));
   nextNode.show();
 
   setTimeout(function() {
-    nextNode.css({"-webkit-transition-duration": TRANSITION_SPEED + "ms", "-webkit-transition-timing-function": "ease-in-out"});
-    prevNode.css({"-webkit-transition-duration": TRANSITION_SPEED + "ms", "-webkit-transition-timing-function": "ease-in-out"});
-    nextNode.css("-webkit-transform", "translate3d(0px,0px,0px)");
-    prevNode.css("-webkit-transform", "translate3d(" + (forward ? "-100%" : "100%") + ",0px,0px)");
+    nextNode.css(makeCss("transition-duration", TRANSITION_SPEED + "ms"));
+    nextNode.css(makeCss("transition-timing-function", "ease-in-out"));
+    prevNode.css(makeCss("transition-duration", TRANSITION_SPEED + "ms"));
+    prevNode.css(makeCss("transition-timing-function", "ease-in-out"));
+    nextNode.css(makeCss("transform", "translate3d(0px,0px,0px)"));
+    prevNode.css(makeCss("transform", "translate3d(" + (forward ? "-100%" : "100%") + ",0px,0px)"));
 
-    prevNode.bind("webkitTransitionEnd", function() {
-      prevNode.unbind("webkitTransitionEnd");
+    prevNode.bind("transitionEnd", function() {
+      prevNode.unbind("transitionEnd");
       prevNode.hide();
-      nextNode.css({"-webkit-transition-duration": null, "-webkit-transition-timing-function": null});
-      prevNode.css({"-webkit-transition-duration": null, "-webkit-transition-timing-function": null});
+      nextNode.css(makeCss("transition-duration", null));
+      nextNode.css(makeCss("transition-timing-function", null));
+      prevNode.css(makeCss("transition-duration", null));
+      prevNode.css(makeCss("transition-timing-function", null));
       callback();
   });
   }, 5);
