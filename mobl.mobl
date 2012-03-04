@@ -895,12 +895,11 @@ mobl.contextStack = [];
 if(mobl.contextStack.length === 0) {
   mobl.contextStack.push([{
     screens: [],
-    dom: null,
-    id: '_top'
+    dom: null
   }]);
 }
 
-mobl.findDeepestVisibleContext = function(target) {
+mobl.findDeepestVisibleContext = function() {
   var idx = mobl.contextStack.length-1;
   while(idx >= 0) {
     var top = mobl.contextStack[idx];
@@ -908,7 +907,7 @@ mobl.findDeepestVisibleContext = function(target) {
       if(!top[i].dom) { // body
         top[i].dom = $("body");
       }
-      if(top[i].dom.is(':visible') && (!target || target === top[i].id)) {
+      if(top[i].dom.is(':visible')) {
         return top[i];
       }
     }
@@ -1004,10 +1003,9 @@ __ns.call = function (screenName, args, callback) {
   if (!__ns.acquireScreenTransitionLock(screenName)) {
         return false;
     }
-    var replace = args[args.length-3].get();
-    var animate = args[args.length-2].get();
-    var target = args[args.length-1].get();
-    args.splice(args.length-3, 3);
+    var replace = args[args.length-2].get();
+    var animate = args[args.length-1].get();
+    args.splice(args.length-2, 2);
     var screenFrame = {
         name: screenName,
         args: args,
@@ -1020,7 +1018,7 @@ __ns.call = function (screenName, args, callback) {
     }
     oldHash = location.hash;
 
-    var screenContext = mobl.findDeepestVisibleContext(target);
+    var screenContext = mobl.findDeepestVisibleContext();
     if(!screenContext) {
       alert("Error: no matching visible screen context found");
     }
@@ -1096,8 +1094,7 @@ __ns.call = function (screenName, args, callback) {
           for(var i = 0; i < localScreenContexts.length; i++) {
             ar.push({
               screens: [],
-              dom: localScreenContexts.eq(i),
-              id: localScreenContexts.eq(i).attr('id')
+              dom: localScreenContexts.eq(i)
             });
           }
           mobl.contextStack.push(ar);
