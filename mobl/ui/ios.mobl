@@ -100,7 +100,7 @@ control textarea(s : String, placeholder : String = null, onchange : Callback = 
     <textarea placeholder=placeholder databind=s onchange=onchange/>
 }
 
-control basicView(title : String, toolBar : Control = control{}) {
+control basicView(title : String, toolBar : Control = control(){}) {
   header(title)
   <div id="scrollwrapper">
     <div id="content">
