@@ -1,6 +1,6 @@
 module mobl::ui::jq
 
-load "http://code.jquery.com/mobile/1.0a1/jquery.mobile-1.0a1.min.css"
+load "http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css"
 
 external type Theme : String {
   static sync function dark() : Theme

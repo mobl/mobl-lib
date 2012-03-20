@@ -1,15 +1,15 @@
-/*
- * timeago: a jQuery plugin, version: 0.9.3 (2011-01-21)
- * @requires jQuery v1.2.3 or later
- *
+/**
  * Timeago is a jQuery plugin that makes it easy to support automatically
  * updating fuzzy timestamps (e.g. "4 minutes ago" or "about 1 day ago").
  *
+ * @name timeago
+ * @version 0.11.1
+ * @requires jQuery v1.2.3+
+ * @author Ryan McGeary
+ * @license MIT License - http://www.opensource.org/licenses/mit-license.php
+ *
  * For usage and examples, visit:
  * http://timeago.yarp.com/
- *
- * Licensed under the MIT:
- * http://www.opensource.org/licenses/mit-license.php
  *
  * Copyright (c) 2008-2011, Ryan McGeary (ryanonjavascript -[at]- mcgeary [*dot*] org)
  */
@@ -34,7 +34,7 @@
         prefixFromNow: null,
         suffixAgo: "ago",
         suffixFromNow: "from now",
-        seconds: "moments",
+        seconds: "less than a minute",
         minute: "about a minute",
         minutes: "%d minutes",
         hour: "about an hour",
@@ -45,6 +45,7 @@
         months: "%d months",
         year: "about a year",
         years: "%d years",
+        wordSeparator: " ",
         numbers: []
       }
     },
@@ -57,10 +58,9 @@
           prefix = $l.prefixFromNow;
           suffix = $l.suffixFromNow;
         }
-        distanceMillis = Math.abs(distanceMillis);
       }
 
-      var seconds = distanceMillis / 1000;
+      var seconds = Math.abs(distanceMillis) / 1000;
       var minutes = seconds / 60;
       var hours = minutes / 60;
       var days = hours / 24;
@@ -77,14 +77,15 @@
         minutes < 45 && substitute($l.minutes, Math.round(minutes)) ||
         minutes < 90 && substitute($l.hour, 1) ||
         hours < 24 && substitute($l.hours, Math.round(hours)) ||
-        hours < 48 && substitute($l.day, 1) ||
-        days < 30 && substitute($l.days, Math.floor(days)) ||
-        days < 60 && substitute($l.month, 1) ||
-        days < 365 && substitute($l.months, Math.floor(days / 30)) ||
-        years < 2 && substitute($l.year, 1) ||
-        substitute($l.years, Math.floor(years));
+        hours < 42 && substitute($l.day, 1) ||
+        days < 30 && substitute($l.days, Math.round(days)) ||
+        days < 45 && substitute($l.month, 1) ||
+        days < 365 && substitute($l.months, Math.round(days / 30)) ||
+        years < 1.5 && substitute($l.year, 1) ||
+        substitute($l.years, Math.round(years));
 
-      return $.trim([prefix, words, suffix].join(" "));
+      var separator = $l.wordSeparator === undefined ?  " " : $l.wordSeparator;
+      return $.trim([prefix, words, suffix].join(separator));
     },
     parse: function(iso8601) {
       var s = $.trim(iso8601);

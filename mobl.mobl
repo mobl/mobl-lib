@@ -2,13 +2,13 @@ module mobl
 
 // Runtime Javascript files to be copied to www/
 load js/gears_init.js
-load js/jquery-ui-1.7.2.custom.min.js
+load js/jquery-ui-1.8.18.custom.min.js
 load js/mobl.boot.js
 load js/gestures.js
 //load js/iscroll.js
 
 // These will automatically be loaded
-resource js/jquery-1.4.min.js
+resource js/jquery-1.7.1.min.js
 resource js/persistence.js
 resource js/persistence.store.sql.js
 resource js/persistence.store.websql.js
