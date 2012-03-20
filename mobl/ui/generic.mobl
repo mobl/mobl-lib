@@ -34,7 +34,7 @@ style loadingStyle {
   font-weight: bold;
   left: 10%;
   margin: 0 auto;
-  position: absolute;
+  position: fixed;
   text-align: center;
   top: 40%;
   width: 80%;
