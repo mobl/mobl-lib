@@ -15,6 +15,8 @@ mobl.loadedFiles = {};
 
 mobl.IsWebkitBrowser= function(){
 	return RegExp(" AppleWebKit/").test(navigator.userAgent);
+}
+
 mobl.load = function(url) {
     if(url in mobl.loadedFiles) {
         return;
