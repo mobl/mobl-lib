@@ -825,6 +825,10 @@ mobl.Map = function() {
   this.data = {};
 };
 
+mobl.Map.prototype.toJSON = function() {
+	return this.data;
+};
+
 mobl.Map.prototype.set = function(k, v) {
   this.data[k] = v;
 };
