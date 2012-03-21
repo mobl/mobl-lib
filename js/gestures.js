@@ -118,7 +118,7 @@ NoClickDelay.prototype = {
 
     // console.log("The end");
     if (!this.moved) {
-      this.callback(e);
+      this.callback.handler(e);
     }
   }
 };
@@ -167,7 +167,7 @@ $.event.special.touchdown = {
             event.y = touch.pageY - that.offset().top;
             event.clientX = touch.pageX;
             event.clientY = touch.pageY;
-            callback(event);
+            callback.handler(event);
           }
         });
       } else {
@@ -176,7 +176,7 @@ $.event.special.touchdown = {
           this.dragging = true;
           event.x = event.offsetX || event.layerX - that.offset().left;
           event.y = event.offsetY || event.layerY - that.offset().top;
-          callback(event);
+          callback.handler(event);
         });
       }
     });
@@ -197,7 +197,7 @@ $.event.special.touchdrag = {
             event.y = touch.pageY - that.offset().top;
             event.clientX = touch.pageX;
             event.clientY = touch.pageY;
-            callback(event);
+            callback.handler(event);
           }
         });
       } else {
@@ -209,7 +209,7 @@ $.event.special.touchdrag = {
                     - that.offset().left;
                 event.y = event.offsetY || event.layerY
                     - that.offset().top;
-                callback(event);
+                callback.handler(event);
               }
             });
         that.mouseup(function() {
@@ -234,7 +234,7 @@ $.event.special.touchup = {
             event.y = touch.pageY - that.offset().top;
             event.clientX = touch.pageX;
             event.clientY = touch.pageY;
-            callback(event);
+            callback.handler(event);
           }
         });
       } else {
@@ -243,7 +243,7 @@ $.event.special.touchup = {
           this.dragging = false;
           event.x = event.offsetX || event.layerX - that.offset().left;
           event.y = event.offsetY || event.layerY - that.offset().top;
-          callback(event);
+          callback.handler(event);
         });
       }
     });
