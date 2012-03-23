@@ -335,7 +335,8 @@ __ns.LocalStorage = {
 </javascript>
 
 external type Type<T> {
-  //static sync function fromJSON(json : JSON) : T
+  static sync function fromJSON(json : JSON) : T
+  sync function toJSON() : ?
 }
 
 external sync function log(o : Object) : void
@@ -741,8 +742,20 @@ mobl.defineType = function(qid, SuperType, fields) {
       }());
     }
   }
-  Type.fromJSON = function(json) {
+  Type.prototype.fromJSON = function(json) {
     return new Type(json);
+  };
+  Type.prototype.toJSON = function() {
+  	var obj = {};
+	var type = this._data;
+	for(var p in type) {
+    	if ($.isFunction(type[p]["toJSON"])) {
+    		obj[p] = type[p].toJSON();
+    	} else {
+    		obj[p] = type[p];
+    	}
+    }
+	return new mobl.Dynamic(obj);
   };
   return Type;
 };
@@ -826,7 +839,18 @@ mobl.Map = function() {
 };
 
 mobl.Map.prototype.toJSON = function() {
-	return this.data;
+	var data = this.data;
+	var obj = {};
+	for(var key in data) {
+		if (data.hasOwnProperty(key)) {
+			if ($.isFunction(data[key].toJSON)) {
+				obj[key]=data[key].toJSON();
+			} else {
+				obj[key]=data[key];
+			}
+		}
+	}
+	return obj;
 };
 
 mobl.Map.prototype.set = function(k, v) {
