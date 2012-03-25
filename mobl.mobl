@@ -742,18 +742,20 @@ mobl.defineType = function(qid, SuperType, fields) {
       }());
     }
   }
-  Type.prototype.fromJSON = function(json) {
+  Type.fromJSON = function(json) {
     return new Type(json);
   };
   Type.prototype.toJSON = function() {
   	var obj = {};
 	var type = this._data;
 	for(var p in type) {
-    	if ($.isFunction(type[p]["toJSON"])) {
-    		obj[p] = type[p].toJSON();
-    	} else {
-    		obj[p] = type[p];
-    	}
+		if (type.hasOwnProperty(p) && type[p] !== undefined) {
+	    	if ($.isFunction(type[p]["toJSON"])) {
+	    		obj[p] = type[p].toJSON();
+	    	} else {
+	    		obj[p] = type[p];
+	    	}
+		}
     }
 	return new mobl.Dynamic(obj);
   };
