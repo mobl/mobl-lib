@@ -1,7 +1,7 @@
 module phonegap::nativecontrol
 
-load phonegap.js
-load phonegap/NativeControls.js
+// load phonegap.js
+// load phonegap/NativeControls.js
 
 control nativeTabSet(tabs : [(String, String, Control)]) {
   var currentTab : Control = tabs.get(0)._3

@@ -1,6 +1,6 @@
 module phonegap::camera
 
-load phonegap.js
+// load phonegap.js
 
 external type Camera {
   @doc "Returns null or picture encoded as Base64-encoded URI string"

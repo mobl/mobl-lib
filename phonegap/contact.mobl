@@ -1,6 +1,6 @@
 module phonegap::contact
 
-load phonegap.js
+// load phonegap.js
 
 external type Contact {
   id: String
