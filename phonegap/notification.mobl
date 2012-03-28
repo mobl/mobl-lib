@@ -13,7 +13,7 @@ __ns.Notification = {
     navigator.notification.alert(message, callback, title, buttonName);
   },
   confirm: function(message, title, buttons, calback) {
-    navigator.notification.alert(message, function(button) { callback(buttons[button]); }, title, buttons.join(","));
+    navigator.notification.confirm(message, function(button) { callback(buttons[button]); }, title, buttons.join(","));
   },
   beep: function(times) {
     navigator.notification.beep(times);
