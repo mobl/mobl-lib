@@ -6,7 +6,7 @@ external type Accelerometer {
   static sync function clearWatch(id : Num) : void
 }
 
-external type Acceleration {
+type Acceleration {
   x : Num
   y : Num
   z : Num
