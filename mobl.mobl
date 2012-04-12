@@ -748,6 +748,15 @@ mobl.defineType = function(qid, SuperType, fields) {
   Type.prototype.toJSON = function() {
   	var obj = {};
 	var type = this._data;
+	for(var p in this) {
+		if (this.hasOwnProperty(p) && p==='_data') {
+			if ($.isFunction(type[p]["toJSON"])) {
+	    		obj[p] = type[p].toJSON();
+	    	} else {
+	    		obj[p] = type[p];
+	    	}
+		}
+	}
 	for(var p in type) {
 		if (type.hasOwnProperty(p) && type[p] !== undefined) {
 	    	if ($.isFunction(type[p]["toJSON"])) {
