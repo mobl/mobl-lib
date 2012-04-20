@@ -1,0 +1,46 @@
+module phonegap::filetransfer
+
+external type FileTransfer {
+	static function downloadFile(source : String, target : String) : FileEntry
+}
+external type LocalFileSystem {
+	static function getPath() : String
+}
+
+type FileEntry {
+	isFile : Bool
+	isDerectory : Bool
+	name : String
+	fullPath : String
+}
+
+<javascript for=FileTransfer>
+__ns.FileTransfer = {
+	downloadFile:function(source, target, callback) {
+		new FileTransfer().download(source,target,
+			function(result) {
+				callback(result);
+			},
+			function(error) {
+				callback(null);
+			}
+		);
+	}
+};
+
+</javascript>
+
+<javascript for=LocalFileSystem>
+__ns.LocalFileSystem = {
+	getPath:function(callback) {
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, 
+			function (result) {
+				callback(result.root.fullPath.replace("file://",""));
+			}, 
+			function (error) {
+				callback(null);
+			}
+		);
+	}
+};
+</javascript>
