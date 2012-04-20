@@ -13,34 +13,25 @@ external type Contact {
   ims: [ContactField]
   organizations: [ContactOrganization]
   published: String
-  updated: String
-  birthday: String
-  anniversary: String
-  gender: String
+  birthday: DateTime
   note: String
-  preferredUsername: String
   photos: [ContactField]
-  tags: [ContactField]
-  relationships: [ContactField]
   urls: [ContactField]
-  accounts: [ContactAccount]
-  utcOffset: String
-  connected: String
-
-  sync function save() : void
-
-  static sync function create() : Contact
-  static function find(fields : [String], options : ContactFindOptions = ContactFindOptions(filter="", multiple=true, limit=null, updatedSince=null)) : [Contact]
+  categories : [ContactField]
+  
+  sync function save(onsucces:Function1<Contact,void>,onError:Function1<ContactError,void>) : void
+  sync function remove(onsucces:Function0<void>,onError:Function1<ContactError,void>) : void
+  sync function clone() : Contact
+ static sync function create() : Contact
+  static function find(fields : [String], options : ContactFindOptions = ContactFindOptions(filter="", multiple=true)) : [Contact]
 }
 
-type ContactFindOptions {
+ type ContactFindOptions {
   filter : String
   multiple : Bool
-  limit : Num
-  updatedSince : DateTime
 }
-
-external type ContactName {
+ 
+type ContactName {
   formatted: String
   familyName: String
   givenName: String
@@ -49,13 +40,15 @@ external type ContactName {
   honorificSuffix: String
 }
 
-external type ContactField {
+type ContactField {
   type : String
   value: String
-  primary: Bool
+  pref: Bool
 }
 
-external type ContactAddress {
+type ContactAddress {
+  pref: Bool
+  type: String
   formatted: String
   streetAddress: String
   locality: String
@@ -64,33 +57,30 @@ external type ContactAddress {
   country: String
 }
 
-external type ContactOrganization {
+type ContactOrganization {
+  pref: Bool
+  type: String
   name: String
   department: String
   title: String
-  startDate: String
-  endDate: String
-  location: String
-  description: String
 }
 
-external type ContactAccount {
-  domain: String
-  username: String
-  userid : String
+type ContactError{
+	code : String
 }
+
 
 <javascript>
 __ns.Contact = {
   create: function() {
-    return navigator.service.contacts.create();
+    return navigator.contacts.create({});
   },
   find: function(fields, options, callback) {
-    navigator.service.contacts.find(fields, function(results) {
+    navigator.contacts.find(fields, function(results) {
       callback(results);
     }, function(err) {
       callback(null);
-    }, options);
+    }, options._data);
   }
 };
 
