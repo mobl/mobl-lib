@@ -297,12 +297,16 @@ external type LocalStorage {
   static sync function getNum(key : String, defaultValue : Num = 0) : Num
   static sync function getString(key : String, defaultValue : String = "") : String
   static sync function getBool(key : String, defaultValue : Bool = false) : Bool
+  static sync function removeItem(key : String) : void
 }
 
 <javascript for=LocalStorage>
 __ns.LocalStorage = {
   setItem: function(key, value) {
     window.localStorage.setItem(key, JSON.stringify(value));
+  },
+  removeItem: function(key) {
+  	window.localStorage.removeItem(key);
   },
   getItem: function(key, defaultValue) {
     var val = JSON.parse(window.localStorage.getItem(key) || "null") || defaultValue;
