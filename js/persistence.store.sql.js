@@ -5,7 +5,7 @@ var defaultTypeMapper = {
   /**
    * SQL type for ids
    */
-  idType: "VARCHAR(32)",
+  idType: "VARCHAR(36)",
   
   /**
    * SQL type for class names (used by mixins)
