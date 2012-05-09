@@ -475,8 +475,15 @@ persistence.get = function(arg1, arg2) {
                       // setterCallback
                       if(val && val._items) {
                         // Local query collection, just add each item
-                        // TODO: this is technically not correct, should clear out existing items too
+                        // TODO: this is technically not correct, should clear out existing items too 
+                    	 
                         var items = val._items;
+                        //FIX of the TODO
+                        persistence.get(that,coll).forEach( function(elem){
+                        	if(!items.containsEnity(elem)) {
+                        		persistence.get(that,coll).remove(elem);
+                        	}
+                        })
                         for(var i = 0; i < items.length; i++) {
                           persistence.get(that, coll).add(items[i]);
                         }
@@ -513,9 +520,16 @@ persistence.get = function(arg1, arg2) {
                         // Local query collection, just add each item
                         // TODO: this is technically not correct, should clear out existing items too
                         var items = val._items;
+                        //FIX of the TODO
+                        persistence.get(that,coll).forEach( function(elem){
+                        	if(!items.containsEnity(elem)) {
+                        		persistence.get(that,coll).remove(elem);
+                        	}
+                        })
                         for(var i = 0; i < items.length; i++) {
                           persistence.get(that, coll).add(items[i]);
                         }
+                        
                       } else {
                         throw new Error("Not yet supported.");
                       }
