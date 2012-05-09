@@ -19,7 +19,7 @@ mobl.IsWebkitBrowser= function(){
 
 mobl.load = function(url) {
     if(url in mobl.loadedFiles) {
-        return;
+       return; 
     }
     if(url.substring(url.length-4) === '.css') {
         $("head").append("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + url + "\">");
@@ -36,6 +36,7 @@ mobl.initDb = function(callback) {
   if(mobl.migration) {
     mobl.migration.performMigration(callback)
   } else {
+	lib.fixDB2();
     persistence.schemaSync(function(tx) {
       if(persistence.loadFromLocalStorage) {
         persistence.loadFromLocalStorage();
