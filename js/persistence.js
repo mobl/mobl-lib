@@ -670,7 +670,7 @@ persistence.get = function(arg1, arg2) {
         var includedProperties = Object(); 
         var meta = getMeta(that._type);
         var fieldSpec = meta.fields;
-        if(that._data.new) {
+        if(that._data.new || that._data.dirty) {
         	properties.push("id");
         	includedProperties["id"] = true;
             for(var p in meta.fields) {
