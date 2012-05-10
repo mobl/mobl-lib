@@ -277,7 +277,11 @@ external type Collection<T> {
 }
 
 external type Entity<T> {
-  id : String
+  id 		: String
+  new 		: Bool
+  dirty 	: Bool
+  delete	: Bool 
+  
 
   @doc "A virtual collection containing all instances of this entity"
   static sync function all() : Collection<T>
