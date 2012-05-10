@@ -465,7 +465,7 @@ persistence.get = function(arg1, arg2) {
               }());
           }
         }
-
+        
         for ( var it in meta.hasMany) {
           if (meta.hasMany.hasOwnProperty(it)) {
             (function () {
@@ -629,7 +629,7 @@ persistence.get = function(arg1, arg2) {
             for(var i = 0; i < parts.length; i++) {
               var part = parts[i];
               if(i === parts.length-1) {
-                if(part === '*') {
+                if(part === '*' ) {
                   current.id = true;
                   for(var p in meta.fields) {
                     if(meta.fields.hasOwnProperty(p)) {
@@ -667,20 +667,43 @@ persistence.get = function(arg1, arg2) {
       function buildJSON(that, tx, includeProperties, callback) {
         var session = that._session;
         var properties = [];
+        var includedProperties = Object(); 
         var meta = getMeta(that._type);
         var fieldSpec = meta.fields;
-
-        for(var p in includeProperties) {
-          if(includeProperties.hasOwnProperty(p)) {
-            properties.push(p);
-          }
+        if(that._data.new) {
+        	properties.push("id");
+        	includedProperties["id"] = true;
+            for(var p in meta.fields) {
+            	if(meta.fields.hasOwnProperty(p)) {
+            		properties.push(p);
+            		includedProperties[p] = true;
+            	}
+            }
+            for(var p in meta.hasOne) {
+            	if(meta.hasOne.hasOwnProperty(p)) {
+            		properties.push(p);
+            		includedProperties[p] = true;
+            	}
+            }
+            for(var p in meta.hasMany) {
+            	if(meta.hasMany.hasOwnProperty(p)) {
+            		properties.push(p);
+            		includedProperties[p] = true;
+                }
+            }
+        } else {
+            for(var p in includeProperties) {
+                if(includeProperties.hasOwnProperty(p)) {
+                	properties.push(p);
+                }
+            }
+            includedProperties = includeProperties;
         }
-
         var cheapProperties = [];
         var expensiveProperties = [];
 
         properties.forEach(function(p) {
-            if(includeProperties[p] === true && !meta.hasMany[p]) { // simple, loaded field
+            if(includedProperties[p] === true && !meta.hasMany[p]) { // simple, loaded field
               cheapProperties.push(p);
             } else {
               expensiveProperties.push(p);
@@ -705,7 +728,7 @@ persistence.get = function(arg1, arg2) {
           if(meta.hasOne[p]) {
             that.fetch(tx, p, function(obj) {
                 if(obj) {
-                  buildJSON(obj, tx, includeProperties[p], function(result) {
+                  buildJSON(obj, tx, includedProperties[p], function(result) {
                       item[p] = result;
                       callback();
                     });
@@ -719,11 +742,11 @@ persistence.get = function(arg1, arg2) {
                 item[p] = [];
                 persistence.asyncForEach(objs, function(obj, callback) {
                     var obj = objs.pop();
-                    if(includeProperties[p] === true) {
+                    if(includedProperties[p] === true) {
                       item[p].push({id: obj.id});
                       callback();
                     } else {
-                      buildJSON(obj, tx, includeProperties[p], function(result) {
+                      buildJSON(obj, tx, includedProperties[p], function(result) {
                           item[p].push(result);
                           callback();
                         });
@@ -854,8 +877,19 @@ persistence.get = function(arg1, arg2) {
               var coll = persistence.get(obj, p);
               var ar = jsonObj[p].slice(0);
               var PropertyEntity = meta.hasMany[p].type;
-              // get all current items
-              coll.list(tx, function(currentItems) {
+              coll.list(tx, function(currentItems) { 
+              	for( i=0; i< currentItems.length; i++) {
+              		if(ar.filter(
+              				function(element, index, array) {
+              					return element.id === currentItems[i].id;
+              				}).length === 0) 
+              		{
+//            		   	console.log("deleted: currentItem"+ currentItems[i]);
+              			coll.remove(currentItems[i]);
+            		} else {
+//            		  	console.log("still in there");
+            		}
+              	 }
                   persistence.asyncForEach(ar, function(item, callback) {
                       PropertyEntity.fromSelectJSON(session, tx, item, function(result) {
                           // Check if not already in collection
@@ -871,7 +905,9 @@ persistence.get = function(arg1, arg2) {
                     }, function() {
                       callback();
                     });
+                  currentItems
                 });
+              
             }
           }, function() {
             callback(obj);

@@ -1,4 +1,4 @@
-module mobl
+module mobl 
 
 // Runtime Javascript files to be copied to www/
 load js/gears_init.js
@@ -277,7 +277,11 @@ external type Collection<T> {
 }
 
 external type Entity<T> {
-  id : String
+  id 		: String
+  new 		: Bool
+  dirty 	: Bool
+  delete	: Bool 
+  
 
   @doc "A virtual collection containing all instances of this entity"
   static sync function all() : Collection<T>
@@ -342,6 +346,7 @@ external function resetDatabase() : void
 external function flushDatabase() : void
 external sync function reload() : void
 external sync function formatDate(d : DateTime) : String
+external sync function formatDate2(d : DateTime) : String
 external sync function openUrl(url : String) : void
 external sync function range(from : Num, to : Num) : Array<Num>
 external sync function random(max : Num) : Num
@@ -638,10 +643,27 @@ mobl.Math.isNaN = function(n) { return isNaN(n); };
 
 mobl.JSON = JSON;
 
+mobl.formatDate2 = function(date) {
+  var diff = (((new Date()).getTime() - date.getTime()) / 1000);
+  var day_diff = Math.floor(diff / 86400);
+  if ( isNaN(day_diff) || day_diff < 0 )
+    return;
+
+  return day_diff === 0 && (
+      diff < 60 && "just now" ||
+      diff < 120 && "1 minute ago" ||
+      diff < 3600 && Math.floor( diff / 60 ) + " minutes ago" ||
+      diff < 7200 && "1 hour ago" ||
+      diff < 86400 && Math.floor( diff / 3600 ) + " hours ago") ||
+      day_diff === 1 && "Yesterday" ||
+      day_diff < 7 && day_diff + " days ago" ||
+      day_diff > 6 && "" + (date.getMonth()+1) + "/" + date.getDate() + "/" + date.getFullYear();
+};
+
 mobl.formatDate = function(date) {
   var diff = (((new Date()).getTime() - date.getTime()) / 1000);
   var day_diff = Math.floor(diff / 86400);
-  if ( isNaN(day_diff) || day_diff < 0 || day_diff >= 31 )
+  if ( isNaN(day_diff) || day_diff < 0 )
     return;
 
   return day_diff === 0 && (
