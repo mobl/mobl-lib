@@ -96,6 +96,7 @@ external type Array<T> {
   sync function filter(fn : Function1<T, Bool>) : [T]
   sync function reduce(fn : Function2<T, T, ?>) : ?
   sync function contains(el : T) : Bool
+  sync function containsEntity(el : T) : Bool
   sync function splice(idx : Num, numToDelete : Num) : Array<T>
   sync function insert(idx : Num, item : T) : void
   sync function remove(item : T) : void
@@ -297,12 +298,16 @@ external type LocalStorage {
   static sync function getNum(key : String, defaultValue : Num = 0) : Num
   static sync function getString(key : String, defaultValue : String = "") : String
   static sync function getBool(key : String, defaultValue : Bool = false) : Bool
+  static sync function removeItem(key : String) : void
 }
 
 <javascript for=LocalStorage>
 __ns.LocalStorage = {
   setItem: function(key, value) {
     window.localStorage.setItem(key, JSON.stringify(value));
+  },
+  removeItem: function(key) {
+  	window.localStorage.removeItem(key);
   },
   getItem: function(key, defaultValue) {
     var val = JSON.parse(window.localStorage.getItem(key) || "null") || defaultValue;
@@ -759,6 +764,15 @@ Array.prototype.one = function(callback) {
 Array.prototype.contains = function(el) {
   for(var i = 0; i < this.length; i++) {
     if(this[i] === el) {
+      return true;
+    }
+  }
+  return false;
+};
+
+Array.prototype.containsEnity = function(el) {
+  for(var i = 0; i < this.length; i++) {
+    if(this[i].id === el.id) {
       return true;
     }
   }
