@@ -475,14 +475,10 @@ control numField(n : Num,
 }
 
 control passwordField(s : String, placeholder : String = null, label : String = null, style : Style = textFieldStyle, onchange : Callback = null, onkeyup : Callback = null) {
-  when(label) {
-    <span style="float: left; margin-top: 0.2em; width: 5em; color: #666;" databind=label/>
-    <span style="float: left">
-      <input type="password" class=style placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
-    </span>
-  } else {
+    when(label) {
+    	mobl::label(label, style=textFieldLabelStyle)
+  	}
     <input type="password" class=style placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup onblur={ scrollUp(); }/>
-  }
 }
 
 style selectFieldStyle {
