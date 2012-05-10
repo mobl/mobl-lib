@@ -853,6 +853,11 @@ function startLoading(loadingMessage : String = "Loading...", style : Style = pr
   $("body").prepend(loading);
 }
 
+function startLoading2(loadingMessage : String = "Loading...", style : Style = progressStyle) {
+  var loading = $("<div id='progress' class='" + style + "'>" + loadingMessage + "</div>");
+  $("body").append(loading);
+}
+
 function endLoading() {
   $("#progress").remove();
 }
