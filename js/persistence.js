@@ -872,6 +872,7 @@ persistence.get = function(arg1, arg2) {
                       callback();
                     });
                 });
+              
             }
           }, function() {
             callback(obj);
