@@ -1,0 +1,174 @@
+module mobl::test
+
+import mobl::ui::generic
+import mobl::test::style
+import mobl::test::type
+
+var testSuites : [(String, String, Callback)] = Array<(String, String, Callback)>();
+var testCases : [(String, Callback)] = Array<(String, Callback)>();
+var testLog = Collection<TestSuiteResult>();
+
+var currentCaseResult : TestCaseResult = null;
+var caseSetUp : Callback = null;
+var caseTearDown : Callback = null;
+var space = /\s/g;
+var underscores = "__";
+var suiteMode = false;
+var currentSuite = "";
+var suiteButtonSymbol = ">>";
+
+@doc "Defines a new test suite"
+function testSuite(suite : String, cases : Array<Dynamic>) {
+  foreach ((description, block) in testCases) {
+    if (caseSetUp) {
+      testSuites.push((suite, description, caseSetUp));
+    }
+    testSuites.push((suite, description, block));
+    if (caseTearDown) {
+      testSuites.push((suite, description, caseTearDown));
+    }
+  }
+  testCases.length = 0;
+  caseSetUp = null;
+  caseTearDown = null;
+}
+
+@doc "Defines a new test case"
+function testCase(description : String, tests : Callback) {
+  testCases.push((description, tests));
+}
+
+@doc "Defines a set up"
+function setUp(block : Callback) {
+  caseSetUp = block;
+}
+
+@doc "Defines a tear down"
+function tearDown(block : Callback) {
+  caseTearDown = block;
+}
+
+function assertEqual(expected : Object, actual : Object) {
+  if(expected == actual) {
+    currentCaseResult.results.add(TestResult(success=true));
+  } else {
+    currentCaseResult.results.add(TestResult(success=false, message="Expected: " + expected + " Got: " + actual));
+  }
+}
+
+function assert(value : Bool) {
+  currentCaseResult.results.add(TestResult(success=value));
+}
+
+function click(er : Callback) {
+  er(null);
+}
+
+function find(property : String, value : String, collection : Collection<Object>, hollow : Object = null) : Dynamic {
+  var item = collection.filter(property, "=", value).one();
+  if (hollow != null && item == null) {
+    item = hollow;
+    collection.add(item);
+  }
+  return item;
+}
+
+function logTestSuite(suite : String, kase : String) {
+  var tsr = find("description", suite, testLog,
+    TestSuiteResult(description=suite, cases=Collection<TestCaseResult>()));
+  currentCaseResult = find("description", kase, tsr.cases,
+    TestCaseResult(description=kase, results=Collection<TestResult>(), elapsed=0));
+}
+
+// Internal use only
+function runAllTests() {
+  testLog.destroyAll();
+  foreach((suite, kase, runTests) in testSuites) {
+    logTestSuite(suite, kase);
+    var start = now().getTime();
+    runTests(null);
+    currentCaseResult.elapsed = now().getTime() - start;
+  }
+}
+
+// Internal use only
+function runSuite(name : String = currentSuite) {
+  testLog.destroyAll();
+  foreach((suite, kase, runTests) in testSuites) {
+    if (suite == name) {
+      logTestSuite(suite, kase);
+      var start = now().getTime();
+      runTests(null);
+      currentCaseResult.elapsed = now().getTime() - start;
+    }
+  }
+}
+
+control showTestResults(results : Collection<TestResult>) {
+  list(result in results) {
+    item(style=result.success ? successItemStyle : failureItemStyle) {
+      when(result.success) {
+        label("[OK] ")
+      } else {
+        label("[FAIL] ")
+        when(result.message) {
+          block(descriptionStyle) {
+            label(result.message)
+          }
+        }
+      }
+    }
+  }
+}
+
+control testRunner() {
+  header("Specifications") {
+    button("Run", onclick={
+      if (suiteMode) {
+        runSuite();
+      } else {
+        runAllTests();
+      }
+    })
+  }
+  group {
+    list(suite in testLog) {
+      var cases = suite.cases
+      var count = cases.count()
+      var suite_id = suite.description.replace(space, underscores)
+      item(style=suiteItemStyle, pushedStyle=suiteItemStyle, onclick={
+          $("#" + suite_id).slideToggle();
+        }) {
+        label(suite.description)
+        label(suiteButtonSymbol, style=suiteButtonStyle, onclick={
+          suiteMode = !suiteMode;
+          if (suiteMode) {
+            suiteButtonSymbol = "<<";
+            currentSuite = suite.description;
+            runSuite(suite.description);
+          } else {
+            suiteButtonSymbol = ">>";
+            runAllTests();
+          }
+        })
+      }
+      <div id=suite_id>
+        list(kase in cases) {
+          var kase_id = kase.description.replace(space, underscores)
+          item(style=caseItemStyle,
+               pushedStyle=caseItemStyle,
+               onclick={ $("#" + kase_id).slideToggle(); })
+               { label(kase.description + " (" + kase.elapsed + " ms)") }
+          <div id=kase_id>
+            showTestResults(kase.results)
+          </div>
+        }
+      </div>
+    }
+  }
+  script {
+    async {
+      runAllTests();
+    }
+  }
+}

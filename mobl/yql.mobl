@@ -1,0 +1,26 @@
+module mobl::yql
+
+service YQL {
+  resource query(q : String) : JSON {
+    method = "GET"
+    encoding = "jsonp"
+    uri = "http://query.yahooapis.com/v1/public/yql?q=" + escape(q) + "&format=json"
+    mapper = yqlMapper
+  }
+  resource fetchXMLAsJSON(url : String) : JSON {
+    uri = "http://query.yahooapis.com/v1/public/yql?q=" + escape("select * from html where url = '" + url + "'") + "&format=json"
+    mapper = yqlMapper
+  }
+  resource fetchURL(url : String) : String {
+    uri = "http://query.yahooapis.com/v1/public/yql?q=" + escape("select * from html where url = '" + url + "'") + "&format=html"
+    encoding = "text"
+  }
+}
+
+function yqlMapper(result : JSON) : JSON {
+  if(result.error) {
+    return result;
+  } else {
+    return result.query.results;
+  }
+}

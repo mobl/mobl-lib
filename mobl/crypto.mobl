@@ -1,0 +1,16 @@
+module mobl::crypto
+
+load mobl/crypto/md5-min.js
+load mobl/crypto/sha1-min.js
+
+external sync function sha1(s : String) : String
+external sync function md5(s : String) : String
+
+<javascript>
+__ns.sha1 = function(s) {
+  return hex_sha1(s);
+};
+__ns.md5 = function(s) {
+  return hex_md5(s);
+};
+</javascript>

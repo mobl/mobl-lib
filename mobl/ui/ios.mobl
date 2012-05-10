@@ -1,0 +1,214 @@
+module mobl::ui::ios
+
+import mobl
+
+resource mobl/ui/ios/calendar.gif
+resource mobl/ui/ios/checkbox-checked.png
+resource mobl/ui/ios/checkbox.png
+resource mobl/ui/ios/chevron.png
+resource mobl/ui/ios/compose.png
+resource mobl/ui/ios/growl.png
+resource mobl/ui/ios/iPhoneBackButton.png
+resource mobl/ui/ios/iPhoneButton.png
+resource mobl/ui/ios/iPhoneToolbar.png
+resource mobl/ui/ios/redButton.dark.png
+resource mobl/ui/ios/redButton.png
+resource mobl/ui/ios/selectedtabbg.png
+resource mobl/ui/ios/stripes.png
+resource mobl/ui/ios/sw-alpha.png
+resource mobl/ui/ios/sw-button-cancel.png
+resource mobl/ui/ios/sw-button-done.png
+resource mobl/ui/ios/sw-header.png
+resource mobl/ui/ios/sw-slot-border.png
+resource mobl/ui/ios/tabbg.png
+resource mobl/ui/ios/whiteButton.png
+resource mobl/ui/ios/search.png
+resource mobl/ui/ios/empty.png
+
+load mobl/ui/ios.css
+
+// mobl::ui implementation
+control header(text : String, onclick : Callback = null) {
+  <div class="header" onclick=onclick>
+    <div class="headerContainer"><div databind=text class="headerText"/></div>
+    elements()
+  </div>
+}
+
+control button(text : String, onclick : Callback = null) {
+  <span class="button" databind=text onclick=onclick/>
+}
+
+control sideButton(text : String, onclick : Callback = null) {
+  <span class="sideButton" databind=text onclick=onclick/>
+}
+
+control backButton(text : String, onclick : Callback = null) {
+  <a href="javascript:void(0)" class="backButton" id="back-button" databind=text onclick=onclick></a>
+}
+
+control group() {
+  <ul>
+    elements()
+  </ul>
+}
+
+control item(onclick : Callback = null, onswipe : Callback = null) {
+  <li onclick=onclick onswipe=onswipe>elements()</li>
+}
+
+control itemArrow(onclick : Callback = null, onswipe : Callback = null) {
+  <li onclick=onclick class="arrow">elements()</li>
+}
+
+control checkBox(b : Bool, label : String = "") {
+  <span onclick={ b = !b; }>
+    <img src=b ? "mobl/ui/ios/checkbox-checked.png" : "mobl/ui/ios/checkbox.png" class="checkbox" />
+    <span databind=label/>
+  </span>
+}
+
+control textField(s : String, placeholder : String = null, label : String = null, onchange : Callback = null) {
+  <input type="text" placeholder=placeholder databind=s onchange=onchange />
+}
+
+control numField(n : Num, placeholder : String = null, onchange : Callback = null) {
+  <input type="text" placeholder=placeholder databind=n onchange=onchange/>
+}
+
+@doc "Internal use only"
+external sync function updateScrollers() : void
+
+external sync function scrollTop() : void
+
+screen promptString(question : String) : String {
+  var answer : String = ""
+  header(question)
+  group {
+    item { textField(answer) }
+  }
+  button("Ok", onclick={ screen return answer; })
+}
+
+control searchBox(s : String, placeholder : String = null, onsearch : Callback = null) {
+  <div class="searchbox">
+    <input type="text" placeholder=placeholder databind=s onchange=onsearch />
+  </div>
+}
+
+control textarea(s : String, placeholder : String = null, onchange : Callback = null) {
+    <textarea placeholder=placeholder databind=s onchange=onchange/>
+}
+
+control basicView(title : String, toolBar : Control = control(){}) {
+  header(title)
+  <div id="scrollwrapper">
+    <div id="content">
+      elements()
+    </div>
+  </div>
+  <div id="footer">
+  toolBar()
+  </div>
+}
+
+@doc "Renders a table, use row { } rows and cell { } for cells"
+control table() {
+  <table>elements()</table>
+}
+
+control row() {
+  <tr>elements()</tr>
+}
+
+control cell(width : String = null) {
+  <td width=width>elements()</td>
+}
+
+control image(url : String, onclick : Callback = null) {
+  <img src=url onclick=onclick/>
+}
+
+control altButton(text : String, onclick : Callback = null) {
+  <a href="javascript:void(0)" class="whiteButton" databind=text onclick=onclick></a>
+}
+
+control toolbarButton(type : String, onclick : Callback = null) {
+  <img src="lib/toolbar/icon_" + type + ".png" width="30" height="30" class="toolbarButton" onclick=onclick/>
+}
+
+@doc "A tabset, takes a list of tuples as argument, e.g. [(\"Tab 1\", \"icon url\", tab1), (\"Tab 2\", \"icon uri\", tab2)] where tab1 and tab2 are controls with no arguments"
+control tabSet(tabs : Array<Tuple3<String, String, Control>>) {
+  var activeTabName : String = tabs.get(0)._1
+
+  list((tabName, tabIcon, tabControl) in tabs) {
+    <div class=activeTabName == tabName ? "activeTab" : "inActiveTab">
+      <div id="scrollwrapper">
+        <div id="content">
+          tabControl()
+        </div>
+      </div>
+    </div>
+  }
+
+  <div id="tabbar">
+    list((tabName, tabIcon, tabControl) in tabs) {
+      <div onclick={ activeTabName = tabName; updateScrollers(); } class=activeTabName == tabName ? "activeTabButton" : "inActiveTabButton">
+        <img src=tabIcon width="25" height="25"/><br/>
+        label(tabName)
+      </div>
+    }
+  </div>
+}
+
+resource mobl/ui/generic/contextmenu.png
+
+external control contextMenu()
+
+<javascript>
+mobl.ui.ios.contextMenu = function(elements, callback) {
+  var root = $("<span>");
+  var img = $("<img src='mobl/ui/generic/contextmenu.png' style='float: right;'/>");
+  root.append(img);
+
+  img.tap(function(event) {
+    var target = img.parent();
+    var item = $("<div class='contextMenu'>");
+    img.fadeOut();
+    item.css('right', "0");
+    item.css('top', target.position().top + 8 + "px");
+    elements(function(elements, callback) {
+      var root5175 = $("<span>");
+      callback(root5175); return;
+    }, function(node) { item.append(node); });
+    target.append(item);
+    item.hide().fadeIn();
+    function removeMenu() {
+      item.fadeOut().remove();
+      img.show();
+      $("body").unbind('click', removeMenu);
+      $("body").unbind('touchstart', removeMenu);
+    }
+    setTimeout(function() {
+      //document.addEventListener('click', removeMenu, false);
+      $("body").bind('click', removeMenu);
+      $("body").bind('touchstart', removeMenu);
+    }, 0);
+  });
+
+  callback(root);
+};
+
+mobl.scrollTop = function() {
+  var scrollers = $("div#scrollwrapper div#content");
+  for (var i = 0; i < scrollers.length; i++) {
+    var scroller = scrollers.eq(i).data("scroller");
+    scroller.scrollTo(0, 0);
+  }
+};
+
+mobl.ui.ios.updateScrollers = function() {
+    mobl.delayedUpdateScrollers();
+};
+
+</javascript>

@@ -1,0 +1,141 @@
+module mobl::ui::googlechart
+
+import mobl
+
+/**
+ * For more information on Google Chart API the parameters passed, see http://code.google.com/apis/chart/docs/chart_params.html
+ *
+ * Example vertical bar chart (bvg):
+ * chart(
+ *   title = "Beautiful bar chart",
+ *   data = [ [1,2,3,4,5,4,3,2,1] ],
+ *   type = "bvg"
+ * )
+ */
+
+@doc "Generate Google Chart URL"
+function googleChartUrl(
+    type  : String, // cht
+    data  : Array<Array<Num>>, // chd
+
+    title : String = "", // chtt
+    size  : Tuple2<Num,Num> = (300,100), // chs
+
+    barWidth        : Tuple3<String, Num, Num> = null, // chbh
+    seriesColors    : Array<Array<String>> = null, //chco
+    permittedValues : Array<Tuple2<Num,Num>> = null, //chds
+    visibleAxes     : Array<String> = null, // chxt
+    axisRanges      : Array<Tuple4<Num, Num, Num, Num>> = null, // chxr
+    fills           : Array<Tuple3<String, String, String>> = null, // chf
+    labels          : Array<Tuple2<Num, Array<String>>> = null, // chl
+    extraAttrs      : Array<Tuple2<String, String>> = null // add your own key value to query string
+)  : String {
+
+    var url : String = "empty.png";
+    var base = "http://chart.apis.google.com/chart?";
+
+    var params : Array<Tuple2<String, String>> = [] ;
+
+    params.push(("cht", type));
+    params.push(("chtt", title));
+    params.push(("chs",""+size._1 + "x" + size._2));
+
+    var _data : Array<String> = [];
+    foreach (serie in data) { _data.push(separateby(",", serie)); }
+    params.push(("chd", "t:"+separateby("|", _data))) ;
+
+    if(seriesColors != null) {
+        var _seriesColors : Array<String> = [];
+        foreach (seriesColor in seriesColors) { _seriesColors.push(separateby("|", seriesColor)) ; }
+        params.push(("chco", separateby(",", _seriesColors))) ;
+    }
+
+    if(permittedValues == null) {
+        permittedValues = [];
+        var i = 0;
+        foreach(serie in data) {
+            var min : Num = null;
+            var max : Num = null;
+            (min, max) = minmax(serie);
+            if(min > 0 ) {
+                min = 0;
+            }
+            permittedValues.push((min,max));
+            i = i + 1;
+        }
+    }
+    var _permittedValues : Array<String> = [];
+    foreach (permittedValue in permittedValues) { _permittedValues.push(""+permittedValue._1 + "," + permittedValue._2) ; }
+    params.push(("chds", separateby(",", _permittedValues))) ;
+
+    if(barWidth != null) {
+        params.push(("chbh", barWidth._1 + "," + barWidth._2 + "," + barWidth._3)) ;
+    } else {
+        params.push(("chbh", "a")) ;
+    }
+
+    if(visibleAxes != null) {
+        params.push(("chxt", separateby("|", visibleAxes))) ;
+    }
+
+    if(axisRanges == null) {
+        axisRanges = [];
+        var i = 0;
+        foreach(serie in data) {
+            var min : Num = null;
+            var max : Num = null;
+            (min, max) = minmax(serie);
+            if(min > 0 ) {
+                min = 0;
+            }
+            axisRanges.push((i,min,max,null));
+            i = i + 1;
+        }
+    }
+    var _axisRanges : Array<String> = [];
+    foreach (axisRange in axisRanges) { _axisRanges.push(""+axisRange._1 + "," + axisRange._2 + "," + axisRange._3 + (axisRange._4 == null ? "" : "," + axisRange._4 ) ) ; }
+    params.push(("chxr", separateby("|", _axisRanges))) ;
+
+    if(fills != null) {
+        var _fills : Array<String> = [];
+        foreach (fill in fills) { _fills.push(fill._1 + "," + fill._2 + "," + fill._3) ; }
+        params.push(("chf", separateby("|", _fills))) ;
+    }
+    if(labels != null) {
+        var _labels : Array<String> = [];
+        foreach ((index, lbls) in labels) { _labels.push(""+index + ":|"+separateby("|", lbls)) ; }
+        params.push(("chxl", separateby("|", _labels))) ;
+    }
+    if(extraAttrs != null) {
+      foreach(attr in extraAttrs) {
+          params.push(attr);
+      }
+  }
+    var paramlist : Array<String> = [];
+
+    foreach(param in params) {
+      paramlist.push(param._1 + "=" + param._2);
+    }
+    url = base + separateby("&", paramlist) ;
+
+    return url;
+}
+
+function separateby(sep : String, arr : Array<Object>) : String {
+    var result : String = "";
+    foreach(s in arr) {
+        result = result + s + sep;
+
+    }
+    return result.slice(0, -1*sep.length);
+}
+
+function minmax(data : Array<Num>) : Tuple2<Num, Num> {
+    var max : Num = null ;
+    var min : Num = null ;
+    foreach(value in data) {
+        max = ( max == null || value > max ) ? value : max ;
+        min = ( min == null || value < min ) ? value : min ;
+    }
+    return (min,max);
+}

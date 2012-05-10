@@ -1,0 +1,60 @@
+module mobl::ui::toggle
+
+control toggle(val : Bool, cb : Callback = null) {
+	
+	var touchStart = 0
+	
+	el@<span class=toggleStyle onclick={
+		val = !val;
+		
+		el.css("background-position-x", val ? "0px" : "-95px");		
+		el.bind("webkitTransitionEnd", {
+			if (cb) {
+				cb(val); 
+			}			
+		});
+	}
+	
+	ontouchdown={
+		touchStart = event.x;
+	}
+	
+	ontouchdrag={
+		var pos_x = (val ? 0 : -95) + (event.x - touchStart) * 2;
+		pos_x = Math.min(0, Math.max(-95, pos_x));		
+		el.css("background-position-x", pos_x);
+	}
+	
+	ontouchup={
+		if (Math.abs(event.x - touchStart)  > 30) {
+			val = !val;
+			if (cb) {
+				cb(val);
+			}
+		}
+		
+		el.css("background-position-x", val ? "0px" : "-95px");
+	}
+	
+	></span>
+	
+	script {
+		el.css("background-position-x", val ? "0px" : "-95px");
+	}
+}
+
+style toggleStyle {
+	display: inline-block;
+	list-style: none;
+	-webkit-appearance: none;
+	
+	height: 27px;
+	width: 95px;
+	margin: 0px;
+	
+	background: url($data(mobl/ui/generic/iphone-switch-yesno.png)) no-repeat center;
+	
+	-webkit-transition-property: background-position-x;
+	-webkit-transition-duration: 0.2s;
+	-webkit-transition-timing-function: linear;
+}

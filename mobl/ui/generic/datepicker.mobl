@@ -1,0 +1,161 @@
+module mobl::ui::generic::datepicker
+
+import mobl
+import mobl::ui::generic
+
+function getMonthName(m : Num) : String {
+  var months : Array<String> = Array<String>("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+  return months.get(m);
+}
+
+style narrowNumFieldStyle {
+  -webkit-appearance: none;
+  -webkit-box-flex: 100;
+  -webkit-rtl-ordering: logical;
+  -webkit-user-select: text;
+  -webkit-text-size-adjust: 140%;
+  -moz-text-size-adjust: 140%;
+  -webkit-appearance: textarea;
+  /*background: #fff -webkit-gradient(linear, 0% 0%, 0% 100%, from(white),
+    to(white) );*/
+  background: transparent;
+  border: 0;
+  font-size: 17px;
+  height: 17px;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  width: 3em;
+}
+
+style monthStyle {
+  font-size: 17px;
+  height: 17px;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  width: 3em;
+}
+
+control narrowNumField(n : Num, onchange : Callback = null) {
+  <input type="text" databind=n onkeyup={
+    if(!Math.isNaN(n)) {
+      onchange(null);
+    }
+  } class=narrowNumFieldStyle/>
+}
+
+control datePicker(d : DateTime, onchange : Callback = null) {
+  script {
+    // If date is null, set to now
+    if(d == null) {
+      d = now();
+    }
+  }
+  var visible = false
+  var day = d.getDate()
+  var year = d.getFullYear()
+  function updates() {
+    year = d.getFullYear();
+    day = d.getDate();
+    d = d;
+    if(onchange) {
+      onchange(d);
+    }
+  }
+  label(d.toDateString(), onclick={
+    visible = visible ? false : true;
+  })
+  <div>
+  when(visible) {
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setDate(d.getDate() + 1);
+      updates();
+    })<br/>
+    narrowNumField(day, onchange={ d.setDate(day); d=d; })<br/>
+    button("-", onclick={
+      d.setDate(d.getDate() - 1);
+      updates();
+    })
+    </div>
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setMonth(d.getMonth() + 1);
+      updates();
+    })<br/>
+    label(getMonthName(d.getMonth()), style=monthStyle)<br/>
+    button("-", onclick={
+      d.setMonth(d.getMonth() - 1);
+      updates();
+    })
+    </div>
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setFullYear(d.getFullYear() + 1);
+      updates();
+    })<br/>
+    narrowNumField(year, onchange={ d.setFullYear(year); d=d; })<br/>
+    button("-", onclick={
+      d.setFullYear(d.getFullYear() - 1);
+      updates();
+    })
+    </div>
+  }
+  <div style="clear: both"/>
+  </div>
+}
+
+
+/**
+ * Author: Terje Pedersen
+ */
+control timePicker(d : DateTime, onchange : Callback = null) {
+  script {
+    if(d==null) { d=now(); }
+  }
+
+  var visible = false
+  var hours = d.getHours()
+  var minutes = d.getMinutes()
+
+  function updates() {
+    hours = d.getHours();
+    minutes = d.getMinutes();
+    d = d;
+    if(onchange) {
+      onchange(d);
+    }
+  }
+
+  label((hours.toString().length==1?"0":"")+hours.toString()+":"+(minutes.toString().length==1?"0":"")+minutes.toString(), onclick={
+    visible = visible ? false : true;
+  })
+  <div>
+  when(visible) {
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setHours(d.getHours() + 1);
+      updates();
+    })<br/>
+    narrowNumField(hours, onchange={ d.setHours(hours); updates(); })<br/>
+    button("-", onclick={
+      d.setHours(d.getHours() - 1);
+      updates();
+    })
+    </div>
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setMinutes(d.getMinutes() + 1);
+      updates();
+    })<br/>
+    narrowNumField(minutes, onchange={ d.setMinutes(minutes); updates(); })<br/>
+    button("-", onclick={
+      d.setMinutes(d.getMinutes() - 1);
+      updates();
+    })
+    </div>
+  }
+  <div style="clear: both"/>
+  </div>
+}

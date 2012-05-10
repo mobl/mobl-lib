@@ -1,0 +1,30 @@
+module mobl::server::ircclient
+
+// Requires 'irc' library (http://github.com/martynsmith/node-irc)
+// npm install irc
+
+external type Connection {
+  static sync function connect(host : String, nick : String, onmessage : String * String * String -> void, onjoin : String * String -> void = null, onpart : String * String -> void = null) : Connection
+  sync function join(channel : String) : void
+  sync function part(channel : String) : void
+  sync function say(channel : String, message : String) : void
+  sync function disconnect(message : String = "mobl says bye") : void
+}
+
+resource mobl/server/irc.js
+
+<javascript>
+var irc = require('./mobl/server/irc');
+
+mobl__server__ircclient.Connection = function() {};
+mobl__server__ircclient.Connection.connect = function(host, nick, onmessage, onjoin, onpart) {
+  var client = new irc.Client(host, nick);
+  client.on('message', onmessage);
+  if(onjoin) client.on('join', onjoin);
+  if(onpart) client.on('part', onpart);
+  client.on('error', function(err) {
+    mobl.log(err);
+  });
+  return client;
+};
+</javascript>

@@ -1,0 +1,88 @@
+module mobl::ui::tabledList
+
+import mobl::ui::generic
+mixin mobl::ui::stylemixin
+
+control tabledItem(onclick : Callback = null, onswipe : Callback = null, hideArrow : Bool = false, style : Style = itemStyle, pushedStyle : Style = itemPushedStyle) {
+	var pushed : Bool = false
+	el@<li	class=mergeStyles([tabledItemStyle, style]) 
+		  	class=
+		  		(onclick && hideArrow == false) ? 
+				mergeStyles([pushed ? tabledItemPushedStyle : tabledItemStyle, pushed ? pushedStyle : style, itemArrowStyle]) : 
+		   		mergeStyles([pushed ? tabledItemPushedStyle : tabledItemStyle, pushed ? pushedStyle : style])
+		   		
+			onswipe=onswipe
+			ontouchdown=
+				{
+					event.preventDefault();
+    				pushed = true;
+				} 
+			ontouchup=
+				{
+					if(pushed) {
+						pushed = false;
+						if (onclick) {
+							onclick(event);
+						}
+    				}
+				}
+			onmouseout=
+				{
+					if(pushed) {
+						pushed = false;
+    				}
+				}	
+	>
+    	elements()
+	</li>
+}
+
+control tabledItemCell() {	
+	<div class=tabledItemCellStyle>
+		elements()
+	</div>
+}
+
+
+style mixin tabledItemMixin() {
+	padding: 8px;
+	margin: 0px 8px 0px 8px;
+	border-style: solid;
+	border-width: 1px 1px 0px 1px;
+}
+
+style tabledItemStyle {
+	tabledItemMixin();
+}
+
+style tabledItemPushedStyle {
+	tabledItemMixin();
+}
+
+
+style tabledItemStyle:first-child {
+	topBorderRadiusMixin(6px);
+	margin-top: 8px;
+}
+
+style tabledItemStyle:last-child {
+	bottomBorderRadiusMixin(6px);
+	border-width: 1px 1px 1px 1px;
+	margin-bottom: 8px;
+}
+
+style tabledItemPushedStyle:first-child {
+	topBorderRadiusMixin(6px);
+	margin-top: 8px;
+}
+
+style tabledItemPushedStyle:last-child {
+	bottomBorderRadiusMixin(6px);	
+	border-width: 1px 1px 1px 1px;
+	margin-bottom: 8px;
+}
+
+style tabledItemCellStyle {
+	display: inline-block;
+	margin-right: 8px;
+}

@@ -1,0 +1,46 @@
+module mobl::ui::cachingStagedList
+
+import mobl::ui::generic
+import mobl::ui::cachingList
+ 
+sync function addToArray(dest : Array<?>, src : Array<?>, start : Num, end : Num) : Array<?> {
+	foreach (i in range(start, Math.min(end, src.length))) {
+		dest.push(src.get(i));
+	}
+	
+	return dest;
+} 
+
+control cachingStagedList(items : Array<Object>, ctrl : Control1<?>, pageSize : Num =50, loadMoreLabel : String = "Load more items", loadMoreStyle : Style = itemStyle, loadMorePushedStyle : Style = itemPushedStyle, onchange : Callback = null) {
+	
+	var desiredRange : Num = pageSize
+	var currentItems : Array<Object> = null
+	
+	when (items) { 
+		script {
+			desiredRange = pageSize;
+			var newItems = Array<Object>();
+			currentItems = addToArray(newItems, items, 0, desiredRange);
+			
+			if (onchange) {
+				onchange(null);
+			}
+		}
+	} 
+	
+	cachingList(currentItems, ctrl) 
+	
+	when (currentItems.length < items.length) {
+		item(style=mergeStyles([loadMoreStyle, itemDownArrowStyle]), pushedStyle=mergeStyles([loadMorePushedStyle, itemDownArrowStyle]), onclick={ 
+			desiredRange = desiredRange + pageSize;
+			currentItems = addToArray(currentItems, items, currentItems.length, desiredRange);
+			
+			if (onchange) {
+				event.range = desiredRange;
+				onchange(event);
+			}
+		}) {
+			label(loadMoreLabel)
+		}		
+	}
+}

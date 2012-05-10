@@ -1,0 +1,86 @@
+module mobl::ui::googlemap
+
+load "http://maps.google.com/maps/api/js?sensor=true&ext=.js"
+
+import mobl::location
+import mobl::ui::generic
+
+function waitUntilVisible(el : JQuery) {
+  while(!el.is(":visible")) {
+    sleep(200);
+  }
+}
+
+control googleMap(coords : Coordinates, markers : Collection<MapMarker> = Collection<MapMarker>(), width : Num = null, height : Num = 240, zoom : Num = 8, onready : Callback = {}) {
+  div@<div style=(width ? "width: " + width + "px;" : "") + " height: " + height + "px;">
+  </div>
+  var map : Dynamic = null
+  function addMarkers() {
+    map._markers = [];
+    foreach(marker in markers) {
+      map._markers.push(map.addMarker(marker));
+    }
+  }
+  script {
+    async {
+      waitUntilVisible(div);
+      map = createMap(div, coords, zoom);
+      addMarkers();
+      dyn(markers).addEventListener("change", {
+        foreach(marker in map._markers) {
+          marker.setMap(null);
+        }
+        addMarkers();
+      });
+      onready(null);
+    }
+  }
+}
+
+type MapMarker {
+  coords   : Coordinates
+  title    : String
+  infoHtml : String
+  onclick  : Callback
+}
+
+external sync function createMap(div : JQuery, coords : Coordinates, zoom : Num) : ?
+
+<javascript>
+__ns.createMap = function(div, coords, zoom) {
+  var latlng = new google.maps.LatLng(coords.latitude, coords.longitude);
+  var myOptions = {
+    zoom: zoom,
+    center: latlng,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+  var map = new google.maps.Map(div[0], myOptions);
+  return map;
+};
+
+__ns.showMarkerInfo = function(html, map, marker) {
+};
+
+google.maps.Map.prototype.addMarker = function(m) {
+  var that = this;
+
+  var marker = new google.maps.Marker({
+      position: new google.maps.LatLng(m.coords.latitude, m.coords.longitude),
+      title: m.title,
+      map: this
+  });
+  if(m.infoHtml) {
+    google.maps.event.addListener(marker, 'click', function() {
+      var infowindow = new google.maps.InfoWindow({
+        content: m.infoHtml
+      });
+      infowindow.open(that, marker);
+    });
+  } else {
+    if(m.onclick) {
+      google.maps.event.addListener(marker, 'click', m.onclick);
+    }
+  }
+  return marker;
+};
+</javascript>

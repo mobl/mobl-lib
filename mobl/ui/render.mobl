@@ -1,0 +1,36 @@
+module mobl::ui::render
+
+external function renderControl1(ctrl : Control1<Object>, item : Object) : JQuery
+
+<javascript>
+/*
+ * renderControl(ctrl, [arg, ...])
+ *
+ * takes a dynamic number of arguments:
+ *  - first argument is the control function
+ *  - further arguments are passed to the control function as arguments
+ *
+ * returns result from the control function (jQuery object)
+ */
+
+__ns.renderControl = function(ctrl) {
+	
+	var newArguments = new Array();
+	for (var i = 1; i < arguments.length - 1; i++) {
+		newArguments.push(mobl.ref(arguments[i]));
+	}
+	
+	// elements (null)
+	newArguments.push(null);
+	// callback
+	newArguments.push(arguments[arguments.length - 1]);
+	
+	ctrl.apply(null, newArguments);
+};
+
+__ns.renderControl1 = __ns.renderControl;
+__ns.renderControl2 = __ns.renderControl;
+</javascript>
+
+
+

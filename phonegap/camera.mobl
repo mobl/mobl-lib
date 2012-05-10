@@ -1,0 +1,29 @@
+module phonegap::camera
+
+// load phonegap.js
+
+external type Camera {
+  @doc "Returns null or picture encoded as Base64-encoded URI string"
+  static function takePicture(quality : Num = 50) : String
+  @doc "Returns null or picture encoded as Base64-encoded URI string"
+  static function pickPictureFromLibrary(quality : Num = 50) : String
+}
+
+<javascript>
+__ns.Camera = {
+  takePicture: function(quality, callback) {
+    navigator.camera.getPicture(function(result) {
+      callback(result);
+    }, function(err) {
+      callback(null);
+    }, {quality: quality, destinationType: Camera.DestinationType.FILE_URI }); //, { quality: quality, destinationType: Camera.DestinationType.FILE_URI, allowEdit: true, sourceType: Camera.PictureSourceType.CAMERA });
+  },
+  pickPictureFromLibrary: function(quality, callback) {
+    navigator.camera.getPicture(function(result) {
+      callback(result);
+    }, function(err) {
+      callback(null);
+    }, { quality: quality, destinationType: Camera.DestinationType.FILE_URI, sourceType: Camera.PictureSourceType.PHOTOLIBRARY });
+  }
+};
+</javascript>

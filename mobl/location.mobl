@@ -1,0 +1,30 @@
+module mobl::location
+
+import mobl
+
+type Coordinates {
+  latitude  : Num
+  longitude : Num
+  accuracy  : Num
+}
+
+external function getPosition(highAccuracy : Bool = false) : Coordinates
+external sync function isLocationSupported() : Bool
+
+<javascript>
+__ns.isLocationSupported = function() {
+  return !!navigator.geolocation;
+};
+
+__ns.getPosition = function(highAccuracy, callback) {
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      callback({latitude: position.coords.latitude, longitude: position.coords.longitude, accuracy: position.coords.accuracy});
+    }, function() {
+      callback(null);
+    }, {enableHighAccuracy: highAccuracy});
+  } else {
+    callback(null);
+  }
+};
+</javascript>

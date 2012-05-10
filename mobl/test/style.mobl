@@ -1,0 +1,39 @@
+module mobl::test::style
+
+import mobl::ui::generic
+import mobl::ui::stylemixin
+
+style successItemStyle {
+	padding: 10px;
+	backgroundGradientMixin(#0C0, #0A0);
+}
+
+style failureItemStyle {
+	padding: 10px;
+	backgroundGradientMixin(#c22, #a22);
+}
+
+style mixin testItemStyleMixin($color) {
+	padding: 10px;
+	color: $color;
+	font-weight: bold;
+	text-align: center;
+}
+
+style suiteItemStyle {
+	testItemStyleMixin(white);
+	backgroundGradientMixin(#000, #444);
+}
+
+style caseItemStyle {
+	testItemStyleMixin(black);
+	backgroundGradientMixin(#808080, #C0C0C0);
+}
+
+style descriptionStyle {
+	font-size: 70%;
+}
+
+style suiteButtonStyle {
+  float: right;
+}

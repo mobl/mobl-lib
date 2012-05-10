@@ -1,0 +1,17 @@
+module mobl::test::type
+
+type TestSuiteResult {
+  description : String
+  cases       : Collection<TestCaseResult>
+}
+
+type TestCaseResult {
+  description : String
+  results     : Collection<TestResult>
+  elapsed     : Num
+}
+
+type TestResult {
+  message     : String
+  success     : Bool
+}

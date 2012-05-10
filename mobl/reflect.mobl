@@ -1,0 +1,37 @@
+module mobl::reflect
+
+external type Reflector {
+  static sync function getProperties(obj : Object) : [String]
+  static sync function get(obj : Object, property : String) : Dynamic
+  static sync function set(obj : Object, property : String, value : Object) : void
+  static sync function isArray(obj : Object) : Bool
+  static sync function isNum(obj : Object) : Bool
+  static sync function isBool(obj : Object) : Bool
+  static sync function isString(obj : Object) : Bool
+}
+
+<javascript>
+__ns.Reflector = {
+  getProperties: function(o) {
+    return Object.keys(o);
+  },
+  get: function(o, prop) {
+    return o[prop];
+  },
+  set: function(o, prop, val) {
+    o[prop] = val;
+  },
+  isArray: function(o) {
+    return Object.prototype.toString.call(o) === '[object Array]';
+  },
+  isNum: function(o) {
+    return typeof o === "number";
+  },
+  isBool: function(o) {
+    return typeof o === "boolean";
+  },
+  isString: function(o) {
+    return typeof o === "string";
+  }
+};
+</javascript>

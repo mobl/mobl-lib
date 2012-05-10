@@ -1,0 +1,36 @@
+module mobl::ui::cachingList
+
+import mobl::ui::render
+
+control cachingList(items : Array<?>, ctrl : Control1<?>) {
+	root@<span></span>
+	
+	var cache = Map<String, JQuery>()
+	
+	// tricking mobl into monitoring changes to items
+	when (items.length || items.length == 0) {
+		script {
+			root.children().detach();
+			
+			foreach (i in range(0, items.length)) {
+				var item = items.get(i);
+				var element : JQuery = cache.get(JSON.stringify(item));
+				
+				if (!isDefined(element)) {
+					element = renderControl1(ctrl, item);
+					cache.set(JSON.stringify(item), element);
+				}
+				
+				element.appendTo(root);
+			}
+		}
+	}
+}
+
+external sync function isDefined(v : Dynamic) : Bool
+<javascript>
+__ns.isDefined = function(v) {
+	return v !== undefined;
+};
+</javascript>
+

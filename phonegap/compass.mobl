@@ -1,0 +1,32 @@
+module phonegap::compass
+
+external type Compass {
+  static function getCurrentHeading() : CompassHeading
+  static sync function watchHeading(success : Function1<CompassHeading, void>, error : Function1<CompassError,void>, frequency : Num = 10000) : Num
+  static sync function clearWatch(id : Num) : void
+}
+
+type CompassHeading {
+	magneticHeading : Num
+	trueHeading: Num
+	headingAccuracy : Num
+	timestamp : Num	
+}
+
+type CompassError{
+	code : String
+}
+
+<javascript for=Compass>
+__ns.Compass = {
+    getCurrentHeading: function(callback) {
+      navigator.compass.getCurrentHeading(callback, function() { callback(null); });
+    },
+    watchHeading: function(success, error, frequency) {
+      return navigator.compass.watchHeading(success, error, {frequency: frequency});
+    },
+    clearWatch: function(id) {
+      navigator.compass.clearWatch(id);
+    }
+};
+</javascript>

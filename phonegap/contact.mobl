@@ -1,0 +1,87 @@
+module phonegap::contact
+
+// load phonegap.js
+
+external type Contact {
+  id: String
+  displayName: String
+  name: ContactName
+  nickname: String
+  phoneNumbers: [ContactField]
+  emails: [ContactField]
+  addresses: [ContactAddress]
+  ims: [ContactField]
+  organizations: [ContactOrganization]
+  published: String
+  birthday: DateTime
+  note: String
+  photos: [ContactField]
+  urls: [ContactField]
+  categories : [ContactField]
+  
+  sync function save(onsucces:Function1<Contact,void>,onError:Function1<ContactError,void>) : void
+  sync function remove(onsucces:Function0<void>,onError:Function1<ContactError,void>) : void
+  sync function clone() : Contact
+ static sync function create() : Contact
+  static function find(fields : [String], options : ContactFindOptions = ContactFindOptions(filter="", multiple=true)) : [Contact]
+}
+
+ type ContactFindOptions {
+  filter : String
+  multiple : Bool
+}
+ 
+type ContactName {
+  formatted: String
+  familyName: String
+  givenName: String
+  middleName: String
+  honorificPrefix: String
+  honorificSuffix: String
+}
+
+type ContactField {
+  type : String
+  value: String
+  pref: Bool
+}
+
+type ContactAddress {
+  pref: Bool
+  type: String
+  formatted: String
+  streetAddress: String
+  locality: String
+  region: String
+  postalCode: String
+  country: String
+}
+
+type ContactOrganization {
+  pref: Bool
+  type: String
+  name: String
+  department: String
+  title: String
+}
+
+type ContactError{
+	code : String
+}
+
+
+<javascript>
+__ns.Contact = {
+  create: function() {
+    return navigator.contacts.create({});
+  },
+  find: function(fields, options, callback) {
+    navigator.contacts.find(fields, function(results) {
+      callback(results);
+    }, function(err) {
+      callback(null);
+    }, options._data);
+  }
+};
+
+</javascript>
