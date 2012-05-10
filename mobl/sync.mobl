@@ -1,9 +1,0 @@
-module mobl::sync
-
-load js/persistence.sync.js
-
-external function synchronize(uri : String, Entity : String, conflictHandler : Function0<Object>) : Bool
-
-<javascript>
-mobl.sync.synchronize = persistence.sync.synchronize;
-</javascript>
