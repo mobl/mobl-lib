@@ -1,4 +1,4 @@
-module mobl
+module mobl 
 
 // Runtime Javascript files to be copied to www/
 load js/gears_init.js
