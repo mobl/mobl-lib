@@ -638,12 +638,12 @@ persistence.get = function(arg1, arg2) {
                   }
                   for(var p in meta.hasOne) {
                     if(meta.hasOne.hasOwnProperty(p)) {
-                      current[p] = true;
+                      current[p] = {id : true, version : true};
                     }
                   }
                   for(var p in meta.hasMany) {
                     if(meta.hasMany.hasOwnProperty(p)) {
-                      current[p] = true;
+                      current[p] = {id : true, version : true};
                     }
                   }
                 } else if(part[0] === '[') {
@@ -661,16 +661,18 @@ persistence.get = function(arg1, arg2) {
               }
             }
           });
-        buildJSON(this, tx, includeProperties, callback);
+        buildJSON(this, tx, includeProperties, {}, callback);
       };
 
-      function buildJSON(that, tx, includeProperties, callback) {
+      function buildJSON(that, tx, includeProperties, alreadyParsed, callback) {
+    	
         var session = that._session;
         var properties = [];
         var includedProperties = Object(); 
         var meta = getMeta(that._type);
         var fieldSpec = meta.fields;
-        if(that._data.new || that._data.dirty) {
+        if((that._data.new || that._data.dirty) && alreadyParsed[that["id"]] != that._type) {
+        	alreadyParsed[that["id"]] = that._type
         	properties.push("id");
         	includedProperties["id"] = true;
             for(var p in meta.fields) {
@@ -682,13 +684,13 @@ persistence.get = function(arg1, arg2) {
             for(var p in meta.hasOne) {
             	if(meta.hasOne.hasOwnProperty(p)) {
             		properties.push(p);
-            		includedProperties[p] = true;
+            		includedProperties[p] = {id : true, version : true};
             	}
             }
             for(var p in meta.hasMany) {
             	if(meta.hasMany.hasOwnProperty(p)) {
             		properties.push(p);
-            		includedProperties[p] = true;
+            		includedProperties[p] = {id : true, version : true};
                 }
             }
         } else {
@@ -728,7 +730,7 @@ persistence.get = function(arg1, arg2) {
           if(meta.hasOne[p]) {
             that.fetch(tx, p, function(obj) {
                 if(obj) {
-                  buildJSON(obj, tx, includedProperties[p], function(result) {
+                  buildJSON(obj, tx, includedProperties[p], alreadyParsed, function(result) {
                       item[p] = result;
                       callback();
                     });
@@ -746,7 +748,7 @@ persistence.get = function(arg1, arg2) {
                       item[p].push({id: obj.id});
                       callback();
                     } else {
-                      buildJSON(obj, tx, includedProperties[p], function(result) {
+                      buildJSON(obj, tx, includedProperties[p], alreadyParsed,function(result) {
                           item[p].push(result);
                           callback();
                         });
