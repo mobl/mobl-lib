@@ -29,10 +29,18 @@ mobl.load = function(url) {
     mobl.loadedFiles[url] = true;
 };
 
+mobl.setUpdateCacheEvent = function () {
+	applicationCache.onupdateready = function(){
+		mobl.reload();
+	}
+}
+
+
 mobl.initDb = function(callback) {
   if(!mobl.IsWebkitBrowser()){
 	  alert("This website is based on Webkit functionality, current browser doesn't support this. For full functionality please use a Webkit based browser like: Chrome/Safari")
   }
+  mobl.setUpdateCacheEvent();
   if(mobl.migration) {
     mobl.migration.performMigration(callback)
   } else {
