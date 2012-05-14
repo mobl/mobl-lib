@@ -36,7 +36,6 @@ mobl.initDb = function(callback) {
   if(mobl.migration) {
     mobl.migration.performMigration(callback)
   } else {
-	lib.fixDB2();
     persistence.schemaSync(function(tx) {
       if(persistence.loadFromLocalStorage) {
         persistence.loadFromLocalStorage();
