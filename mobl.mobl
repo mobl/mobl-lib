@@ -97,6 +97,7 @@ external type Array<T> {
   sync function reduce(fn : Function2<T, T, ?>) : ?
   sync function contains(el : T) : Bool
   sync function containsEntity(el : T) : Bool
+  sync function containsElementWithValue(property : String, value : ?) : Bool
   sync function splice(idx : Num, numToDelete : Num) : Array<T>
   sync function insert(idx : Num, item : T) : void
   sync function remove(item : T) : void
@@ -793,8 +794,12 @@ Array.prototype.contains = function(el) {
 };
 
 Array.prototype.containsEnity = function(el) {
+ 	return this.containsElementWithValue("id", el.id);
+};
+
+Array.prototype.containsElementWithValue = function(prop, val) {
   for(var i = 0; i < this.length; i++) {
-    if(this[i].id === el.id) {
+    if(this[i][prop] === val) {
       return true;
     }
   }
