@@ -357,7 +357,8 @@ control textField(s : String,
                   autocapitalize : Bool = true,
                   autocomplete : Bool = true,
                   onchange : Callback = null,
-                  onkeyup : Callback = null) {
+                  onkeyup : Callback = null,
+                  disabled : Bool = false) {
   when(label) {
     mobl::label(label, style=textFieldLabelStyle)
   }
@@ -372,7 +373,7 @@ control textField(s : String,
       }
     }
 
-    <input type=inputType class=validationMessage ? invalidStyle : style placeholder=placeholder databind=temp onchange=onchange onkeyup={
+    <input type=inputType class=validationMessage ? invalidStyle : style placeholder=placeholder disabled=disabled databind=temp onchange=onchange onkeyup={
       if(onkeyup) {
         onkeyup(event);
       }
@@ -385,7 +386,7 @@ control textField(s : String,
     mobl::label(validationMessage, style=validationMessageStyle)
   } else { // no validator, cheap solution
     <input type=inputType class=style placeholder=placeholder databind=s onchange=onchange onkeyup=onkeyup
-           autofocus=autofocus autocorrect=autocorrect autocapitalize=autocapitalize autocomplete=autocomplete/>
+           autofocus=autofocus autocorrect=autocorrect autocapitalize=autocapitalize disabled=disabled autocomplete=autocomplete/>
   }
 }
 
