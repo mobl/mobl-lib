@@ -390,6 +390,9 @@ persistence.get = function(arg1, arg2) {
                     // setterCallback
                     var oldValue = that._data[f];
                     if(oldValue !== val || (oldValue && val && oldValue.getTime && val.getTime)) { // Don't mark properties as dirty and trigger events unnecessarily
+                      if(f !== "dirty") {
+                    	  that.dirty = true;
+                      }
                       that._data[f] = val;
                       that._dirtyProperties[f] = oldValue;
                       that.triggerEvent('set', that, f, val);
