@@ -22,7 +22,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-
+var IsSyncing
 if (typeof exports !== 'undefined') {
 	exports.createPersistence = function() {
 		return initPersistence({})
@@ -390,7 +390,7 @@ persistence.get = function(arg1, arg2) {
                     // setterCallback
                     var oldValue = that._data[f];
                     if(oldValue !== val || (oldValue && val && oldValue.getTime && val.getTime)) { // Don't mark properties as dirty and trigger events unnecessarily
-                      if(f !== "dirty") {
+                      if(f !== "dirty" && !window.IsSyncing) {// isSyncing is a hack for that dirty should not be set when syncing
                     	  that.dirty = true;
                       }
                       that._data[f] = val;
@@ -468,7 +468,7 @@ persistence.get = function(arg1, arg2) {
               }());
           }
         }
-        
+
         for ( var it in meta.hasMany) {
           if (meta.hasMany.hasOwnProperty(it)) {
             (function () {
@@ -632,7 +632,7 @@ persistence.get = function(arg1, arg2) {
             for(var i = 0; i < parts.length; i++) {
               var part = parts[i];
               if(i === parts.length-1) {
-                if(part === '*' ) {
+                if(part === '*') {
                   current.id = true;
                   for(var p in meta.fields) {
                     if(meta.fields.hasOwnProperty(p)) {
@@ -641,12 +641,12 @@ persistence.get = function(arg1, arg2) {
                   }
                   for(var p in meta.hasOne) {
                     if(meta.hasOne.hasOwnProperty(p)) {
-                      current[p] = {id : true, version : true};
+                      current[p] = true;
                     }
                   }
                   for(var p in meta.hasMany) {
                     if(meta.hasMany.hasOwnProperty(p)) {
-                      current[p] = {id : true, version : true};
+                      current[p] = true;
                     }
                   }
                 } else if(part[0] === '[') {
@@ -664,51 +664,27 @@ persistence.get = function(arg1, arg2) {
               }
             }
           });
-        buildJSON(this, tx, includeProperties, {}, callback);
+        buildJSON(this, tx, includeProperties, callback);
       };
 
-      function buildJSON(that, tx, includeProperties, alreadyParsed, callback) {
-    	
+      function buildJSON(that, tx, includeProperties, callback) {
         var session = that._session;
         var properties = [];
-        var includedProperties = Object(); 
+
         var meta = getMeta(that._type);
         var fieldSpec = meta.fields;
-        if((that._data.new || that._data.dirty) && alreadyParsed[that["id"]] != that._type) {
-        	alreadyParsed[that["id"]] = that._type
-        	properties.push("id");
-        	includedProperties["id"] = true;
-            for(var p in meta.fields) {
-            	if(meta.fields.hasOwnProperty(p)) {
-            		properties.push(p);
-            		includedProperties[p] = true;
-            	}
-            }
-            for(var p in meta.hasOne) {
-            	if(meta.hasOne.hasOwnProperty(p)) {
-            		properties.push(p);
-            		includedProperties[p] = {id : true, version : true};
-            	}
-            }
-            for(var p in meta.hasMany) {
-            	if(meta.hasMany.hasOwnProperty(p)) {
-            		properties.push(p);
-            		includedProperties[p] = {id : true, version : true};
-                }
-            }
-        } else {
-            for(var p in includeProperties) {
-                if(includeProperties.hasOwnProperty(p)) {
-                	properties.push(p);
-                }
-            }
-            includedProperties = includeProperties;
+
+        for(var p in includeProperties) {
+          if(includeProperties.hasOwnProperty(p)) {
+            properties.push(p);
+          }
         }
+
         var cheapProperties = [];
         var expensiveProperties = [];
 
         properties.forEach(function(p) {
-            if(includedProperties[p] === true && !meta.hasMany[p]) { // simple, loaded field
+            if(includeProperties[p] === true && !meta.hasMany[p]) { // simple, loaded field
               cheapProperties.push(p);
             } else {
               expensiveProperties.push(p);
@@ -733,7 +709,7 @@ persistence.get = function(arg1, arg2) {
           if(meta.hasOne[p]) {
             that.fetch(tx, p, function(obj) {
                 if(obj) {
-                  buildJSON(obj, tx, includedProperties[p], alreadyParsed, function(result) {
+                  buildJSON(obj, tx, includeProperties[p], function(result) {
                       item[p] = result;
                       callback();
                     });
@@ -747,11 +723,11 @@ persistence.get = function(arg1, arg2) {
                 item[p] = [];
                 persistence.asyncForEach(objs, function(obj, callback) {
                     var obj = objs.pop();
-                    if(includedProperties[p] === true) {
+                    if(includeProperties[p] === true) {
                       item[p].push({id: obj.id});
                       callback();
                     } else {
-                      buildJSON(obj, tx, includedProperties[p], alreadyParsed,function(result) {
+                      buildJSON(obj, tx, includeProperties[p], function(result) {
                           item[p].push(result);
                           callback();
                         });
@@ -882,6 +858,7 @@ persistence.get = function(arg1, arg2) {
               var coll = persistence.get(obj, p);
               var ar = jsonObj[p].slice(0);
               var PropertyEntity = meta.hasMany[p].type;
+
               coll.list(tx, function(currentItems) { 
               	for( i=0; i< currentItems.length; i++) {
               		if(ar.filter(
@@ -2433,4 +2410,3 @@ if (!JSON.stringify) {
       }
     }());
 }
-

@@ -1499,3 +1499,11 @@ __ns.setValidationError = function(id, ok) {
   __ns.allInputValid.set(isValid);
 };
 </javascript>
+
+external sync function setSyncFlag(val : Bool) : void
+
+<javascript>
+__ns.setSyncFlag = function(val) {
+	window["IsSyncing"] = val;
+};
+</javascript>
