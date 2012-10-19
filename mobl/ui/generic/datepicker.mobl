@@ -159,3 +159,90 @@ control timePicker(d : DateTime, onchange : Callback = null) {
   <div style="clear: both"/>
   </div>
 }
+
+control dateTimePicker(d : DateTime, onchange : Callback = null) {
+  script {
+    // If date is null, set to now
+    if(d == null) {
+      d = now();
+    }
+  }
+  var visible = false
+  var day = d.getDate()
+  var year = d.getFullYear()
+  var hours = d.getHours()
+  var minutes = d.getMinutes()
+  function updates() {
+    year = d.getFullYear();
+    day = d.getDate();
+    hours = d.getHours();
+    minutes = d.getMinutes();
+    d = d;
+    if(onchange) {
+      onchange(d);
+    }
+  }
+  label(d.toDateString() + (hours.toString().length==1?"0":"")+hours.toString()+":"+(minutes.toString().length==1?"0":"")+minutes.toString(), onclick={
+    visible = visible ? false : true;
+  })
+  <div>
+  when(visible) {
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setDate(d.getDate() + 1);
+      updates();
+    })<br/>
+    narrowNumField(day, onchange={ d.setDate(day); d=d; })<br/>
+    button("-", onclick={
+      d.setDate(d.getDate() - 1);
+      updates();
+    })
+    </div>
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setMonth(d.getMonth() + 1);
+      updates();
+    })<br/>
+    label(getMonthName(d.getMonth()), style=monthStyle)<br/>
+    button("-", onclick={
+      d.setMonth(d.getMonth() - 1);
+      updates();
+    })
+    </div>
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setFullYear(d.getFullYear() + 1);
+      updates();
+    })<br/>
+    narrowNumField(year, onchange={ d.setFullYear(year); d=d; })<br/>
+    button("-", onclick={
+      d.setFullYear(d.getFullYear() - 1);
+      updates();
+    })
+    </div>
+	<div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setHours(d.getHours() + 1);
+      updates();
+    })<br/>
+    narrowNumField(hours, onchange={ d.setHours(hours); updates(); })<br/>
+    button("-", onclick={
+      d.setHours(d.getHours() - 1);
+      updates();
+    })
+    </div>
+    <div style="float: left; text-align: center;">
+    button("+", onclick={
+      d.setMinutes(d.getMinutes() + 1);
+      updates();
+    })<br/>
+    narrowNumField(minutes, onchange={ d.setMinutes(minutes); updates(); })<br/>
+    button("-", onclick={
+      d.setMinutes(d.getMinutes() - 1);
+      updates();
+    })
+    </div>
+  }
+  <div style="clear: both"/>
+  </div>
+}
