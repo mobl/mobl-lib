@@ -182,7 +182,7 @@ control dateTimePicker(d : DateTime, onchange : Callback = null) {
       onchange(d);
     }
   }
-  label(d.toDateString() + (hours.toString().length==1?"0":"")+hours.toString()+":"+(minutes.toString().length==1?"0":"")+minutes.toString(), onclick={
+  label(d.toDateString() +" " + (hours.toString().length==1?"0":"")+hours.toString()+":"+(minutes.toString().length==1?"0":"")+minutes.toString(), onclick={
     visible = visible ? false : true;
   })
   <div>
