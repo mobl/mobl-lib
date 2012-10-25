@@ -417,6 +417,9 @@ persistence.get = function(arg1, arg2) {
                     // setterCallback
                     var oldValue = that._data[ref];
                     var oldValueObj = that._data_obj[ref] || session.trackedObjects[that._data[ref]];
+                    if(!window.IsSyncing && oldValue != val && oldValue != val.id) {
+                    	 that.dirty = true;
+                    }
                     if (val == null) {
                       that._data[ref] = null;
                       that._data_obj[ref] = undefined;
@@ -476,20 +479,33 @@ persistence.get = function(arg1, arg2) {
                 if (meta.hasMany[coll].manyToMany) {
                   persistence.defineProp(that, coll, function(val) {
                       // setterCallback
+                	  if(!window.IsSyncing) {
+                     	 that.dirty = true;
+                     }
                       if(val && val._items) {
+                      
                         // Local query collection, just add each item
                         // TODO: this is technically not correct, should clear out existing items too 
                     	 
                         var items = val._items;
-                        //FIX of the TODO
-                        persistence.get(that,coll).forEach( function(elem){
-                        	if(!items.containsEnity(elem)) {
-                        		persistence.get(that,coll).remove(elem);
+                        
+                        //FIX of the TODO: clear all and than add items
+                        
+                        function countCallBack(num) {// this callback function is a hack to ensure that the collection is empty before adding the element
+                        	if(num === 0){
+                        		for(var i = 0; i < items.length; i++) {
+                                    persistence.get(that, coll).add(items[i]);
+                                 }
+                        	}else{
+                        		persistence.get(that,coll).count(countCallBack);
                         	}
-                        })
-                        for(var i = 0; i < items.length; i++) {
-                          persistence.get(that, coll).add(items[i]);
                         }
+                        
+                        persistence.get(that,coll).forEach( function(elem){
+                         	persistence.get(that,coll).remove(elem);
+                         })
+                        persistence.get(that,coll).count(countCallBack);
+                        
                       } else {
                         throw new Error("Not yet supported.");
                       }
@@ -519,19 +535,29 @@ persistence.get = function(arg1, arg2) {
                 } else { // one to many
                   persistence.defineProp(that, coll, function(val) {
                       // setterCallback
+                	  if(!window.IsSyncing) {
+                     	 that.dirty = true;
+                     }
                       if(val && val._items) {
                         // Local query collection, just add each item
                         // TODO: this is technically not correct, should clear out existing items too
                         var items = val._items;
-                        //FIX of the TODO
-                        persistence.get(that,coll).forEach( function(elem){
-                        	if(!items.containsEnity(elem)) {
-                        		persistence.get(that,coll).remove(elem);
+                        //FIX of the TODO: clear all and than add items
+                        
+                        function countCallBack(num) {// this callback function is a hack to ensure that the collection is empty before adding the element
+                        	if(num === 0){
+                        		for(var i = 0; i < items.length; i++) {
+                                    persistence.get(that, coll).add(items[i]);
+                                 }
+                        	}else{
+                        		persistence.get(that,coll).count(countCallBack);
                         	}
-                        })
-                        for(var i = 0; i < items.length; i++) {
-                          persistence.get(that, coll).add(items[i]);
                         }
+                        
+                        persistence.get(that,coll).forEach( function(elem){
+                         	persistence.get(that,coll).remove(elem);
+                         })
+                        persistence.get(that,coll).count(countCallBack);
                         
                       } else {
                         throw new Error("Not yet supported.");
