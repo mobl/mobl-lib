@@ -568,6 +568,7 @@ persistence.get = function(arg1, arg2) {
                         return that._data[coll];
                       } else {
                         var queryColl = session.uniqueQueryCollection(new persistence.DbQueryCollection(session, meta.hasMany[coll].type.meta.name).filter(meta.hasMany[coll].inverseProperty, '=', that));
+                        queryColl.initManyToOne(that, coll);
                         that._data[coll] = queryColl;
                         return queryColl;
                       }
@@ -1876,6 +1877,9 @@ persistence.get = function(arg1, arg2) {
       if(!obj.id || !obj._type) {
         throw new Error("Cannot add object of non-entity type onto collection.");
       }
+      if(this._obj && obj && !window.IsSyncing){
+         this._obj.dirty = true;
+      }  
       this._session.add(obj);
       this._filter.makeFit(obj);
       this.triggerEvent('add', this, obj);
@@ -1887,6 +1891,9 @@ persistence.get = function(arg1, arg2) {
      * @param obj the object to add
      */
     QueryCollection.prototype.addAll = function(objs) {
+      if(this._obj && objs.length > 0 && !window.IsSyncing){
+        this._obj.dirty = true;
+      }  
       for(var i = 0; i < objs.length; i++) {
         var obj = objs[i];
         this._session.add(obj);
@@ -1904,6 +1911,9 @@ persistence.get = function(arg1, arg2) {
       if(!obj.id || !obj._type) {
         throw new Error("Cannot remove object of non-entity type from collection.");
       }
+      if(this._obj && obj && !window.IsSyncing){
+          this._obj.dirty = true;
+      } 
       this._filter.makeNotFit(obj);
       this.triggerEvent('remove', this, obj);
       this.triggerEvent('change', this, obj);
@@ -1962,6 +1972,11 @@ persistence.get = function(arg1, arg2) {
     }
 
     DbQueryCollection.prototype = new QueryCollection();
+    
+    DbQueryCollection.prototype.initManyToOne = function(obj, coll) {
+        this._obj = obj;
+        this._coll = coll;
+      };
 
 
     /**
