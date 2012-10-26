@@ -2006,6 +2006,9 @@ persistence.get = function(arg1, arg2) {
 
     ManyToManyDbQueryCollection.prototype.add = function(obj) {
       if(!arrayContains(this._localAdded, obj)) {
+      	if(obj && !window.IsSyncing){
+          this._obj.dirty = true;
+        }  
         this._session.add(obj);
         this._localAdded.push(obj);
         this.triggerEvent('add', this, obj);
@@ -2014,6 +2017,9 @@ persistence.get = function(arg1, arg2) {
     };
 
     ManyToManyDbQueryCollection.prototype.addAll = function(objs) {
+      if(objs.length > 0 && !window.IsSyncing){
+        this._obj.dirty = true;
+      }  
       for(var i = 0; i < objs.length; i++) {
         var obj = objs[i];
         if(!arrayContains(this._localAdded, obj)) {
@@ -2035,6 +2041,9 @@ persistence.get = function(arg1, arg2) {
     };
 
     ManyToManyDbQueryCollection.prototype.remove = function(obj) {
+      if(obj && !window.IsSyncing){
+        this._obj.dirty = true;
+      }  
       if(arrayContains(this._localAdded, obj)) { // added locally, can just remove it from there
         arrayRemove(this._localAdded, obj);
       } else if(!arrayContains(this._localRemoved, obj)) {
