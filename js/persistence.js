@@ -417,7 +417,7 @@ persistence.get = function(arg1, arg2) {
                     // setterCallback
                     var oldValue = that._data[ref];
                     var oldValueObj = that._data_obj[ref] || session.trackedObjects[that._data[ref]];
-                    if(!window.IsSyncing && oldValue != val && oldValue != val.id) {
+                    if(!window.IsSyncing && oldValue != val && (val == null || oldValue != val.id)) {
                     	 that.dirty = true;
                     }
                     if (val == null) {
