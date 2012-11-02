@@ -461,9 +461,16 @@ persistence.get = function(arg1, arg2) {
                       return null;
                     } else if(that._data_obj[ref] !== undefined) {
                       return that._data_obj[ref];
-                    } else if(that._data[ref] && session.trackedObjects[that._data[ref]]) {
-                      that._data_obj[ref] = session.trackedObjects[that._data[ref]];
-                      return that._data_obj[ref];
+                    } else if(that._data[ref]) {
+                    	if(session.trackedObjects[that._data[ref]]) {
+                    		 that._data_obj[ref] = session.trackedObjects[that._data[ref]];
+                             return that._data_obj[ref];
+                    	} else {
+                    		Entity.load(session, null, that._data[ref], function(entity) {
+                    			that._data_obj[ref] = entity;
+                                return that._data_obj[ref];
+                    		} );
+                    	}
                     } else {
                       throw new Error("Property '" + ref + "' with id: " + that._data[ref] + " not fetched, either prefetch it or fetch it manually.");
                     }
