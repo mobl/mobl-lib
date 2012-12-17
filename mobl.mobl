@@ -982,8 +982,8 @@ __ns.animations.slide = function(prevNode, nextNode, forward, callback) {
     nextNode.css(makeCss("transform", "translate3d(0px,0px,0px)"));
     prevNode.css(makeCss("transform", "translate3d(" + (forward ? "-100%" : "100%") + ",0px,0px)"));
 
-    prevNode.bind("transitionEnd", function() {
-      prevNode.unbind("transitionEnd");
+    prevNode.bind("webkitTransitionEnd", function() {
+      prevNode.unbind("webkitTransitionEnd");
       prevNode.hide();
       nextNode.css(makeCss("transition-duration", null));
       nextNode.css(makeCss("transition-timing-function", null));
