@@ -578,6 +578,7 @@ __ns.escape = function(s) {
 };
 
 __ns.add = function(e) {
+	e.new = true;
     var allEnt = persistence.define(e._type).all(); // NOTE: define() is a hack!
     allEnt.add(e);
 };
