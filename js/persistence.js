@@ -1303,8 +1303,8 @@ persistence.get = function(arg1, arg2) {
       s[12] = "4";
       s[16] = hexDigits.substr((s[16] & 0x3) | 0x8, 1);
 
-      var uuid = s.join("");
-      return uuid;
+      var uuid = s.splice(0, 8).join("") + "-" + s.splice(0, 4).join("") + "-" + s.splice(0, 4).join("") + "-" + s.splice(0, 4).join("") + "-" + s.splice(0, 12).join("");
+      return uuid.toLowerCase();
     }
 
     persistence.createUUID = createUUID;
