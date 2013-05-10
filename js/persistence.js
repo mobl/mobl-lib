@@ -390,7 +390,7 @@ persistence.get = function(arg1, arg2) {
                     // setterCallback
                     var oldValue = that._data[f];
                     if(oldValue !== val || (oldValue && val && oldValue.getTime && val.getTime)) { // Don't mark properties as dirty and trigger events unnecessarily
-                      if(f !== "dirty" && !window.IsSyncing) {// isSyncing is a hack for that dirty should not be set when syncing
+                      if((f !== "dirty" && f!=="sync" )&& !window.IsSyncing) {// isSyncing is a hack for that dirty should not be set when syncing
                     	  that.dirty = true;
                       }
                       that._data[f] = val;
@@ -448,7 +448,9 @@ persistence.get = function(arg1, arg2) {
                         }
                       }
                       if(oldValueObj) {
-                        console.log("OldValue", oldValueObj);
+	                    if(!window.IsSyncing){
+	                    	console.log("OldValue", oldValueObj);
+	                    }
                         var inverse = oldValueObj[meta.hasOne[ref].inverseProperty];
                         if(inverse.list && inverse._filter) {
                           inverse.triggerEvent('change', that, ref, val);
