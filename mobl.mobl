@@ -323,13 +323,13 @@ __ns.LocalStorage = {
     }
   },
   getNum: function(key, defaultValue) {
-    return this.get(key, defaultValue);
+    return this.getItem(key, defaultValue);
   },
   getString: function(key, defaultValue) {
-    return this.get(key, defaultValue);
+    return this.getItem(key, defaultValue);
   },
   getBool: function(key, defaultValue) {
-    return this.get(key, defaultValue);
+    return this.getItem(key, defaultValue);
   }
 };
 </javascript>
