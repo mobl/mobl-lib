@@ -443,7 +443,7 @@ persistence.get = function(arg1, arg2) {
                       var newVal = that[ref];
                       if(newVal) {
                         var inverse = newVal[meta.hasOne[ref].inverseProperty];
-                        if(inverse.list && inverse._filter) {
+                        if(inverse != null && inverse.list && inverse._filter) {
                           inverse.triggerEvent('change', that, ref, val);
                         }
                       }
@@ -452,7 +452,7 @@ persistence.get = function(arg1, arg2) {
 	                    	console.log("OldValue", oldValueObj);
 	                    }
                         var inverse = oldValueObj[meta.hasOne[ref].inverseProperty];
-                        if(inverse.list && inverse._filter) {
+                        if(inverse != null && inverse.list && inverse._filter) {
                           inverse.triggerEvent('change', that, ref, val);
                         }
                       }
